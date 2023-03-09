@@ -6,6 +6,8 @@ import { Tag } from './components/Tags';
 import Search from './components/Search';
 import Post from './components/Post';
 import SortingBar from './components/SortingBar';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
 function App() {
 
@@ -19,7 +21,7 @@ function App() {
 
     const handleResize = () => {
         setWindowWidth(getWindowWidth())
-        setIsMobile(windowWidth <= 600)
+        setIsMobile(windowWidth < 600)
     }
 
 	useEffect(() => {
@@ -33,32 +35,6 @@ function App() {
 	const [selectedMap, setSelectedMap] = useState("All")
 
 	const postsContainer = useRef() as MutableRefObject<HTMLDivElement>
-
-	const togglePostWithId = (dom_id:any, doc_id:any) => {
-		
-		let posts = postsContainer.current.children
-		let currentPost = posts.namedItem(dom_id)
-
-		if (currentPost !== undefined) {
-			Array.from(posts).forEach((post) => {
-				if (post.classList.contains('selected')) {
-					if(post !== currentPost) {
-						post.classList.remove('selected')
-						setIsPostViewOpen(false)
-					}
-				}
-			})
-	
-			if (currentPost?.classList.contains('selected')) {
-				currentPost.classList.remove('selected')
-				setIsPostViewOpen(false)
-			} else {
-				currentPost?.classList.add('selected')
-				setIsPostViewOpen(true)
-				setCurrentOpenPostId(doc_id)
-			}
-		}
-	}
 
 	const handleSelectChange = (e:any) => {
 		setSelectedMap(e.target.value)
@@ -84,6 +60,32 @@ function App() {
 		})
 	} else {
 		posts = <h1>uh, loading</h1>
+	}
+
+	const togglePostWithId = (dom_id:any, doc_id:any) => {
+		
+		let posts = postsContainer.current.children
+		let currentPost = posts.namedItem(dom_id)
+
+		if (currentPost !== undefined) {
+			Array.from(posts).forEach((post) => {
+				if (post.classList.contains('selected')) {
+					if(post !== currentPost) {
+						post.classList.remove('selected')
+						setIsPostViewOpen(false)
+					}
+				}
+			})
+	
+			if (currentPost?.classList.contains('selected')) {
+				currentPost.classList.remove('selected')
+				setIsPostViewOpen(false)
+			} else {
+				currentPost?.classList.add('selected')
+				setIsPostViewOpen(true)
+				setCurrentOpenPostId(doc_id)
+			}
+		}
 	}
 
 	if (currentOpenPostId === null) {
@@ -113,25 +115,30 @@ function App() {
 
 	return (
 		<div className={"App" + ((isPostViewOpen && viewPost !== undefined) ? " viewing_post" : "")}>
-			{!isMobile && <SortingBar handleTagClick={handleTagClick} handleSelectChange={handleSelectChange}/>}
+			{!isMobile && <SortingBar floating={true} handleTagClick={handleTagClick} handleSelectChange={handleSelectChange}/>}
 			<main className='main_area' tabIndex={-1}>
 				<Search />
-				{isMobile && <SortingBar handleTagClick={handleTagClick} handleSelectChange={handleSelectChange}/>}
+				{isMobile && <SortingBar floating={false} handleTagClick={handleTagClick} handleSelectChange={handleSelectChange}/>}
 				<div ref={postsContainer} className="post_grid">
 					{posts}
 				</div>
 			</main>
-			{viewPost !== undefined && <div className='view_post'>
-				<div className="title">
-					<span>{viewPost?.map}</span>
-					{viewPost?.title}
+			{viewPost !== undefined && (
+				<div className='view_post'>
+					<div className="title" style={{backgroundImage: `linear-gradient(to top, hsl(0, 0%, 0%, 75%), transparent 100%) ,url(/maps/${viewPost?.map}.png)`}}>
+						<div className="close_button" onClick={() => togglePostWithId(viewPost._id.id, viewPost._id)}>
+							<FontAwesomeIcon icon={faXmark}/>
+						</div>
+						{viewPost?.title}
+						<div className='map_indicator'>{viewPost?.map}</div>
+					</div>
+					<div className='tags_container'>
+						{viewPost?.tags.map((tag: string, index: number) => {
+							return <Tag key={index} id={tag}/>
+						})}
+					</div>
 				</div>
-				<div className='tags_container'>
-					{viewPost?.tags.map((tag: string, index: number) => {
-						return <Tag key={index} id={tag}/>
-					})}
-				</div>
-			</div>}
+			)}
 		</div>
 	);
 }
