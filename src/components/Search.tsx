@@ -59,16 +59,15 @@ function Search() {
             <div className="map_select">
                 <FontAwesomeIcon icon={faLocationCrosshairs}/>
                 <select onChange={() => {}}>
-                    <option>All</option>
-                    <option>Ascent</option>
-                    <option>Fracture</option>
-                    <option>Haven</option>
-                    <option>Icebox</option>
-                    <option>Lotus</option>
-                    <option>Pearl</option>
-                    <option>Split</option>
-                    <option>Bind</option>
-                    <option>Breeze</option>
+                    <option value={"ascent"}>Ascent</option>
+                    <option value={"fracture"}>Fracture</option>
+                    <option value={"haven"}>Haven</option>
+                    <option value={"icebox"}>Icebox</option>
+                    <option value={"lotus"}>Lotus</option>
+                    <option value={"pearl"}>Pearl</option>
+                    <option value={"split"}>Split</option>
+                    <option value={"bind"}>Bind</option>
+                    <option value={"breeze"}>Breeze</option>
                 </select>
             </div>
             <div className="tags_container">
