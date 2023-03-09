@@ -3,7 +3,7 @@ import { SelectableTag } from "./Tags";
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { faFilter } from '@fortawesome/free-solid-svg-icons';
 
-export default function SortingBar({handleTagClick, handleSelectChange}: {handleTagClick:Function, handleSelectChange:Function}) {
+export default function SortingBar({floating, handleTagClick, handleSelectChange}: {floating:boolean, handleTagClick:Function, handleSelectChange:Function}) {
 	
 	const tagsQuery = useQuery("tags/getTags")
 
@@ -16,7 +16,7 @@ export default function SortingBar({handleTagClick, handleSelectChange}: {handle
 	})
 
 	return (
-		<div className='sorting_bar'>
+		<div className={'sorting_bar' + (floating ? " floating" : "")}>
 			{/* <span className="sort_title"><FontAwesomeIcon icon={faFilter}/>Filters</span> */}
 			{/* <div className='seperator'></div> */}
 			<p>Map</p>
