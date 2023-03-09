@@ -1,10 +1,12 @@
 import { useState } from "react"
 import { useQuery } from "../../convex/_generated/react"
 
-function SelectableTag({id, onClick}: {id:string, onClick:Function}) {
+function SelectableTag({id, onClick, isSmall}: {id:string, onClick:Function, isSmall?:boolean}) {
 	const [selected, setSelected] = useState(false)
 	
 	let classList = ['tag', 'selectable']
+
+	isSmall && classList.push('small')
 
 	let handleClick = () => {
 		setSelected(!selected)
