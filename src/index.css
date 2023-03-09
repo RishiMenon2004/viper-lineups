@@ -1,16 +1,17 @@
+ @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;300;400;500;700');
+
 body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-body, textarea {
-  font-family: "gg sans","Noto Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+body, input {
+  font-family: 'Poppins', sans-serif;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
 @supports (scrollbar-width: thin) {
@@ -30,7 +31,7 @@ code {
 
 ::-webkit-scrollbar-thumb {
   width: 0.1em;
-  background: hsl(141, 7%, 10%, 100%);
-  border: hsl(141, 7%, 15%) 2px solid;
+  background: hsl(260, 7%, 10%);
+  border: hsl(260, 7%, 15%) 2px solid;
   border-radius: 100vh;
 }
