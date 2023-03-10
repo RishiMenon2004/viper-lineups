@@ -98,29 +98,51 @@ function App() {
 	
 	let finalPosts:any
 	function mapPosts(postsList:any) {
+		let search = searchQuery
+		let tags = ""
+		let connector = ""
+
+		if (searchQuery !== "") {
+			search = `"${searchQuery}"`
+		}
+		
+		if (selectedTags.abilities.length > 0 || selectedTags.sides.length > 0) {
+			tags = "Selected Tags"
+		}
+		
+		if (searchQuery !== "" && (selectedTags.abilities.length > 0 || selectedTags.sides.length > 0)) {
+			connector = "and"
+		}
+
+		let notMatchingMessage = `No Posts Matching: ${search} ${connector} ${tags}`
+
 		if (postsList !== undefined) {
-			finalPosts = postsList.map((post: any, index: number) => {
-				return <Post key={index} data={post}
-					onClick={() => togglePostWithId(post._id.id, post._id)}
-				/>
-			})
-		} else {
+			if (postsList.length <= 0 ) {
+				finalPosts = <div className="fetching_message">{notMatchingMessage}</div>
+			} else {
+				finalPosts = postsList.map((post: any, index: number) => {
+					return <Post key={index} data={post}
+						onClick={() => togglePostWithId(post._id.id, post._id)}
+					/>
+				})
+			}
+		}  else {
 			finalPosts = <div className="fetching_message"><FontAwesomeIcon icon={faSpinner}/> Fetching...</div>
 		}
 	}
 	
 	function filterBySearchQuery(filter:string) {
+		let filteredPosts = postsQuery
+
 		if (filter !== "") {
-			let filteredPosts:any = []
 			filteredPosts = postsQuery?.filter((post) => {
 				const title = `${post.map} ${post.title} ${post.tags.join(" ").replace("_", " ")}`  
 				return title.toUpperCase().indexOf(filter.toUpperCase()) > -1
 			})
 			
-			mapPosts(filteredPosts)
-		} else {
-			mapPosts(postsQuery)
 		}
+		
+		mapPosts(filteredPosts)
 	}
 
 	filterBySearchQuery(searchQuery)
