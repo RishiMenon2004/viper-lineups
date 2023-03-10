@@ -21,16 +21,18 @@ code {
 }
 
 ::-webkit-scrollbar {
-  width: 0.5em;
+  width: 0.5rem;
+  height: 0rem;
 }
 
 ::-webkit-scrollbar-track {
   border-radius: 100vh;
-  margin-block: 0.5em;
+  margin-block: 0.5rem;
 }
 
 ::-webkit-scrollbar-thumb {
-  width: 0.1em;
+  width: 0.1rem;
+  height: 0rem;
   background: hsl(260, 7%, 10%);
   border: hsl(260, 7%, 15%) 2px solid;
   border-radius: 100vh;
