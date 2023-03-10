@@ -502,4 +502,10 @@
 			}
 		}
 	}
+
+	.fetching_message {
+		grid-column: span 3;
+		text-align: center;
+		font-size: 2rem;
+	}
 }

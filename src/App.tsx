@@ -7,7 +7,7 @@ import Search from './components/Search';
 import Post from './components/Post';
 import SortingBar from './components/SortingBar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faSpinner, faXmark } from '@fortawesome/free-solid-svg-icons';
 
 function App() {
 
@@ -105,7 +105,7 @@ function App() {
 				/>
 			})
 		} else {
-			finalPosts = <h1>uh, loading</h1>
+			finalPosts = <div className="fetching_message"><FontAwesomeIcon icon={faSpinner}/> Fetching...</div>
 		}
 	}
 	
