@@ -7,8 +7,8 @@ function Tag({isSmall, id}: {isSmall?: boolean, id:any}) {
 	
 	return (
 		<div className={"tag" + (isSmall ? ' small' : '')}>
-			<img src={`/tag_icons/${tag.id}.png`} className='icon' alt="tag icon"/>
-			{tag.displayText}
+			<img src={`/tag_icons/${tag?.id}.png`} className='icon' alt="tag icon"/>
+			{tag?.displayText}
 		</div>
 	)
 }

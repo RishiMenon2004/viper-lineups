@@ -100,10 +100,7 @@ function App() {
 	function mapPosts(postsList:any) {
 		if (postsList !== undefined) {
 			finalPosts = postsList.map((post: any, index: number) => {
-				return <Post key={index} id={post._id.id} title={post} data={post}
-					tags={post.tags.map((tag: string, index: number) => {
-						return index < 3 && <Tag key={index} isSmall={true} id={tag}/>
-					})}
+				return <Post key={index} data={post}
 					onClick={() => togglePostWithId(post._id.id, post._id)}
 				/>
 			})
@@ -115,7 +112,7 @@ function App() {
 	function filterBySearchQuery(filter:string) {
 		if (filter !== "") {
 			let filteredPosts:any = []
-			filteredPosts = postsQuery?.filter((post:any) => {
+			filteredPosts = postsQuery?.filter((post) => {
 				const title = `${post.map} ${post.title}`  
 				return title.toUpperCase().indexOf(filter.toUpperCase()) > -1
 			})
@@ -157,10 +154,10 @@ function App() {
 	}
 
 	if (currentOpenPostId === null) {
-		setCurrentOpenPostId(postsQuery?.at(0)._id)
+		setCurrentOpenPostId(postsQuery?.at(0)?._id)
 	}
 	
-	let viewPost = postsQuery?.find((post:any) => {
+	let viewPost = postsQuery?.find((post) => {
 		return post._id === currentOpenPostId
 	})
 
@@ -177,7 +174,7 @@ function App() {
 			{viewPost !== undefined && (
 				<div className='view_post'>
 					<div className="title" style={{backgroundImage: `var(--post-image-over-gradient), url(/maps/${viewPost?.map}.png)`}}>
-						<div className="close_button" onClick={() => togglePostWithId(viewPost._id.id, viewPost._id)}>
+						<div className="close_button" onClick={() => togglePostWithId(viewPost?._id.id, viewPost?._id)}>
 							<FontAwesomeIcon icon={faXmark}/>
 						</div>
 						{viewPost?.title}

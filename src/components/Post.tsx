@@ -1,7 +1,9 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage } from '@fortawesome/free-solid-svg-icons';
+import { Document } from "../convex/_generated/dataModel";
+import { Tag } from './Tags';
 
-function Post({onClick, data, tags, id}: any) {
+function Post({onClick, data}: {onClick: Function, data: Document<"posts">}) {
 
 	let images = [
 		"/post_test_images/Ascent.png",
@@ -24,8 +26,8 @@ function Post({onClick, data, tags, id}: any) {
 			<div className='card_content' style={{backgroundImage: `url(${images.at(0)})`}}>
 				<div className='post_details'>
 					<div className='tags_container'>
-						{tags.map((tag:any) => {
-							return tag
+						{data.tags.map((tag: string, index: number) => {
+							return index < 3 && <Tag key={index} isSmall={true} id={tag}/>
 						})}
 					</div>
 					<div className='images_overflow'>
