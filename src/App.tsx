@@ -11,58 +11,126 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
 function App() {
 
+	/* Used to swap out mobile and desktop elements */
+	
     const [isMobile, setIsMobile] = useState(false)
     const [windowWidth, setWindowWidth] = useState(0)
 
-	const getWindowWidth = () => {
+	function getWindowWidth() {
         const {clientWidth: width} = document.body
         return width
     }
 
-    const handleResize = () => {
+    function handleResize() {
         setWindowWidth(getWindowWidth())
-        setIsMobile(windowWidth < 600)
+        setIsMobile(windowWidth <= 600)
     }
 
 	useEffect(() => {
+		handleResize()
+
         window.addEventListener('resize', handleResize)
         return () => window.removeEventListener('resize', handleResize)
     })
 
+	/* =========================================== */
+
 	const [isPostViewOpen, setIsPostViewOpen] = useState(false)
 	const [currentOpenPostId, setCurrentOpenPostId] = useState<any>(null)
-	const [selectedTags, setSelectedTags] = useState<string[]>([])
+	const [selectedTags, setSelectedTags] = useState<{abilities: string[], sides: string[]}>({abilities: [], sides: []})
 	const [selectedMap, setSelectedMap] = useState("All")
+	const [searchQuery, setSearchQuery] = useState("")
 
 	const postsContainer = useRef() as MutableRefObject<HTMLDivElement>
+	const postsQuery = useQuery("posts/getFilteredPosts", selectedTags, selectedMap)
 
-	const handleSelectChange = (e:any) => {
+	/* Interrations */
+
+	function handleSelectChange(e:any) {
 		setSelectedMap(e.target.value)
 	}
+	
+	function handleTagClick(tag:string, category:"ability"|"side") {
+		let abilities = selectedTags.abilities
+		let sides = selectedTags.sides
 
-	const postsQuery = useQuery("posts/getFilteredPosts", selectedTags, selectedMap)
-	let posts
+		switch(category) {
+			case "ability": {
+				if (abilities.includes(tag)) {
+					let tagIndex = abilities.indexOf(tag)
+		
+					if (tagIndex > -1) { // only splice array when item is found
+						abilities.splice(tagIndex, 1); // 2nd parameter means remove one item only
+					}
+			
+				} else {
+					abilities = [...abilities, tag]
+				}
+				break;
+			}
 
-	if (postsQuery !== undefined) {
-		posts = postsQuery.map((post: any, index: number) => {
-			return <Post key={index} id={post._id.id} title={post.title}
-				tags={post.tags.map((tag: string, index: number) => {
-					return index < 3 && <Tag key={index} isSmall={true} id={tag}/>
-				})}
-				images={[
-					"/post_test_images/Ascent.png",
-					"/post_test_images/Ascent.png",
-					"/post_test_images/Ascent.png",
-					"/post_test_images/Ascent.png"
-				]}
-				onClick={() => togglePostWithId(post._id.id, post._id)}
-			/>
-		})
-	} else {
-		posts = <h1>uh, loading</h1>
+			case "side": {
+				if (sides.includes(tag)) {
+					let tagIndex = sides.indexOf(tag)
+		
+					if (tagIndex > -1) { // only splice array when item is found
+						sides.splice(tagIndex, 1); // 2nd parameter means remove one item only
+					}
+			
+				} else {
+					sides = [...sides, tag]
+				}
+				break;
+			}
+		}
+
+		
+		
+		setSelectedTags({abilities: abilities, sides: sides})
+		console.log({abilities: abilities, sides: sides})
 	}
 
-	const togglePostWithId = (dom_id:any, doc_id:any) => {
+	function onSearchInputChange(value:any) {
+		setSearchQuery(value)
+	}
+
+	/* Post Components */
+	
+	let finalPosts:any
+	function mapPosts(postsList:any) {
+		if (postsList !== undefined) {
+			finalPosts = postsList.map((post: any, index: number) => {
+				return <Post key={index} id={post._id.id} title={post} data={post}
+					tags={post.tags.map((tag: string, index: number) => {
+						return index < 3 && <Tag key={index} isSmall={true} id={tag}/>
+					})}
+					onClick={() => togglePostWithId(post._id.id, post._id)}
+				/>
+			})
+		} else {
+			finalPosts = <h1>uh, loading</h1>
+		}
+	}
+	
+	function filterBySearchQuery(filter:string) {
+		if (filter !== "") {
+			let filteredPosts:any = []
+			filteredPosts = postsQuery?.filter((post:any) => {
+				const title = `${post.map} ${post.title}`  
+				return title.toUpperCase().indexOf(filter.toUpperCase()) > -1
+			})
+			
+			mapPosts(filteredPosts)
+		} else {
+			mapPosts(postsQuery)
+		}
+	}
+
+	filterBySearchQuery(searchQuery)
+
+	/* Toggle Post Viewing */
+
+	function togglePostWithId(dom_id:any, doc_id:any) {
 		
 		let posts = postsContainer.current.children
 		let currentPost = posts.namedItem(dom_id)
@@ -96,41 +164,24 @@ function App() {
 		return post._id === currentOpenPostId
 	})
 
-	function handleTagClick(tag:string) {
-		let array = selectedTags
-
-		if (array.includes(tag)) {
-			let tagIndex = array.indexOf(tag)
-
-			if (tagIndex > -1) { // only splice array when item is found
-				array.splice(tagIndex, 1); // 2nd parameter means remove one item only
-			}
-	
-		} else {
-			array = [...array, tag]
-		}
-		
-		setSelectedTags([...array])
-	}
-
 	return (
 		<div className={"App" + ((isPostViewOpen && viewPost !== undefined) ? " viewing_post" : "")}>
 			{!isMobile && <SortingBar floating={true} handleTagClick={handleTagClick} handleSelectChange={handleSelectChange}/>}
 			<main className='main_area' tabIndex={-1}>
-				<Search />
+				<Search onChangeHandler={onSearchInputChange}/>
 				{isMobile && <SortingBar floating={false} handleTagClick={handleTagClick} handleSelectChange={handleSelectChange}/>}
 				<div ref={postsContainer} className="post_grid">
-					{posts}
+					{finalPosts}
 				</div>
 			</main>
 			{viewPost !== undefined && (
 				<div className='view_post'>
-					<div className="title" style={{backgroundImage: `linear-gradient(to top, hsl(0, 0%, 0%, 75%), transparent 100%) ,url(/maps/${viewPost?.map}.png)`}}>
+					<div className="title" style={{backgroundImage: `var(--post-image-over-gradient), url(/maps/${viewPost?.map}.png)`}}>
 						<div className="close_button" onClick={() => togglePostWithId(viewPost._id.id, viewPost._id)}>
 							<FontAwesomeIcon icon={faXmark}/>
 						</div>
 						{viewPost?.title}
-						<div className='map_indicator'>{viewPost?.map}</div>
+						<div className='map_name'>{viewPost?.map}</div>
 					</div>
 					<div className='tags_container'>
 						{viewPost?.tags.map((tag: string, index: number) => {
