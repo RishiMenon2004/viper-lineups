@@ -38,9 +38,6 @@ export default query(async ({db}, tags?:{abilities: string[], sides: string[]}, 
 				
 				tags.abilities.every((tag) => {
 					if (post.tags.includes(tag)) {
-
-						console.log(tag)
-
 						hasOneTag = true
 						return false
 					}
@@ -60,9 +57,6 @@ export default query(async ({db}, tags?:{abilities: string[], sides: string[]}, 
 				
 				tags.sides.every((tag) => {
 					if (post.tags.includes(tag)) {
-
-						console.log(tag)
-
 						hasOneTag = true
 						return false
 					}

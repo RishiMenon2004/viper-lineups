@@ -84,10 +84,7 @@ function App() {
 			}
 		}
 
-		
-		
 		setSelectedTags({abilities: abilities, sides: sides})
-		console.log({abilities: abilities, sides: sides})
 	}
 
 	function onSearchInputChange(value:any) {
