@@ -1,3 +1,7 @@
+:root {
+	--post-image-over-gradient: linear-gradient(to top, hsl(0, 0%, 0%, 90%), transparent);
+}
+
 .App {
 	background-color: hsl(260, 7%, 10%);
 	color: white;
@@ -32,7 +36,7 @@
 		transform: translateX(100%);
 		flex-direction: column;
 		background-color: hsl(260, 7%, 17%);
-		transition: transform 0.5s ease-in-out;
+		transition: transform 0.25s ease-in-out;
 		
 		.title {
 			display: flex;
@@ -54,7 +58,7 @@
 				box-sizing: border-box;
 			}
 
-			.map_indicator {
+			.map_name {
 				font-size: 0.75rem;
 				position: absolute;
 				left: 1rem;
@@ -78,10 +82,15 @@
 		}
 	}
 
-	@media screen and (min-width: 800px) {
+	@media screen and (min-width: 600px) {
 		& {
 			&.viewing_post {
 				grid-template-areas: "main viewPost";
+
+				.view_post {
+					display: flex;
+					grid-area: viewPost;
+				}
 			}
 			
 			.main_area {
@@ -99,6 +108,26 @@
 				}
 			}
 		}
+	}
+}
+
+.map_selector {
+	width: 100%;
+	min-width: fit-content;
+	background: hsl(260, 7%, 5%);
+	border: none;
+	color: white;
+	height: 100%;
+	border-radius: 100vh;
+	font-size: 1rem;
+	padding: 0.25rem 0.75rem;
+	appearance: none;
+
+	&:hover,
+	&:focus-visible,
+	&:active {
+		outline: hsl(141, 78%, 25%) 2px solid;
+		outline-offset: -2px;
 	}
 }
 
@@ -160,14 +189,17 @@
 			display: grid;
 			grid-template-columns: auto 1fr;
 			grid-template-areas: "x title" "none message";
+			column-gap: 0.5rem;
 		
 			.dynamic-icon {
 				cursor: pointer;
 				place-self: center;
 				grid-area: x;
 				height: 100%;
-				aspect-ratio: 1;
-				font-size: 1.25rem;
+				font-size: 1,25rem;
+				padding: 0;
+				margin: 0 0.5rem;
+				box-sizing: border-box;
 			}
 
 			input {
@@ -195,51 +227,32 @@
 		.categorisation {
 			display: flex;
 			gap: 1em;
-			overflow: hidden;
 			border-radius: 0 0 0.5rem 0.5rem;
+			overflow: scroll;
 			
-			.map_select {
+			.section {
 				display: flex;
-				grid-area: maps;
 				align-items: center;
 				gap: 0.5rem;
-				margin-left: 0.5rem;
-				width: max-content;
-				flex-grow: 0.5;
-	
-				select {
-					width: 100%;
-					background: hsl(260, 7%, 5%);
-					border: none;
-					color: white;
-					height: 100%;
-					border-radius: 100vh;
-					font-size: 1rem;
-					padding: 0.25rem 0.75rem 0.25rem 0.75rem;
-					appearance: none;
-		
-					&:hover,
-					&:focus-visible,
-					&:active {
-						outline: hsl(141, 78%, 25%) 2px solid;
-						outline-offset: -2px;
-					}
+				flex: 1 1 0;
+				overflow: hidden;
+				
+				.section_name, 
+				.section_content {
+					display: flex;
+					gap: 0.5rem;
+					align-items: center;
 				}
-			}
-	
-			.tags_container {
-				overflow: scroll;
-				display: flex;
-				grid-area: tags;
-				align-items: center;
-				gap: 0.5rem;
-				margin-left: 0.5rem;
-				flex-grow: 1;
+
+				.section_content {
+					flex: 1 1 0;
+					overflow: scroll;
+				}
 			}
 		}
 	}
 
-	@media screen and (min-width: 600px) {
+	@container main-area (min-width: 600px) {
 		button {
 			display: block
 		} 
@@ -248,38 +261,17 @@
 
 .sorting_bar {
 	display: grid;
-	background-color: hsl(260, 6%, 10%);
-	border-radius: 0.5rem;
-	padding: 0.5rem;
 	grid-template-columns: auto 1fr;
-	grid-template-areas: "title title";
 	grid-template-rows: repeat(3, 1fr);
 	align-items: center;
 	gap: 0.5rem;
-
-	&.floating {
-		display: none;
-	}
+	background-color: hsl(260, 6%, 10%);
+	border-radius: 0.5rem;
+	padding: 0.5rem;
 
 	.sort_title {
 		grid-area: title;
 		font-weight: bold;
-	}
-
-	span {
-		display: flex;
-		width: 100%;
-		justify-content: center;
-		gap: 0.5rem;
-		align-items: center;
-		position: relative;
-		white-space: nowrap;
-		user-select: none;
-	}
-
-	p {
-		grid-column: 1;
-		margin-block: 0;
 	}
 
 	.seperator {
@@ -289,84 +281,67 @@
 		display: none;
 	}
 
-	.tags_container {
-		display: flex;
-		gap: 0.25rem;
-		overflow-x: auto;
-		border-radius: 0.25rem;
-		flex-grow: 1;
+	.section {
+		display: grid;
+		grid-template-columns: subgrid;
 		align-items: center;
-		position: relative;
+		gap: 1rem;
+		grid-column: 1 / 3;
+
+		.section_name,
+		.section_content {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+		}
+
+		.section_content {
+			overflow: scroll;
+		}
 
 		&::-webkit-scrollbar {
 			height: 0;
 		}
 	}
 
-	.map_select {
-		display: flex;
-		flex-grow: 1;
-		align-items: center;
-		min-width: 10rem;
-		max-width: max-content;
-		gap: 0.5rem;
-
-		select {
-			width: 100%;
-			background: hsl(260, 7%, 5%);
-			border: none;
-			color: white;
-			height: 100%;
-			border-radius: 100vh;
-			font-size: 1rem;
-			padding: 0.25rem 0.75rem;
-			appearance: none;
-
-			&:hover,
-			&:focus-visible,
-			&:active {
-				outline: hsl(141, 78%, 25%) 2px solid;
-				outline-offset: -2px;
-			}
-		}
+	&.floating {
+		display: none;
 	}
 
 	@media screen and (min-width: 600px) {
 		&.floating	 {
+			position: absolute;
+			inset: auto 1.5rem 1rem;
+			z-index: 1;
 			display: flex;
-			flex-direction: row;
+			gap: 1rem;
 			align-items: center;
-			padding: 0.5rem 1rem;
-			position: fixed;
-			bottom: 1rem;
-			left: 1.5rem;
-			right: 1.5rem;
-			z-index: 2;
-			overflow: hidden;
 			height: 2rem;
+			padding: 0.5rem;
 
 			&+.main_area {
 				padding-bottom: calc(2rem + (1rem * 2) + (0.5rem * 2));
-			} 
-
-			span {
-				width: max-content;
 			}
 
-			p {
-				margin-block: 0;
-				margin-right: 0.5rem;
-			}
-
-			.seperator {
-				display: block;
-				margin-inline: 0.5rem;
-				margin-block: 0;
+			.section {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				flex: 1 1 0;
 				height: 100%;
-				width: 5px;
-				background: hsl(260, 7%, 5%);
-				border-radius: 100vh;
-				flex: 0 0 auto;
+				overflow: hidden;
+				
+				.section_name, 
+				.section_content {
+					display: flex;
+					gap: 0.5rem;
+					align-items: center;
+				}
+
+				.section_content {
+					flex: 1 1 0;
+					overflow: scroll;
+				}
 			}
 		}
 	}
@@ -390,7 +365,7 @@
 	
 	&.small {
 		background-color: hsl(0, 0%, 0%, 40%);
-		--content-size: calc(0.6 * 1rem);
+		--content-size: calc(0.8 * 1rem);
 		padding: 0.25rem 0.5rem;
 	}
 
@@ -430,17 +405,19 @@
 		& {grid-template-columns: repeat(3, 1fr);}
 	}
 
-	.post {
+	.card_post {
+		display: grid;
+		gap: 0.5rem;
+		position: relative;
 		background-color: hsl(260, 7%, 10%);
 		border-radius: 0.75rem;
-		padding: 0.75rem;
-		position: relative;
-		transition: transform 0.2s ease-in, box-shadow 0.2s ease-in, outline 0.2s ease-in;
-		outline: hsl(0, 0%, 100%, 10%) 1px solid;
-		outline-offset: -1px;
+		outline: hsl(0, 0%, 100%, 0%) 2px solid;
+		outline-offset: 1px;
 		cursor: pointer;
 		user-select: none;
-	
+		overflow: hidden;
+		transition: transform 0.2s ease-in, box-shadow 0.2s ease-in;
+
 		&:hover, &:focus-visible, &.selected {
 			transform: translateY(-4px);
 			background-color: hsl(260, 7%, 12%);
@@ -454,50 +431,74 @@
 		&.selected {
 			outline-color: hsl(141, 78%, 25%);
 			outline-width: 2px;
-			outline-offset: -2px;
 		}
 	
-		h3 {
-			margin: 0;
-			margin-block-end: 0.75rem;
-		}
+		.card_title {
+			display: flex;
+			position: relative;
+			padding: 3rem 0.75rem 0.75rem;
+			background-size: cover;
+			background-position: center;
+			
+			h3 {
+				margin: 0;
+			}
+			
+			h3, .map_name {
+				font-size: 1.25rem;
+				line-height: 1.25rem;
+				font-weight: 500;
+			 }
 	
-		.images_container {
-			display: grid;
-			grid-template-columns: repeat(2, 1fr);
+			.map_name {
+				border-radius: 0.25rem;
+
+				&::after {
+					content: "|";
+					margin-inline: 0.5rem;
+				}
+			}
+		}
+
+		.card_description {
+			padding: 0 0.75rem;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.card_content {
+			background-position: center;
+			background-size: cover;
 			height: 15rem;
-			gap: 0.25rem;
-	
-			.image_container {
-				border-radius: 0.25rem;
-				background-position: center;
-				background-size: cover;
-			}
-		}
-	
-		.post_details {
-			position: absolute;
-			bottom: 1rem;
-			left: 1rem;
-			right: 1rem;
-	
-			.tags_container {
+			position: relative;
+			margin: 0 0.5rem 0.5rem;
+			border-radius: 0.5rem;
+
+			.post_details {
+				position: absolute;
+				inset: 0.5rem;
 				display: flex;
-				position: absolute;
-				left: 0;
-				bottom: 0;
-				gap: 0.25rem;
-			}
-	
-			.images_overflow {
-				position: absolute;
-				right: 0;
-				bottom: 0;
-				background-color: hsl(0, 0%, 0%, 40%);
-				font-size: 0.75rem;
-				padding: 0.25rem;
-				border-radius: 0.25rem;
-				font-weight: bold;
+				justify-content: end;
+		
+				.tags_container {
+					position: absolute;
+					left: 0;
+					display: flex;
+					gap: 0.25rem;
+				}
+				
+				.images_overflow {
+					position: absolute;
+					bottom: 0;
+					width: fit-content;
+					background-color: hsl(0, 0%, 0%, 40%);
+					font-size: 0.75rem;
+					padding: 0 0.25rem;
+					border-radius: 0.25rem;
+					font-weight: bold;
+					
+				}
 			}
 		}
 	}
