@@ -113,7 +113,7 @@ function App() {
 		if (filter !== "") {
 			let filteredPosts:any = []
 			filteredPosts = postsQuery?.filter((post) => {
-				const title = `${post.map} ${post.title}`  
+				const title = `${post.map} ${post.title} ${post.tags.join(" ").replace("_", " ")}`  
 				return title.toUpperCase().indexOf(filter.toUpperCase()) > -1
 			})
 			
