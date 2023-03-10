@@ -1,6 +1,6 @@
 import { faCircleHalfStroke, faCircleXmark, faCrosshairs, faLocationCrosshairs, faMagnifyingGlass, faScrewdriverWrench } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { useEffect, useRef, useState } from "react"
+import { useEffect,  useState } from "react"
 import { useQuery } from "../convex/_generated/react"
 import { SelectableTag } from "./Tags"
 
