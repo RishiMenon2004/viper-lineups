@@ -49,7 +49,7 @@ function Search({onChangeHandler}:any) {
     }
     
     function toggleInputMode(value: boolean) {
-        setIsInputModeNewPost(true)
+        setIsInputModeNewPost(value)
 
         if (value) {
             onChangeHandler("")
