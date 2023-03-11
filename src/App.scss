@@ -33,10 +33,18 @@
 		position: absolute;
 		inset: 0;
 		height: 100vh;
-		transform: translateX(100%);
 		flex-direction: column;
 		background-color: hsl(260, 7%, 17%);
-		transition: transform 0.25s ease-in-out;
+		user-select: none;
+
+		.drag_region {
+			position: absolute;
+			left: 0;
+			top: 0;
+			bottom: 0;
+			width: 20%;
+			z-index: 2;
+		}
 		
 		.title {
 			display: flex;
@@ -49,13 +57,21 @@
 
 			.close_button {
 				position: absolute;
-				right: 0;
-				top: 0;
-				height: 100%;
-				display: flex;
-				padding: 1rem;
+				top: 1rem;
+				right: 1rem;
+				display: grid;
+				place-items: center;
+				font-size: 1.5rem;
+				height: 1.5rem;
+				aspect-ratio: 1;
+				background-color: transparent;
+				transition: background-color 0.1s ease;
 				cursor: pointer;
-				box-sizing: border-box;
+
+				&:hover {
+					background-color: hsl(0, 0, 100%, 25%);
+					border-radius: 0.25rem;
+				}
 			}
 
 			.map_name {
@@ -73,12 +89,6 @@
 			display: flex;
 			gap: 0.25rem;
 			padding: 0.5rem;
-		}
-	}
-	
-	&.viewing_post {
-		.view_post {
-			transform: translateX(0%);
 		}
 	}
 
@@ -413,11 +423,13 @@
 		user-select: none;
 		overflow: hidden;
 		transition: transform 0.2s ease-in, box-shadow 0.2s ease-in;
+		--post-image-over-gradient: linear-gradient(to top, hsl(260, 7%, 10%), transparent);
 
 		&:hover, &:focus-visible, &.selected {
 			transform: translateY(-4px);
 			background-color: hsl(260, 7%, 12%);
 			box-shadow: 0 0.5rem 1rem hsl(0, 0%, 0%, 0.24);
+			--post-image-over-gradient: linear-gradient(to top, hsl(260, 7%, 12%), transparent);
 		}
 
 		&:focus-visible {
