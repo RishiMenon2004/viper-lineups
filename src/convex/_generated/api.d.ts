@@ -10,9 +10,8 @@
  */
 
 import type { ApiFromModules } from "convex/api";
-import type * as posts_getAllPosts from "../posts/getAllPosts";
+import type * as posts_createNewPost from "../posts/createNewPost";
 import type * as posts_getFilteredPosts from "../posts/getFilteredPosts";
-import type * as posts_getPostByID from "../posts/getPostByID";
 import type * as tags_getTagByID from "../tags/getTagByID";
 import type * as tags_getTags from "../tags/getTags";
 
@@ -26,9 +25,8 @@ import type * as tags_getTags from "../tags/getTags";
  * `ConvexReactClient` to create app-specific types.
  */
 export type API = ApiFromModules<{
-  "posts/getAllPosts": typeof posts_getAllPosts;
+  "posts/createNewPost": typeof posts_createNewPost;
   "posts/getFilteredPosts": typeof posts_getFilteredPosts;
-  "posts/getPostByID": typeof posts_getPostByID;
   "tags/getTagByID": typeof tags_getTagByID;
   "tags/getTags": typeof tags_getTags;
 }>;

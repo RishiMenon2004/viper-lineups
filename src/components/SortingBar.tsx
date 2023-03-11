@@ -1,5 +1,6 @@
 import { faCircleHalfStroke, faLocationCrosshairs, faScrewdriverWrench } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Document } from "../convex/_generated/dataModel";
 import { useQuery } from "../convex/_generated/react";
 import { SelectableTag } from "./Tags";
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -48,7 +49,7 @@ export default function SortingBar({floating, handleTagClick, handleSelectChange
 					Side
 				</span>
 				<span className="section_content">
-					{sideTags?.map((tag, index) => {
+					{sideTags?.map((tag:Document<"tags">, index:number) => {
 						return <SelectableTag key={index} onClick={() => handleTagClick(tag.id, "side")} id={tag.id}/>
 					})}
 				</span>
@@ -60,7 +61,7 @@ export default function SortingBar({floating, handleTagClick, handleSelectChange
 					Ability
 				</span>
 				<span className="section_content">
-					{abilityTags?.map((tag, index) => {
+					{abilityTags?.map((tag:Document<"tags">, index:number) => {
 						return <SelectableTag key={index} onClick={() => handleTagClick(tag.id, "ability")} id={tag.id}/>
 					})}
 				</span>

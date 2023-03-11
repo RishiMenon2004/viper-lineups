@@ -1,6 +1,7 @@
 import { faCircleHalfStroke, faCircleXmark, faCrosshairs, faLocationCrosshairs, faMagnifyingGlass, faScrewdriverWrench } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useEffect,  useState } from "react"
+import { Document } from "../convex/_generated/dataModel"
 import { useQuery } from "../convex/_generated/react"
 import { SelectableTag } from "./Tags"
 
@@ -60,11 +61,11 @@ function Search({onChangeHandler}:any) {
 
     const tagsQuery = useQuery("tags/getTags")
 
-    const sideTags = tagsQuery?.filter(tag => {
+    const sideTags = tagsQuery?.filter((tag:Document<"tags">) => {
 		return tag.category === "sides"
 	})
 
-	const abilityTags = tagsQuery?.filter(tag => {
+	const abilityTags = tagsQuery?.filter((tag:Document<"tags">) => {
 		return tag.category === "abilities"
 	})
 

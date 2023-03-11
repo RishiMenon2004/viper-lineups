@@ -8,6 +8,7 @@ import Post from './components/Post';
 import SortingBar from './components/SortingBar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { Document } from './convex/_generated/dataModel';
 
 function App() {
 
@@ -99,7 +100,8 @@ function App() {
 
 	/* Post Components */
 	
-	let finalPosts:any
+	let finalPosts:JSX.Element = <></>
+
 	function mapPosts(postsList:any) {
 		let search = searchQuery
 		let tags = ""
@@ -138,7 +140,7 @@ function App() {
 		let filteredPosts = postsQuery
 
 		if (filter !== "") {
-			filteredPosts = postsQuery?.filter((post) => {
+			filteredPosts = postsQuery?.filter((post:Document<"posts">) => {
 				const title = `${post.map} ${post.title} ${post.tags.join(" ").replace("_", " ")}`.toUpperCase()  
 				
 				let filterWords = filter.toUpperCase().split(" ")
