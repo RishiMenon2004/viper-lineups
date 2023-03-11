@@ -44,12 +44,12 @@ function App() {
 
 	const [startDragMousePosX, setStartDragMousePosX] = useState(0)
 	const [isDragging, setIsDragging] = useState(false)
-	const [viewPostTransform, setViewPostTransform] = useState("translateX(100%)")
-	const [viewPostTransition, setViewPostTransition] = useState("transform 0.25s ease-in-out")
+	const [focusedPostTransform, setfocusedPostTransform] = useState("translateX(100%)")
+	const [focusedPostTransition, setfocusedPostTransition] = useState("transform 0.25s ease-in-out")
 
 	const postsQuery = useQuery("posts/getFilteredPosts", selectedTags, selectedMap)
 	const postsContainer = useRef() as MutableRefObject<HTMLDivElement>
-	const viewPostRef = useRef() as MutableRefObject<HTMLDivElement>
+	const focusedPostRef = useRef() as MutableRefObject<HTMLDivElement>
 
 	/* Interrations */
 
@@ -188,12 +188,12 @@ function App() {
 			if (currentPost?.classList.contains('selected')) {
 				currentPost.classList.remove('selected')
 				setIsPostViewOpen(false)
-				setViewPostTransform("translateX(100%)")
+				setfocusedPostTransform("translateX(100%)")
 			} else {
 				currentPost?.classList.add('selected')
 				setIsPostViewOpen(true)
 				setCurrentOpenPostId(doc_id)
-				setViewPostTransform("translateX(0%)")
+				setfocusedPostTransform("translateX(0%)")
 			}
 		}
 	}
@@ -202,31 +202,33 @@ function App() {
 		setCurrentOpenPostId(postsQuery?.at(0)?._id)
 	}
 	
-	let viewPost = postsQuery?.find((post) => {
+	let focusedPost = postsQuery?.find((post) => {
 		return post._id === currentOpenPostId
 	})
 
-	function handleViewPostDragStart(xCord: any) {
+	/* Handle Dragging the FOcused Post */
+
+	function handlefocusedPostDragStart(xCord: any) {
 		setIsDragging(true)
-		setViewPostTransition("")
+		setfocusedPostTransition("")
 		setStartDragMousePosX(xCord)
 	}
 
-	function handleViewPostDrag(xCord: any) {
+	function handlefocusedPostDrag(xCord: any) {
 		let staringPercent = (startDragMousePosX/windowWidth)*100
 		let currentPercent = (xCord/windowWidth)*100
 
 		let percentDelta = Math.max(currentPercent - staringPercent, 0)
 
 		if (isDragging && isMobile && percentDelta > 10) {
-			setViewPostTransform(`translateX(${percentDelta}%)`)
+			setfocusedPostTransform(`translateX(${percentDelta}%)`)
 		}
 	}
 
-	function handleViewPostDragEnd(xCord: any) {
+	function handlefocusedPostDragEnd(xCord: any) {
 		if (isDragging && isMobile) {
 			setIsDragging(false)
-			setViewPostTransition("transform 0.25s ease-in-out")
+			setfocusedPostTransition("transform 0.25s ease-in-out")
 
 			let staringPercent = (startDragMousePosX/windowWidth)*100
 			let currentPercent = (xCord/windowWidth)*100
@@ -235,9 +237,9 @@ function App() {
 			let percentDelta = currentPercent - staringPercent
 
 			if (percentDelta <= 30) {
-				setViewPostTransform("translateX(0%)")
+				setfocusedPostTransform("translateX(0%)")
 			} else {
-				setViewPostTransform("translateX(100%)")
+				setfocusedPostTransform("translateX(100%)")
 				togglePostWithId(currentOpenPostId.id, currentOpenPostId)
 			}
 		}
@@ -245,41 +247,47 @@ function App() {
 
 	function handleTouchStart(e:any) {
 		const {clientX} = e.touches[0]
-		handleViewPostDragStart(clientX)
+		handlefocusedPostDragStart(clientX)
 	}
 
 	function handleTouchMove(e:any) {
 		const {clientX} = e.changedTouches[0]
-		handleViewPostDrag(clientX)
+		handlefocusedPostDrag(clientX)
 	}
 
 	function handleTouchEnd(e:any) {
 		const {clientX} = e.changedTouches[0]
-		handleViewPostDragEnd(clientX)
+		handlefocusedPostDragEnd(clientX)
 	}
  
 	return (
-		<div className={"App" + ((isPostViewOpen && viewPost !== undefined) ? " viewing_post" : "")} onMouseMove={({clientX}) => handleViewPostDrag(clientX)} onTouchMove={handleTouchMove} onMouseUp={({clientX}) => handleViewPostDragEnd(clientX)} onTouchEnd={handleTouchEnd}>
+		<div className={"App" + ((isPostViewOpen && focusedPost !== undefined) ? " viewing_post" : "")} onMouseMove={({clientX}) => handlefocusedPostDrag(clientX)} onTouchMove={handleTouchMove} onMouseUp={({clientX}) => handlefocusedPostDragEnd(clientX)} onTouchEnd={handleTouchEnd}>
 			{!isMobile && <SortingBar floating={true} handleTagClick={handleTagClick} handleSelectChange={handleSelectChange}/>}
 			<main className='main_area' tabIndex={-1}>
 				<Search onChangeHandler={onSearchInputChange}/>
 				{isMobile && <SortingBar floating={false} handleTagClick={handleTagClick} handleSelectChange={handleSelectChange}/>}
 				<div ref={postsContainer} className="post_grid">
 					{finalPosts}
-				</div>
+			</div>
 			</main>
-			{viewPost !== undefined && (
-				<div ref={viewPostRef} className='view_post' style={isMobile ? {transform: viewPostTransform, transition: viewPostTransition} : {}}>
-					{isMobile && <div className="drag_region" onMouseDown={({clientX}) => handleViewPostDragStart(clientX)} onTouchStart={handleTouchStart}></div>}
-					<div className="title" style={{backgroundImage: `var(--post-image-over-gradient), url(/maps/${viewPost?.map}.png)`}}>
-						<div className="close_button" onClick={() => togglePostWithId(viewPost?._id.id, viewPost?._id)}>
+			{focusedPost !== undefined && (
+				<div ref={focusedPostRef} className='view_post' style={isMobile ? {transform: focusedPostTransform, transition: focusedPostTransition} : {}}>
+					{isMobile && <div className="drag_region" onMouseDown={({clientX}) => handlefocusedPostDragStart(clientX)} onTouchStart={handleTouchStart}></div>}
+					<div className="title" style={{backgroundImage: `var(--post-image-over-gradient), url(/maps/${focusedPost?.map}.png)`}}>
+						<div 
+						tabIndex={0} 
+						className="close_button" 
+						onClick={() => togglePostWithId(focusedPost?._id.id, focusedPost?._id)} 
+						onKeyDown={(e) => {
+							e.key === "Enter" && togglePostWithId(focusedPost?._id.id, focusedPost?._id)
+						}}>
 							<FontAwesomeIcon icon={faXmark}/>
 						</div>
-						{viewPost?.title}
-						<div className='map_name'>{viewPost?.map}</div>
+						{focusedPost?.title}
+						<div className='map_name'>{focusedPost?.map}</div>
 					</div>
 					<div className='tags_container'>
-						{viewPost?.tags.map((tag: string, index: number) => {
+						{focusedPost?.tags.map((tag: string, index: number) => {
 							return <Tag key={index} id={tag}/>
 						})}
 					</div>
