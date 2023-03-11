@@ -220,7 +220,7 @@ function App() {
 
 		let percentDelta = Math.max(currentPercent - staringPercent, 0)
 
-		if (isDragging && isMobile && percentDelta > 10) {
+		if (isDragging && isMobile) {
 			setfocusedPostTransform(`translateX(${percentDelta}%)`)
 		}
 	}
