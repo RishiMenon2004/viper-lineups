@@ -68,9 +68,14 @@
 				transition: background-color 0.1s ease;
 				cursor: pointer;
 
-				&:hover {
-					background-color: hsl(0, 0, 100%, 25%);
+				&:hover,
+				&:focus-visible {
+					background-color: hsl(0, 0, 0%, 50%);
 					border-radius: 0.25rem;
+				}
+
+				&:focus-visible {
+					outline: hsl(141, 78%, 25%) 2px solid;
 				}
 			}
 
@@ -134,8 +139,18 @@
 	appearance: none;
 
 	&:hover,
-	&:focus-visible,
-	&:active {
+	&:focus-visible {
+		background: hsl(0, 0%, 30%, 10%);
+	}
+	
+	&:focus-visible {
+		outline: hsl(141, 78%, 25%) 1px solid;
+		outline-offset: -1px;
+	}
+	
+
+	&:active, &:focus-within {
+		background: hsl(260, 7%, 5%);
 		outline: hsl(141, 78%, 25%) 2px solid;
 		outline-offset: -2px;
 	}
@@ -377,7 +392,9 @@
 
 	&.selectable {
 		cursor: pointer;
-		&:hover, &:focus-visible {
+		
+		&:hover,
+		&:focus-visible {
 			background: hsl(0, 0%, 30%, 10%);
 		}
 		
@@ -385,6 +402,7 @@
 			outline: hsl(141, 78%, 25%) 1px solid;
 			outline-offset: -1px;
 		}
+
 		&.selected {
 			outline: hsl(141, 78%, 25%) 2px solid;
 			outline-offset: -2px;
@@ -444,7 +462,7 @@
 		.card_title {
 			display: flex;
 			position: relative;
-			padding: 3rem 0.75rem 0.75rem;
+			padding: 3rem 0.75rem 1rem;
 			background-size: cover;
 			background-position: center;
 			overflow: hidden;
