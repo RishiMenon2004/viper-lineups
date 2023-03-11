@@ -20,14 +20,12 @@ export default function SortingBar({floating, handleTagClick, handleSelectChange
 
 	return (
 		<div className={'sorting_bar' + (floating ? " floating" : "")}>
-			{/* <span className="sort_title"><FontAwesomeIcon icon={faFilter}/>Filters</span> */}
-			{/* <div className='seperator'></div> */}
 			<div className='section'>
-				<span className="section_name">
+				<div className="section_name">
 					<FontAwesomeIcon icon={faLocationCrosshairs}/>
 					Map
-				</span>
-				<span className="section_content">
+				</div>
+				<div className="section_content">
 					<select className="map_selector" onChange={e => handleSelectChange(e)}>
 						<option>All</option>
 						<option>Ascent</option>
@@ -40,31 +38,31 @@ export default function SortingBar({floating, handleTagClick, handleSelectChange
 						<option>Bind</option>
 						<option>Breeze</option>
 					</select>
-				</span>
+				</div>
 			</div>
 			
 			<div className='section'>
-				<span className="section_name">
+				<div className="section_name">
 					<FontAwesomeIcon icon={faCircleHalfStroke}/>
 					Side
-				</span>
-				<span className="section_content">
+				</div>
+				<div className="section_content">
 					{sideTags?.map((tag:Document<"tags">, index:number) => {
 						return <SelectableTag key={index} onClick={() => handleTagClick(tag.id, "side")} id={tag.id}/>
 					})}
-				</span>
+				</div>
 			</div>
 
 			<div className='section'>
-				<span className="section_name">
+				<div className="section_name">
 					<FontAwesomeIcon icon={faScrewdriverWrench}/>
 					Ability
-				</span>
-				<span className="section_content">
+				</div>
+				<div className="section_content" tabIndex={-1}>
 					{abilityTags?.map((tag:Document<"tags">, index:number) => {
 						return <SelectableTag key={index} onClick={() => handleTagClick(tag.id, "ability")} id={tag.id}/>
 					})}
-				</span>
+				</div>
 			</div>
 		</div>
 	)
