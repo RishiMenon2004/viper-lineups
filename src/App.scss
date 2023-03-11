@@ -145,8 +145,6 @@
 		display: grid;
 		place-items: center;
 		aspect-ratio: 1;
-
-		
 	}
 	
 	input {
@@ -188,18 +186,16 @@
 		.content_input {
 			display: grid;
 			grid-template-columns: auto 1fr;
-			grid-template-areas: "x title" "none message";
+			grid-template-areas: "icon title" "none message";
 			column-gap: 0.5rem;
 		
 			.dynamic-icon {
-				cursor: pointer;
-				place-self: center;
-				grid-area: x;
-				height: 100%;
-				font-size: 1,25rem;
+				grid-area: icon;
+				place-content: center start;
+				font-size: 1.25rem;
 				padding: 0;
-				margin: 0 0.5rem;
-				box-sizing: border-box;
+				aspect-ratio: unset;
+				cursor: pointer;
 			}
 
 			input {
@@ -439,9 +435,13 @@
 			padding: 3rem 0.75rem 0.75rem;
 			background-size: cover;
 			background-position: center;
+			overflow: hidden;
 			
 			h3 {
 				margin: 0;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: "";
 			}
 			
 			h3, .map_name {
