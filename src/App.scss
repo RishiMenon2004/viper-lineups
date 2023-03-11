@@ -19,7 +19,7 @@
 		flex-direction: column;
 		background-color: hsl(260, 7%, 15%);
 		padding: 1.5rem;
-		gap	: 1rem;
+		gap	: 2rem;
 		grid-area: main;
 		height: 100vh;
 		box-sizing: border-box;
@@ -109,6 +109,7 @@
 			}
 			
 			.main_area {
+				gap: 1rem;
 				border-radius: 0 0.5rem 0.5rem 0;
 			}
 
@@ -184,15 +185,15 @@
 	
 	button {
 		display: none;
-		font-size: 0.875rem;
 		width: max-content;
-		border-radius: 100vh;
-		background-color: hsl(141, 78%, 25%);
-		color: white;
-		border: none;
 		padding: 0.5rem 1rem;
-		cursor: pointer;
+		font-size: 0.875rem;
+		color: white;
+		background-color: hsl(141, 78%, 25%);
+		border: none;
+		border-radius: 100vh;
 		outline-offset: -1px;
+		cursor: pointer;
 
 		&:hover, &:focus-visible {
 			background-color: hsl(141, 78%, 30%);
@@ -441,9 +442,10 @@
 .post_grid {
 	display: grid;
 	grid-template-columns: repeat(1, 1fr);
-	gap: 1rem;
-
+	gap: 2rem;
+	
 	@container main-area (min-width: 600px) {
+		gap: 1rem;
 		& {grid-template-columns: repeat(2, 1fr);}
 	}
 	
