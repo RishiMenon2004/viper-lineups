@@ -20,8 +20,8 @@ function Post({onClick, data}: {onClick: Function, data: Document<"posts">}) {
 				</div>
 				<h3>{data.title}</h3>
 			</div>
-			<div className='card_description'>
-				Lorem ipsum dolor sit amet consectetur adipisicing elit. Sint nemo quaerat doloribus, voluptates consequuntur, impedit ut eos laborum, perspiciatis excepturi enim vero qui odio quas cum consequatur unde aperiam temporibus.
+			<div className='card_description' style={{whiteSpace: "pre-line"}}>
+				{data.body}
 			</div>
 			<div className='card_content' style={{backgroundImage: `url(${images.at(0)})`}}>
 				<div className='post_details'>
