@@ -11,7 +11,6 @@ export default defineSchema({
   tags: defineTable({
     category: s.string(),
     displayText: s.string(),
-    icon: s.string(),
     id: s.string(),
   }),
 });
