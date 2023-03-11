@@ -133,8 +133,24 @@ function App() {
 
 		if (filter !== "") {
 			filteredPosts = postsQuery?.filter((post) => {
-				const title = `${post.map} ${post.title} ${post.tags.join(" ").replace("_", " ")}`  
-				return title.toUpperCase().indexOf(filter.toUpperCase()) > -1
+				const title = `${post.map} ${post.title} ${post.tags.join(" ").replace("_", " ")}`.toUpperCase()  
+				
+				let filterWords = filter.toUpperCase().split(" ")
+
+				let hasMatch = false
+
+				filterWords.every(word => {
+					if (title.includes(word)) {
+						hasMatch = true
+						return true
+					} else {
+						hasMatch = false
+						return false
+					} 
+
+				})
+				
+				return hasMatch
 			})
 			
 		}
