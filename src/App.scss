@@ -153,29 +153,33 @@
 }
 
 .searchbar {
-	display: flex;
-	background-color: hsl(260, 7%, 10%);
-	border-radius: 0.75rem;
-	font-size: 1rem;
-	padding: 0.5rem;
-	align-items: center;
+	display: grid;
+	grid-auto-flow: column;
+	grid-template-columns: min-content auto min-content;
 	gap: 0.5rem;
+	align-items: center;
+	padding: 0.5rem;
+	border-radius: 0.75rem;
+	background-color: hsl(260, 7%, 10%);
+	font-size: 1rem;
 
 	.dynamic-icon {
 		padding: 0.25rem;
-		display: grid;
-		place-items: center;
+		aspect-ratio: 1;
+	}
+
+	.clear-search-icon {
 		aspect-ratio: 1;
 	}
 	
 	input, .input {
 		font-size: 1rem;
-		flex: 1 1 auto;
 		resize: none;
 		background: none;
 		outline: none;
 		border: none;
 		color: white;
+		width: 100%;
 	}
 	
 	button {
@@ -206,8 +210,20 @@
 		}
 	}
 
+	@media screen and (min-width: 600px) {
+		& {
+			grid-template-columns: min-content auto min-content min-content;
+
+			button {
+				display: block
+			}
+		}
+	}
+
 	&.new_post {
 		display: grid;
+		grid-template-columns: unset;
+		grid-auto-flow: unset;
 
 		.content_input {
 			display: grid;
@@ -217,10 +233,8 @@
 		
 			.dynamic-icon {
 				grid-area: icon;
-				place-content: center start;
 				font-size: 1.25rem;
 				padding: 0;
-				aspect-ratio: unset;
 				cursor: pointer;
 			}
 
@@ -282,12 +296,6 @@
 			padding-top: 0.5rem;
 		}
 	}
-
-	@container main-area (min-width: 600px) {
-		button {
-			display: block
-		} 
-	}
 }
 
 .sorting_bar {
@@ -314,10 +322,14 @@
 
 	.section {
 		display: grid;
-		grid-template-columns: subgrid;
 		align-items: center;
-		gap: 1rem;
 		grid-column: 1 / 3;
+		gap: 0.5rem;
+		
+		@supports (grid-template-columns: subgrid) {
+			gap: 1rem;
+			grid-template-columns: subgrid;
+		}
 
 		.section_name,
 		.section_content {

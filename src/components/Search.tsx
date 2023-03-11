@@ -1,4 +1,4 @@
-import { faCircleHalfStroke, faCircleXmark, faCrosshairs, faLocationCrosshairs, faMagnifyingGlass, faScrewdriverWrench } from "@fortawesome/free-solid-svg-icons"
+import { faCircleHalfStroke, faCircleXmark, faCrosshairs, faLocationCrosshairs, faMagnifyingGlass, faScrewdriverWrench, faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useEffect,  useState } from "react"
 import { Document } from "../convex/_generated/dataModel"
@@ -31,7 +31,7 @@ function Search({onChangeHandler}:any) {
     useEffect(() => {
         if (isMobile) {
             setIsInputModeNewPost(false)
-        }        
+        }
     }, [isMobile])
 
 	/* =========================================== */
@@ -54,7 +54,6 @@ function Search({onChangeHandler}:any) {
 		return tag.category === "abilities"
 	})
 
-    let inputPlaceholder = isMobile ? "Search" : "Search or Create a new lineup"
 
     function clearFields() {
         setSearchValue("")
@@ -81,6 +80,10 @@ function Search({onChangeHandler}:any) {
             onChangeHandler(target.value)
         }
     }
+
+    useEffect(() => {
+        !isInputModeNewPost && onChangeHandler(searchValue)
+    },[searchValue, onChangeHandler, isInputModeNewPost])
 
     function onMessageChange({target}:any) {
         target.style.height = "0px"
@@ -237,10 +240,9 @@ function Search({onChangeHandler}:any) {
         })}<br/>
 	</div>
     : <div className="searchbar">
-		<div className="dynamic-icon">
-		    <FontAwesomeIcon icon={faMagnifyingGlass}/>
-		</div>
-		<input className="input" placeholder={inputPlaceholder} onChange={(e) => onSearchChange(e, true)} value={searchValue}/>
+        <FontAwesomeIcon className="dynamic-icon" icon={faMagnifyingGlass}/>
+		<input className="input" placeholder="Search" onChange={(e) => onSearchChange(e, true)} value={searchValue}/>
+        {(isMobile && searchValue !== "") && <FontAwesomeIcon className="clear-search-icon" icon={faXmark} onClick={() => setSearchValue("")}/>}
 		<button onClick={() => toggleInputMode(true)} ><FontAwesomeIcon icon={faCrosshairs} /> New Lineup</button>
 	</div>
 }
