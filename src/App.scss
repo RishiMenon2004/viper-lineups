@@ -167,7 +167,7 @@
 		border: none;
 		padding: 0.5rem 1rem;
 		cursor: pointer;
-		outline-offset: -2px;
+		outline-offset: -1px;
 
 		&:hover, &:focus-visible {
 			background-color: hsl(141, 78%, 30%);
@@ -448,7 +448,7 @@
 				font-size: 1.25rem;
 				line-height: 1.25rem;
 				font-weight: 500;
-			 }
+			}
 	
 			.map_name {
 				border-radius: 0.25rem;
