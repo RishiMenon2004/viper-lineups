@@ -2,7 +2,7 @@ import { faCircleHalfStroke, faCircleXmark, faCrosshairs, faLocationCrosshairs, 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useEffect,  useState } from "react"
 import { Document } from "../convex/_generated/dataModel"
-import { useQuery } from "../convex/_generated/react"
+import { useMutation, useQuery } from "../convex/_generated/react"
 import { SelectableTag } from "./Tags"
 
 
@@ -37,27 +37,12 @@ function Search({onChangeHandler}:any) {
 	/* =========================================== */
 
     const [isInputModeNewPost, setIsInputModeNewPost] = useState(false)
+    const [sidesTagsState, setSidesTagState] = useState({attack: true, defend: false})
+
     const [searchValue, setSearchValue] = useState("")
-    
-    let inputPlaceholder = isMobile ? "Search" : "Search or Create a new lineup"
-
-    function onChange(e:any, isSearchBar:boolean) {
-        setSearchValue(e.target.value)
-
-        if(isSearchBar) {
-            onChangeHandler(e.target.value)
-        }
-    }
-    
-    function toggleInputMode(value: boolean) {
-        setIsInputModeNewPost(value)
-
-        if (value) {
-            onChangeHandler("")
-        } else {
-            setSearchValue("")
-        }
-    }
+    const [messageValue, setMessageValue] = useState("")
+    const [selectedTags, setSelectedTags] = useState<{side: string, abilities: string[]}>({side: "attack", abilities: []})
+    const [selectedMap, setSelectedMap] = useState("Ascent")
 
     const tagsQuery = useQuery("tags/getTags")
 
@@ -69,14 +54,124 @@ function Search({onChangeHandler}:any) {
 		return tag.category === "abilities"
 	})
 
+    let inputPlaceholder = isMobile ? "Search" : "Search or Create a new lineup"
+
+    function clearFields() {
+        setSearchValue("")
+        setMessageValue("")
+        setSelectedTags({side: "attack", abilities: []})
+        setSelectedMap("Ascent")
+        setSidesTagState({attack: true, defend: false})
+    }
+
+    function toggleInputMode(value: boolean) {
+        setIsInputModeNewPost(value)
+
+        if (value) {
+            onChangeHandler("")
+        } else {
+            clearFields()
+        }
+    }
+
+    function onSearchChange({target}:any, isSearchBar:boolean) {
+        setSearchValue(target.value)
+
+        if(isSearchBar) {
+            onChangeHandler(target.value)
+        }
+    }
+
+    function onMessageChange({target}:any) {
+        target.style.height = "0px"
+        target.style.height = (target.scrollHeight)+"px"
+        setMessageValue(target.value)
+    }
+
+    function handleTagSelect(tag:string, category:"ability"|"side") {
+        let abilities = selectedTags.abilities
+		let side = selectedTags.side
+
+        switch(category) {
+			case "ability": {
+				if (abilities.includes(tag)) {
+					let tagIndex = abilities.indexOf(tag)
+		
+					if (tagIndex > -1) { // only splice array when item is found
+						abilities.splice(tagIndex, 1); // 2nd parameter means remove one item only
+					}
+			
+				} else {
+					abilities = [...abilities, tag].sort()
+				}
+				break;
+			}
+
+			case "side": {
+                let newSidesTagState = sidesTagsState
+                
+                switch (tag) {
+                    case "attack": {
+                        newSidesTagState.attack = true
+                        newSidesTagState.defend = false
+                        break
+                    }
+                    
+                    case "defend": {
+                        newSidesTagState.attack = false
+                        newSidesTagState.defend = true
+                        break
+                    }
+                }
+                
+                setSidesTagState(newSidesTagState)
+                side = tag
+				break;
+			}
+		}
+
+		setSelectedTags({side: side, abilities: abilities})
+    }
+
+    const submitNewPost = useMutation("posts/createNewPost")
+
+    function checkFields() {
+
+        if (searchValue === "") {
+            return false
+        }
+
+        if (messageValue === "") {
+            return false
+        }
+
+        if (selectedTags.abilities.length <= 0) {
+            return false
+        }
+
+        return true
+    }
+
+    function handleSubmit() {
+        submitNewPost({
+            title: searchValue,
+            body: messageValue,
+            images: [{cover: false, url: ""}],
+            tags: [selectedTags.side, ...selectedTags.abilities],
+            map: selectedMap
+        })
+
+        toggleInputMode(false)
+    }
+
 	return (isInputModeNewPost && !isMobile) ?
     <div className="searchbar new_post">
         <div className="content_input">
             <div className="dynamic-icon" onClick={() => toggleInputMode(false)}>
                 <FontAwesomeIcon icon={faCircleXmark}/>
             </div>
-            <input placeholder="Title" className="title" onChange={(e) => onChange(e, false)} maxLength={64} value={searchValue}/>
-            <input placeholder="Enter a message" className="message"/>
+            <input placeholder="Title" className="input title" onChange={(e) => onSearchChange(e, false)} maxLength={64} value={searchValue}/>
+            <textarea maxLength={1000} rows={1} onChange={onMessageChange} placeholder="Enter a message" className="input message" value={messageValue}></textarea>
         </div>
         <div className="categorisation">
             <div className="section">
@@ -85,16 +180,16 @@ function Search({onChangeHandler}:any) {
                     Map
                 </div>
                 <div className="section_content">
-                    <select className="map_selector" onChange={() => {}}>
-                        <option value={"ascent"}>Ascent</option>
-                        <option value={"fracture"}>Fracture</option>
-                        <option value={"haven"}>Haven</option>
-                        <option value={"icebox"}>Icebox</option>
-                        <option value={"lotus"}>Lotus</option>
-                        <option value={"pearl"}>Pearl</option>
-                        <option value={"split"}>Split</option>
-                        <option value={"bind"}>Bind</option>
-                        <option value={"breeze"}>Breeze</option>
+                    <select className="map_selector" value={selectedMap} onChange={({target}:any) => {setSelectedMap(target.value)}}>
+                        <option>Ascent</option>
+                        <option>Fracture</option>
+                        <option>Haven</option>
+                        <option>Icebox</option>
+                        <option>Lotus</option>
+                        <option>Pearl</option>
+                        <option>Split</option>
+                        <option>Bind</option>
+                        <option>Breeze</option>
                     </select>
                 </div>
             </div>
@@ -105,7 +200,16 @@ function Search({onChangeHandler}:any) {
                 </div>
                 <div className="section_content">
                     {sideTags?.map((tag, index) => {
-                        return <SelectableTag key={index} isSmall={false} id={tag.id} onClick={() => {}}/>
+                        let state = tag.id === "attack" ? sidesTagsState.attack : sidesTagsState.defend
+                        return <div 
+                        key={index} 
+                        tabIndex={0} 
+                        onClick={() => {handleTagSelect(tag.id, "side")}} 
+                        onKeyDown={(e) => {e.key === "Enter" && handleTagSelect(tag.id, "side")}} 
+                        className={"tag selectable" + (state ? ' selected' : '')}>
+                            <img src={`/tag_icons/${tag.id}.png`} className='icon' alt="tag icon"/>
+                            {tag.displayText}
+                        </div>
                     })}
                 </div>
             </div>
@@ -116,17 +220,27 @@ function Search({onChangeHandler}:any) {
                 </div>
                 <div className="section_content" tabIndex={-1}>
                     {abilityTags?.map((tag, index) => {
-                        return <SelectableTag key={index} isSmall={false} id={tag.id} onClick={() => {}}/>
+                        return <SelectableTag key={index} isSmall={false} id={tag.id} onClick={() => handleTagSelect(tag.id, "ability")}/>
                     })}
                 </div>
             </div>
         </div>
+        <div className="form_buttons">
+            <button disabled={!checkFields()} onClick={handleSubmit}>Submit</button>
+        </div>
+        {searchValue}<br/>
+        <div style={{whiteSpace: "pre-line"}}>{messageValue}</div><br/>
+        {selectedMap}<br/>
+        {selectedTags.side}<br/>
+        {selectedTags.abilities.map(tag => {
+            return tag + ", "
+        })}<br/>
 	</div>
     : <div className="searchbar">
 		<div className="dynamic-icon">
 		    <FontAwesomeIcon icon={faMagnifyingGlass}/>
 		</div>
-		<input placeholder={inputPlaceholder} onChange={(e) => onChange(e, true)} value={searchValue}/>
+		<input className="input" placeholder={inputPlaceholder} onChange={(e) => onSearchChange(e, true)} value={searchValue}/>
 		<button onClick={() => toggleInputMode(true)} ><FontAwesomeIcon icon={faCrosshairs} /> New Lineup</button>
 	</div>
 }

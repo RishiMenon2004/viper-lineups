@@ -140,10 +140,6 @@
 
 	&:hover,
 	&:focus-visible {
-		background: hsl(0, 0%, 30%, 10%);
-	}
-	
-	&:focus-visible {
 		outline: hsl(141, 78%, 25%) 1px solid;
 		outline-offset: -1px;
 	}
@@ -172,7 +168,7 @@
 		aspect-ratio: 1;
 	}
 	
-	input {
+	input, .input {
 		font-size: 1rem;
 		flex: 1 1 auto;
 		resize: none;
@@ -203,6 +199,11 @@
 			outline: hsl(141, 42%, 39%) 2px solid;
 			background-color: hsl(141, 78%, 20%);
 		}
+
+		&:disabled {
+			background-color: hsl(141, 20%, 25%);
+			color: hsl(0, 0%, 100%, 20%);
+		}
 	}
 
 	&.new_post {
@@ -223,7 +224,7 @@
 				cursor: pointer;
 			}
 
-			input {
+			input, .input {
 				&.title {
 					grid-area: title;
 					&, &::placeholder {
@@ -234,6 +235,8 @@
 	
 				&.message{
 					grid-area: message;
+					font-family: inherit;
+
 					&, &::placeholder {
 						font-weight: 300;
 					}
@@ -270,6 +273,13 @@
 					overflow: scroll;
 				}
 			}
+		}
+
+		.form_buttons {
+			display: flex;
+			justify-content: end;
+			border-top: hsl(0, 0%, 100%, 20%) 1px solid;
+			padding-top: 0.5rem;
 		}
 	}
 
