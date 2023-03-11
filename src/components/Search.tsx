@@ -74,7 +74,7 @@ function Search({onChangeHandler}:any) {
             <div className="dynamic-icon" onClick={() => toggleInputMode(false)}>
                 <FontAwesomeIcon icon={faCircleXmark}/>
             </div>
-            <input placeholder="Title" className="title" onChange={(e) => onChange(e, false)} value={searchValue}/>
+            <input placeholder="Title" className="title" onChange={(e) => onChange(e, false)} maxLength={64} value={searchValue}/>
             <input placeholder="Enter a message" className="message"/>
         </div>
         <div className="categorisation">
