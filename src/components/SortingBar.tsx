@@ -19,14 +19,14 @@ export default function SortingBar({floating, handleTagClick, handleSelectChange
 	})
 
 	return (
-		<div className={'sorting_bar' + (floating ? " floating" : "")}>
+		<div className={'sorting-bar' + (floating ? " floating" : "")}>
 			<div className='section'>
-				<div className="section_name">
+				<div className="section-name">
 					<FontAwesomeIcon icon={faLocationCrosshairs}/>
 					Map
 				</div>
-				<div className="section_content">
-					<select className="map_selector" onChange={e => handleSelectChange(e)}>
+				<div className="section-content">
+					<select className="map-selector" onChange={e => handleSelectChange(e)}>
 						<option>All</option>
 						<option>Ascent</option>
 						<option>Fracture</option>
@@ -42,11 +42,11 @@ export default function SortingBar({floating, handleTagClick, handleSelectChange
 			</div>
 			
 			<div className='section'>
-				<div className="section_name">
+				<div className="section-name">
 					<FontAwesomeIcon icon={faCircleHalfStroke}/>
 					Side
 				</div>
-				<div className="section_content">
+				<div className="section-content">
 					{sideTags?.map((tag:Document<"tags">, index:number) => {
 						return <SelectableTag key={index} onClick={() => handleTagClick(tag.id, "side")} id={tag.id}/>
 					})}
@@ -54,11 +54,11 @@ export default function SortingBar({floating, handleTagClick, handleSelectChange
 			</div>
 
 			<div className='section'>
-				<div className="section_name">
+				<div className="section-name">
 					<FontAwesomeIcon icon={faScrewdriverWrench}/>
 					Ability
 				</div>
-				<div className="section_content" tabIndex={-1}>
+				<div className="section-content" tabIndex={-1}>
 					{abilityTags?.map((tag:Document<"tags">, index:number) => {
 						return <SelectableTag key={index} onClick={() => handleTagClick(tag.id, "ability")} id={tag.id}/>
 					})}

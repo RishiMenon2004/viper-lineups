@@ -14,7 +14,7 @@
 	overflow: hidden;
 	position: relative;
 
-	.main_area {
+	.main-area {
 		display: flex;
 		flex-direction: column;
 		background-color: hsl(260, 7%, 15%);
@@ -28,7 +28,7 @@
 		position: unset;
 	}
 
-	.view_post {
+	.view-post {
 		display: flex;
 		position: absolute;
 		inset: 0;
@@ -37,7 +37,7 @@
 		background-color: hsl(260, 7%, 17%);
 		user-select: none;
 
-		.drag_region {
+		.drag-region {
 			position: absolute;
 			left: 0;
 			top: 0;
@@ -55,7 +55,7 @@
 			background-position: center;
 			position: relative;
 
-			.close_button {
+			.close-button {
 				position: absolute;
 				top: 1rem;
 				right: 1rem;
@@ -79,7 +79,7 @@
 				}
 			}
 
-			.map_name {
+			.map-name {
 				font-size: 0.75rem;
 				position: absolute;
 				left: 1rem;
@@ -90,7 +90,7 @@
 			}
 		}
 
-		.tags_container {
+		.tags-container {
 			display: flex;
 			gap: 0.25rem;
 			padding: 0.5rem;
@@ -99,21 +99,21 @@
 
 	@media screen and (min-width: 600px) {
 		& {
-			&.viewing_post {
+			&.viewing-post {
 				grid-template-areas: "main viewPost";
 
-				.view_post {
+				.view-post {
 					display: flex;
 					grid-area: viewPost;
 				}
 			}
 			
-			.main_area {
+			.main-area {
 				gap: 1rem;
 				border-radius: 0 0.5rem 0.5rem 0;
 			}
 
-			.view_post {
+			.view-post {
 				position: relative;
 				transition: none;
 				transform: translateX(0);
@@ -127,7 +127,7 @@
 	}
 }
 
-.map_selector {
+.map-selector {
 	width: 100%;
 	min-width: fit-content;
 	background: hsl(260, 7%, 5%);
@@ -221,12 +221,12 @@
 		}
 	}
 
-	&.new_post {
+	&.new-post {
 		display: grid;
 		grid-template-columns: unset;
 		grid-auto-flow: unset;
 
-		.content_input {
+		.content-input {
 			display: grid;
 			grid-template-columns: auto 1fr;
 			grid-template-areas: "icon title" "none message";
@@ -276,21 +276,21 @@
 				flex: 1 1 0;
 				overflow: hidden;
 				
-				.section_name, 
-				.section_content {
+				.section-name, 
+				.section-content {
 					display: flex;
 					gap: 0.5rem;
 					align-items: center;
 				}
 
-				.section_content {
+				.section-content {
 					flex: 1 1 0;
 					overflow: scroll;
 				}
 			}
 		}
 
-		.form_buttons {
+		.form-buttons {
 			display: flex;
 			justify-content: end;
 			border-top: hsl(0, 0%, 100%, 20%) 1px solid;
@@ -299,7 +299,7 @@
 	}
 }
 
-.sorting_bar {
+.sorting-bar {
 	display: grid;
 	grid-template-columns: auto 1fr;
 	grid-template-rows: repeat(3, 1fr);
@@ -308,11 +308,6 @@
 	background-color: hsl(260, 6%, 10%);
 	border-radius: 0.5rem;
 	padding: 0.5rem;
-
-	.sort_title {
-		grid-area: title;
-		font-weight: bold;
-	}
 
 	.seperator {
 		margin-block: 0.5rem;
@@ -332,14 +327,14 @@
 			grid-template-columns: subgrid;
 		}
 
-		.section_name,
-		.section_content {
+		.section-name,
+		.section-content {
 			display: flex;
 			align-items: center;
 			gap: 0.5rem;
 		}
 
-		.section_content {
+		.section-content {
 			overflow: scroll;
 		}
 
@@ -363,7 +358,7 @@
 			height: 2rem;
 			padding: 0.5rem;
 
-			&+.main_area {
+			&+.main-area {
 				padding-bottom: calc(2rem + (1rem * 2) + (0.5rem * 2));
 			}
 
@@ -375,14 +370,14 @@
 				height: 100%;
 				overflow: hidden;
 				
-				.section_name, 
-				.section_content {
+				.section-name, 
+				.section-content {
 					display: flex;
 					gap: 0.5rem;
 					align-items: center;
 				}
 
-				.section_content {
+				.section-content {
 					flex: 1 1 0;
 					overflow: scroll;
 				}
@@ -439,7 +434,7 @@
 	}
 }
 
-.post_grid {
+.post-grid {
 	display: grid;
 	grid-template-columns: repeat(1, 1fr);
 	gap: 2rem;
@@ -453,7 +448,7 @@
 		& {grid-template-columns: repeat(3, 1fr);}
 	}
 
-	.card_post {
+	.card-post {
 		display: grid;
 		gap: 0.5rem;
 		position: relative;
@@ -483,7 +478,7 @@
 			outline-width: 2px;
 		}
 	
-		.card_title {
+		.card-title {
 			display: flex;
 			position: relative;
 			padding: 3rem 0.75rem 1rem;
@@ -498,13 +493,13 @@
 				text-overflow: "";
 			}
 			
-			h3, .map_name {
+			h3, .map-name {
 				font-size: 1.25rem;
 				line-height: 1.25rem;
 				font-weight: 500;
 			}
 	
-			.map_name {
+			.map-name {
 				border-radius: 0.25rem;
 
 				&::after {
@@ -514,14 +509,14 @@
 			}
 		}
 
-		.card_description {
+		.card-description {
 			padding: 0 0.75rem;
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
 		}
 
-		.card_content {
+		.card-content {
 			background-position: center;
 			background-size: cover;
 			height: 15rem;
@@ -529,20 +524,20 @@
 			margin: 0 0.5rem 0.5rem;
 			border-radius: 0.5rem;
 
-			.post_details {
+			.post-details {
 				position: absolute;
 				inset: 0.5rem;
 				display: flex;
 				justify-content: end;
 		
-				.tags_container {
+				.tags-container {
 					position: absolute;
 					left: 0;
 					display: flex;
 					gap: 0.25rem;
 				}
 				
-				.images_overflow {
+				.images-overflow {
 					position: absolute;
 					bottom: 0;
 					width: fit-content;
@@ -557,7 +552,7 @@
 		}
 	}
 
-	.fetching_message {
+	.fetching-message {
 		grid-column: span 3;
 		text-align: center;
 		font-size: 1.5rem;

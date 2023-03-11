@@ -168,8 +168,8 @@ function Search({onChangeHandler}:any) {
     }
 
 	return (isInputModeNewPost && !isMobile) ?
-    <div className="searchbar new_post">
-        <div className="content_input">
+    <div className="searchbar new-post">
+        <div className="content-input">
             <div className="dynamic-icon" onClick={() => toggleInputMode(false)}>
                 <FontAwesomeIcon icon={faCircleXmark}/>
             </div>
@@ -178,12 +178,12 @@ function Search({onChangeHandler}:any) {
         </div>
         <div className="categorisation">
             <div className="section">
-                <div className="section_name">
+                <div className="section-name">
                     <FontAwesomeIcon icon={faLocationCrosshairs}/>
                     Map
                 </div>
-                <div className="section_content">
-                    <select className="map_selector" value={selectedMap} onChange={({target}:any) => {setSelectedMap(target.value)}}>
+                <div className="section-content">
+                    <select className="map-selector" value={selectedMap} onChange={({target}:any) => {setSelectedMap(target.value)}}>
                         <option>Ascent</option>
                         <option>Fracture</option>
                         <option>Haven</option>
@@ -197,11 +197,11 @@ function Search({onChangeHandler}:any) {
                 </div>
             </div>
             <div className="section">
-                <div className="section_name">
+                <div className="section-name">
                     <FontAwesomeIcon icon={faCircleHalfStroke}/>
                     Sides
                 </div>
-                <div className="section_content">
+                <div className="section-content">
                     {sideTags?.map((tag, index) => {
                         let state = tag.id === "attack" ? sidesTagsState.attack : sidesTagsState.defend
                         return <div 
@@ -217,18 +217,18 @@ function Search({onChangeHandler}:any) {
                 </div>
             </div>
             <div className="section">
-                <div className="section_name">
+                <div className="section-name">
                     <FontAwesomeIcon icon={faScrewdriverWrench}/>
                     Ability
                 </div>
-                <div className="section_content" tabIndex={-1}>
+                <div className="section-content" tabIndex={-1}>
                     {abilityTags?.map((tag, index) => {
                         return <SelectableTag key={index} isSmall={false} id={tag.id} onClick={() => handleTagSelect(tag.id, "ability")}/>
                     })}
                 </div>
             </div>
         </div>
-        <div className="form_buttons">
+        <div className="form-buttons">
             <button disabled={!checkFields()} onClick={handleSubmit}>Submit</button>
         </div>
         {searchValue}<br/>
