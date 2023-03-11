@@ -4,19 +4,8 @@ export default query(async ({db}, tags?:{abilities: string[], sides: string[]}, 
 
 	let posts = await db
 	.query("posts")
+	.order("desc")
 	.collect()
-	
-	posts.sort((a, b) => {
-		if (a.map > b.map) {
-			return 1
-		}
-
-		if (a.map < b.map) {
-			return -1
-		}
-
-		return 0
-	})
 	
 	if (map !== undefined && map !== "") {
 		if (map !== "All") {
