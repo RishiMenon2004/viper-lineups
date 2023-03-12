@@ -11,7 +11,10 @@
 
 import type { ApiFromModules } from "convex/api";
 import type * as posts_createNewPost from "../posts/createNewPost";
+import type * as posts_deleteImage from "../posts/deleteImage";
 import type * as posts_getFilteredPosts from "../posts/getFilteredPosts";
+import type * as posts_getImages from "../posts/getImages";
+import type * as posts_uploadImage from "../posts/uploadImage";
 import type * as tags_getTagByID from "../tags/getTagByID";
 import type * as tags_getTags from "../tags/getTags";
 
@@ -26,7 +29,10 @@ import type * as tags_getTags from "../tags/getTags";
  */
 export type API = ApiFromModules<{
   "posts/createNewPost": typeof posts_createNewPost;
+  "posts/deleteImage": typeof posts_deleteImage;
   "posts/getFilteredPosts": typeof posts_getFilteredPosts;
+  "posts/getImages": typeof posts_getImages;
+  "posts/uploadImage": typeof posts_uploadImage;
   "tags/getTagByID": typeof tags_getTagByID;
   "tags/getTags": typeof tags_getTags;
 }>;

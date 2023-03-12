@@ -1,6 +1,10 @@
 import { defineSchema, defineTable, s } from "convex/schema";
 
 export default defineSchema({
+  images: defineTable({
+    storageId: s.string(),
+    downloadUrl: s.string(),
+  }),
   posts: defineTable({
     body: s.string(),
     images: s.array(s.object({ cover: s.boolean(), url: s.string() })),

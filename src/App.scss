@@ -291,6 +291,119 @@
 			}
 		}
 
+		.upload-input {
+
+			.upload-button {
+				--background-color: hsl(260, 7%, 15%);
+				display: grid;
+				place-items: center;
+				aspect-ratio: 1;
+				width: 100%;
+				position: relative;
+				border-radius: 1rem;
+				outline: hsl(260, 7%, 15%) 4px solid;
+				outline-offset: -3px;
+				overflow: hidden;
+				background-color: var(--background-color);
+				cursor: pointer;
+
+				&:hover {
+					--background-color: hsl(260, 7%, 12%);
+				}
+
+				.upload-button-icon {
+					font-size: 1.25rem;
+				}
+
+				.upload-button-plus {
+					position: absolute;
+					background-color: var(--background-color);
+					border-radius: 100%;
+					aspect-ratio: 1;
+					padding: 0.25rem;
+					left: 50%;
+					bottom: 50%;
+					font-size: 0.75rem;
+				}
+			}
+
+			.image-grid {
+				display: grid;
+				gap: 1rem;
+				padding-inline: 0.5rem;
+				grid-template-columns: repeat(auto-fill, clamp(10%, 10vw, 10rem));
+				
+				.image {
+					width: 100%;
+					aspect-ratio: 1;
+					background-position: center;
+					background-size: cover;
+					border-radius: 1rem;
+					outline: hsl(260, 7%, 15%) 4px solid;
+					outline-offset: -3px;
+					position: relative;
+					isolation: isolate;
+					display: grid;
+					place-items: center;
+
+					.cover-icon {
+						z-index: 1;
+						display: grid;
+						place-items: center;
+						position: absolute;
+						left: 0;
+						top: 0;
+						font-size: 1.25rem;
+						height: 1.25rem;
+						aspect-ratio: 1;
+
+						&::before {
+							content: "Set as cover image";
+							position: absolute;
+							bottom: 120%;
+							width: max-content;
+							padding: 0.25rem 0.5rem;
+							border-radius: 0.5rem;
+							font-size: 0.75rem;
+							background-color: black;
+							display: none;
+						}
+
+						&:hover::before {
+							display: block;
+						}
+					}
+
+					.delete-button {
+						display: none;
+						position: absolute;
+						right: 6px;
+						bottom: 6px;
+						padding: 0.5rem;
+						font-size: 0.75rem;
+						background-color: hsl(260, 7%, 15%);
+						aspect-ratio: 1;
+						border-radius: 0.5rem;
+						transition: background-color 0.2s ease;
+						cursor: pointer;
+
+						&:hover {
+							background-color: hsl(0, 60%, 50%);
+							outline: hsl(0, 0%, 100%, 20%) 2px solid;
+							outline-offset: -1px;
+						}
+					}
+
+					&:hover {
+						.delete-button {
+							display: block;
+						}
+					}
+
+				}
+			}
+		}
+
 		.form-buttons {
 			display: flex;
 			justify-content: end;
