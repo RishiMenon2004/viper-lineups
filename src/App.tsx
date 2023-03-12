@@ -272,7 +272,7 @@ function App() {
 			
 			let startIndex:number = 0
 
-			for (let i = 1; i < 5; i++) {
+			for (let i = 1; i < Math.ceil(allImages.length/5) + 1; i++) {
 				
 				let imageSet = allImages.slice(startIndex, i*5)
 				
