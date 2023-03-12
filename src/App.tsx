@@ -258,7 +258,7 @@ function App() {
 		const {clientX} = e.changedTouches[0]
 		handlefocusedPostDragEnd(clientX)
 	}
-	
+
 	function handleDeletePost(e:any) {
 		console.log("post delete")
 	}
@@ -272,7 +272,7 @@ function App() {
 			
 			let startIndex:number = 0
 
-			for (let i = 1; i < (allImages.length % 4); i++) {
+			for (let i = 1; i < 5; i++) {
 				
 				let imageSet = allImages.slice(startIndex, i*5)
 				
