@@ -206,7 +206,7 @@ function App() {
 		return post._id === currentOpenPostId
 	})
 
-	/* Handle Dragging the FOcused Post */
+	/* Handle Dragging the Focused Post */
 
 	function handlefocusedPostDragStart(xCord: any) {
 		setIsDragging(true)
@@ -232,7 +232,6 @@ function App() {
 
 			let staringPercent = (startDragMousePosX/windowWidth)*100
 			let currentPercent = (xCord/windowWidth)*100
-			console.log(isDragging)
 	
 			let percentDelta = currentPercent - staringPercent
 
