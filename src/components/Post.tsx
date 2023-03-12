@@ -5,12 +5,9 @@ import { Tag } from './Tags';
 
 function Post({onClick, data}: {onClick: Function, data: Document<"posts">}) {
 
-	let images = [
-		"/post_test_images/Ascent.png",
-		"/post_test_images/Ascent.png",
-		"/post_test_images/Ascent.png",
-		"/post_test_images/Ascent.png"
-	]
+	const coverImage = data.images.find(image => {
+		return image.cover
+	})
 
 	return (
 		<article id={data._id.id} className="card-post" onClick={() => onClick()} onKeyDown={(e) => {e.key === "Enter" && onClick()}} tabIndex={0}>
@@ -23,16 +20,16 @@ function Post({onClick, data}: {onClick: Function, data: Document<"posts">}) {
 			<div className='card-description' style={{whiteSpace: "pre-line"}}>
 				{data.body}
 			</div>
-			<div className='card-content' style={{backgroundImage: `url(${images.at(0)})`}}>
+			<div className='card-content' style={{backgroundImage: `url(${coverImage?.url})`}}>
 				<div className='post-details'>
 					<div className='tags-container'>
 						{data.tags.map((tag: string, index: number) => {
 							return index < 3 && <Tag key={index} isSmall={true} id={tag}/>
 						})}
 					</div>
-					<div className='images-overflow'>
-						<FontAwesomeIcon icon={faImage}/> +1
-					</div>
+					{(data.images.length > 1) && <div className='images-overflow'>
+						<FontAwesomeIcon icon={faImage}/> +{data.images.length - 1}
+					</div>}
 				</div>
 			</div>
 		</article>
