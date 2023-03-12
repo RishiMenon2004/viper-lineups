@@ -258,7 +258,83 @@ function App() {
 		const {clientX} = e.changedTouches[0]
 		handlefocusedPostDragEnd(clientX)
 	}
- 
+	
+	function handleDeletePost(e:any) {
+		console.log("post delete")
+	}
+
+	
+	function mapImages() {
+		let postImageGrids:any[] = []
+	
+		if (focusedPost !== undefined) {
+			let allImages = focusedPost.images
+			
+			let startIndex:number = 0
+
+			for (let i = 1; i < (allImages.length % 4); i++) {
+				
+				let imageSet = allImages.slice(startIndex, i*5)
+				
+				let gridImages = imageSet.map((image, index) => {
+
+					let span = {row: 1, column: 1}
+					
+					switch (imageSet.length) {
+						case 5: {
+							switch (index) {
+								case 0: span = {row: 4, column: 3}; break;
+								case 1: span = {row: 4, column: 3}; break;
+								case 2: span = {row: 2, column: 2}; break;
+								case 3: span = {row: 2, column: 2}; break;
+								case 4: span = {row: 2, column: 2}; break;
+							}
+							break;
+						}
+						case 4: {
+							switch (index) {
+								case 0: span = {row: 3, column: 3}; break;
+								case 1: span = {row: 3, column: 3}; break;
+								case 2: span = {row: 3, column: 3}; break;
+								case 3: span = {row: 3, column: 3}; break;
+							}
+							break;
+						}
+						case 3: {
+							switch (index) {
+								case 0: span = {row: 6, column: 3}; break;
+								case 1: span = {row: 3, column: 3}; break;
+								case 2: span = {row: 3, column: 3}; break;
+							}
+							break;
+						}
+						case 2: {
+							switch (index) {
+								case 0: span = {row: 6, column: 3}; break;
+								case 1: span = {row: 6, column: 3}; break;
+							}
+							break;
+						}
+						case 1: {
+							switch (index) {
+								case 0: span = {row: 6, column: 6}; break;
+							}
+							break;
+						}
+					}
+
+					return <div className="image" key={index} style={{backgroundImage: `url(${image.url})`, gridRow: `span ${span.row}`, gridColumn: `span ${span.column}`}}/>
+				})
+
+				startIndex = i * 5
+
+				postImageGrids.push(<div className="image-grid">{gridImages}</div>)
+			}
+		}
+
+		return postImageGrids
+	}
+
 	return (
 		<div className={"App" + ((isPostViewOpen && focusedPost !== undefined) ? " viewing-post" : "")} onMouseMove={({clientX}) => handlefocusedPostDrag(clientX)} onTouchMove={handleTouchMove} onMouseUp={({clientX}) => handlefocusedPostDragEnd(clientX)} onTouchEnd={handleTouchEnd}>
 			{!isMobile && <SortingBar floating={true} handleTagClick={handleTagClick} handleSelectChange={handleSelectChange}/>}
@@ -285,10 +361,24 @@ function App() {
 						{focusedPost?.title}
 						<div className='map-name'>{focusedPost?.map}</div>
 					</div>
-					<div className='tags-container'>
-						{focusedPost?.tags.map((tag: string, index: number) => {
-							return <Tag key={index} id={tag}/>
-						})}
+					<div className="content-grid">
+						<div className='tags-container'>
+							{focusedPost?.tags.map((tag: string, index: number) => {
+								return <Tag key={index} id={tag}/>
+							})}
+						</div>
+						{focusedPost.body}
+						{/* <div className="image-grid">
+							{focusedPost.images.map((image, index) => {
+								if (index < 4) {
+									return <div className="image" style={{backgroundImage: `url(${image.url})`}}/>
+								}
+							})}
+						</div> */}
+						{mapImages()}
+						<div className="post-buttons">
+							<button onClick={handleDeletePost}>Delete Post</button>
+						</div>
 					</div>
 				</div>
 			)}
