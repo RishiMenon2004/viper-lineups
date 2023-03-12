@@ -113,6 +113,23 @@ function Search({onChangeHandler}:any) {
             if (hasCover === false) {
                 return false
             }
+
+            let hasUploading = false
+
+            uploadedImages.every(image => {
+                if (image.uploading) {
+                    hasUploading = true
+                    return false
+                }
+
+                return true
+            })
+
+            if (hasUploading) {
+                return false
+            }
+        } else {
+            return false
         }
 
         return true
@@ -123,24 +140,27 @@ function Search({onChangeHandler}:any) {
 
     async function handleSubmit() {
 
-        let uploadedImages:{cover: boolean, url: string}[] = []
+        let imagesData:{cover: boolean, url: string}[] = []
 
         uploadedImages.forEach((selectedImage:any) => {
-            const imageDocument = imagesQuery?.find(image => {
+            let imageDocument = imagesQuery?.find(image => {
                 return image.storageId === selectedImage.storageId
             })
 
-            imageDocument !== undefined && uploadedImages.push({cover: selectedImage.cover, url: imageDocument.downloadUrl})
+            imageDocument !== undefined && imagesData.push({cover: selectedImage.cover, url: imageDocument.downloadUrl})
         })
-
-        submitNewPost({
+        
+        const data = {
             title: searchValue,
             body: messageValue,
-            images: [...uploadedImages],
+            images: [...imagesData],
             tags: [selectedTags.side, ...selectedTags.abilities],
             map: selectedMap
-        })
+        }
+        
+        await submitNewPost(data)
 
+        // clearFields(true)
         toggleInputMode(false, true)
     }
 
