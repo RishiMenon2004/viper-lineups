@@ -98,22 +98,14 @@
 	}
 
 	@media screen and (min-width: 600px) {
-		& {
-			&.viewing-post {
-				grid-template-areas: "main viewPost";
-
-				.view-post {
-					display: flex;
-					grid-area: viewPost;
-				}
-			}
-			
+		& {			
 			.main-area {
 				gap: 1rem;
 				border-radius: 0 0.5rem 0.5rem 0;
 			}
 
 			.view-post {
+				display: none;
 				position: relative;
 				transition: none;
 				transform: translateX(0);
@@ -121,6 +113,15 @@
 
 				.title {
 					border-radius: 0.5rem 0 0 0;
+				}
+			}
+
+			&.viewing-post {
+				grid-template-areas: "main viewPost";
+
+				.view-post {
+					display: flex;
+					grid-area: viewPost;
 				}
 			}
 		}
@@ -201,8 +202,8 @@
 		}
 		
 		&:active {
-			outline: hsl(141, 42%, 39%) 2px solid;
 			background-color: hsl(141, 78%, 20%);
+			outline: hsl(141, 42%, 39%) 2px solid;
 		}
 
 		&:disabled {
@@ -464,9 +465,7 @@
 
 		&:hover, &:focus-visible, &.selected {
 			transform: translateY(-4px);
-			background-color: hsl(260, 7%, 12%);
 			box-shadow: 0 0.5rem 1rem hsl(0, 0%, 0%, 0.24);
-			--post-image-over-gradient: linear-gradient(to top, hsl(260, 7%, 12%), transparent);
 		}
 
 		&:focus-visible {
