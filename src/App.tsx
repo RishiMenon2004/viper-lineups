@@ -1,6 +1,6 @@
 import './App.scss';
 import { MutableRefObject, useEffect, useRef, useState } from 'react';
-import { useQuery } from './convex/_generated/react';
+import { useMutation, useQuery } from './convex/_generated/react';
 
 import { Tag } from './components/Tags';
 import Search from './components/Search';
@@ -8,7 +8,7 @@ import Post from './components/Post';
 import SortingBar from './components/SortingBar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner, faXmark } from '@fortawesome/free-solid-svg-icons';
-import { Document } from './convex/_generated/dataModel';
+import { Document, Id } from './convex/_generated/dataModel';
 
 function App() {
 
@@ -259,8 +259,10 @@ function App() {
 		handlefocusedPostDragEnd(clientX)
 	}
 
-	function handleDeletePost(e:any) {
-		console.log("post delete")
+	const deletePost = useMutation("posts/deletePost")
+
+	async function handleDeletePost(postId: Id<"posts"> | undefined) {
+		await deletePost(postId)
 	}
 
 	function createImageGrids() {
@@ -382,7 +384,7 @@ function App() {
 						{createImageGrids()}
 						
 						<div className="post-buttons">
-							<button onClick={handleDeletePost}>Delete Post</button>
+							<button onClick={() => handleDeletePost(focusedPost?._id)}>Delete Post</button>
 						</div>
 					</div>
 				</div>
