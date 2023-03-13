@@ -366,14 +366,14 @@ function App() {
 
 	function handleImageMouseMove({nativeEvent}:any) {
 
-		const {screenX, screenY} = nativeEvent
+		const {clientX, clientY} = nativeEvent
 
 		const target = viewImageRef.current as HTMLImageElement
 
 		const {clientWidth, clientHeight} = target
 
-		const offsetX = screenX - viewImageOffset.offsetLeft
-		const offsetY = screenY - viewImageOffset.offsetTop
+		const offsetX = clientX - viewImageOffset.offsetLeft
+		const offsetY = clientY - viewImageOffset.offsetTop
 
 		const widthOffset = clientWidth/2
 		const heightOffset = clientHeight/2
