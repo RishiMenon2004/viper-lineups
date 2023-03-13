@@ -260,11 +260,11 @@ function App() {
 		handlefocusedPostDragEnd(clientX)
 	}
 
-	const deletePost = useMutation("posts/deletePost")
+	// const deletePost = useMutation("posts/deletePost")
 
-	async function handleDeletePost(postId: Id<"posts"> | undefined) {
-		await deletePost(postId)
-	}
+	// async function handleDeletePost(postId: Id<"posts"> | undefined) {
+	// 	await deletePost(postId)
+	// }
 
 	function createImageGrids() {
 		let postImageGrids:any[] = []
@@ -432,9 +432,9 @@ function App() {
 						
 						{createImageGrids()}
 						
-						<div className="post-buttons">
+						{/* <div className="post-buttons">
 							<button onClick={() => handleDeletePost(focusedPost?._id)}>Delete Post</button>
-						</div>
+						</div> */}
 					</div>
 				</div>
 				{openImageIndex > -1 && <div className='view-image'
