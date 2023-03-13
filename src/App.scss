@@ -233,6 +233,7 @@
 			background-color: transparent;
 			transition: background-color 0.1s ease;
 			cursor: pointer;
+			z-index: 3;
 
 			&:hover,
 			&:focus-visible {
@@ -269,6 +270,12 @@
 			padding: 1rem 2rem 1rem 0rem;
 		}
 
+		.drag-image-switch {
+			position: absolute;
+			inset: 0;
+			z-index: 2;
+		}
+		
 		img {
 			grid-area: image;
 			max-height: 90vh;
@@ -277,6 +284,7 @@
 			transition: scale 0.5s;
 			cursor: zoom-in;
 			scale: 1;
+			z-index: 3;
 			
 			&.zoomed {
 				scale: 2;

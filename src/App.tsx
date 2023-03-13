@@ -38,16 +38,9 @@ function App() {
 
 	const [isPostViewOpen, setIsPostViewOpen] = useState(false)
 	const [currentOpenPostId, setCurrentOpenPostId] = useState<any>(null)
-	const [openImageIndex, setOpenImageIndex] = useState<number>(-1)
 	const [selectedTags, setSelectedTags] = useState<{abilities: string[], sides: string[]}>({abilities: [], sides: []})
 	const [selectedMap, setSelectedMap] = useState("All")
 	const [searchQuery, setSearchQuery] = useState("")
-
-	const [startDragMousePosX, setStartDragMousePosX] = useState<number>(0)
-	const [isDraggingPost, setIsDraggingPost] = useState<boolean>(false)
-	const [focusedPostTransform, setfocusedPostTransform] = useState<string>("translateX(100%)")
-	const [focusedPostTransition, setfocusedPostTransition] = useState<string>("transform 0.25s ease-in-out")
-	const [isImageZoomed, setIsImageZoomed] = useState<boolean>(false)
 
 	const postsQuery = useQuery("posts/getFilteredPosts", selectedTags, selectedMap)
 	const postsContainer = useRef() as MutableRefObject<HTMLDivElement>
@@ -209,17 +202,23 @@ function App() {
 
 	/* Handle Dragging the Focused Post */
 
+	const [startDragMousePosX, setStartDragMousePosX] = useState<number>(0)
+	const [isDraggingPost, setIsDraggingPost] = useState<boolean>(false)
+	const [focusedPostTransform, setfocusedPostTransform] = useState<string>("translateX(100%)")
+	const [focusedPostTransition, setfocusedPostTransition] = useState<string>("transform 0.25s ease-in-out")
+	const [isImageZoomed, setIsImageZoomed] = useState<boolean>(false)
+
 	function handlefocusedPostDragStart(xCord: any) {
-		setIsDraggingPost(true)
+		openImageIndex < 0 && setIsDraggingPost(true)
 		setfocusedPostTransition("")
 		setStartDragMousePosX(xCord)
 	}
 
 	function handlefocusedPostDrag(xCord: any) {
-		let staringPercent = (startDragMousePosX/windowWidth)*100
+		let startingPercent = (startDragMousePosX/windowWidth)*100
 		let currentPercent = (xCord/windowWidth)*100
 
-		let percentDelta = Math.max(currentPercent - staringPercent, 0)
+		let percentDelta = Math.max(currentPercent - startingPercent, 0)
 
 		if (isDraggingPost && isMobile) {
 			setfocusedPostTransform(`translateX(${percentDelta}%)`)
@@ -231,10 +230,10 @@ function App() {
 			setIsDraggingPost(false)
 			setfocusedPostTransition("transform 0.25s ease-in-out")
 
-			let staringPercent = (startDragMousePosX/windowWidth)*100
+			let startingPercent = (startDragMousePosX/windowWidth)*100
 			let currentPercent = (xCord/windowWidth)*100
 	
-			let percentDelta = currentPercent - staringPercent
+			let percentDelta = currentPercent - startingPercent
 
 			if (percentDelta <= 30) {
 				setfocusedPostTransform("translateX(0%)")
@@ -351,6 +350,13 @@ function App() {
 		return postImageGrids
 	}
 
+	/* Handle Image Viewing: Zoom, Inspecting */
+
+	const [viewImagePos, setViewImagePos] = useState({x: 0, y: 0})
+	const [viewImageDragStartPos, setViewImageDragStartPos] = useState<{x: number, y: number}>({x: 0, y:0})
+	const [viewImageDragOffset, setViewImageDragOffset] = useState<{x: number, y: number}>({x: 0, y:0})
+	const viewImageRef = useRef<HTMLImageElement | null>(null)
+
 	function handleImageZoom() {
 		const target = viewImageRef.current as HTMLImageElement
 		const {offsetLeft, offsetTop} = target
@@ -358,20 +364,19 @@ function App() {
 
 		target.style.transform = ""
 
-		if (isImageZoomed) {
-			setViewImageDragStartPos({x: 0, y: 0})
-			setViewImageDragOffset({x: 0, y:0})
+		setViewImageDragStartPos({x: 0, y: 0})
+		setViewImageDragOffset({x: 0, y:0})
+
+		if (!isImageZoomed) {
+			setImageSwitchTransition("")
+		} else {
+			setImageSwitchTransition("transform 0.5s, scale 0.5s")
 		}
 
 		setIsImageZoomed(oldValue => !oldValue)
 	}
 
-	const [viewImageOffset, setViewImagePos] = useState({x: 0, y: 0})
-	const [viewImageDragStartPos, setViewImageDragStartPos] = useState<{x: number, y: number}>({x: 0, y:0})
-	const [viewImageDragOffset, setViewImageDragOffset] = useState<{x: number, y: number}>({x: 0, y:0})
-	const viewImageRef = useRef<HTMLImageElement | null>(null)
-
-	function handleImageMouseMove(clientX:any, clientY:any) {
+	function handleImageMouseMove(clientX:any, clientY:any, isMouse?:boolean) {
 
 		const target = viewImageRef.current as HTMLImageElement
 
@@ -379,7 +384,7 @@ function App() {
 
 		if (isImageZoomed) {
 			
-			if (isMobile) {
+			if (isMobile && (!isMouse || isMobile === undefined)) {
 
 				let {x: prevOffsetX, y: prevOffsetY} = viewImageDragOffset
 
@@ -391,8 +396,8 @@ function App() {
 				
 				target.style.transform = `translate(${clamppedOffsetX}px, ${clamppedOffsetY}px)`
 			} else {
-				let offsetX = clientX - viewImageOffset.x
-				let offsetY = clientY - viewImageOffset.y	
+				let offsetX = clientX - viewImagePos.x
+				let offsetY = clientY - viewImagePos.y	
 				const widthOffset = clientWidth/2
 				const heightOffset = clientHeight/2
 				
@@ -403,20 +408,17 @@ function App() {
 		}
 	}
 
-	function handleTouchStartImage({changedTouches}:any) {
-		const {clientX, clientY} = changedTouches[0]
+	function handleTouchStartImage({clientX, clientY}:any) {
 		isImageZoomed && setViewImageDragStartPos({x: clientX, y: clientY})
 	}
 
-	function handleTouchDragImage({changedTouches}:any) {
-		const {clientX, clientY} = changedTouches[0]
-		handleImageMouseMove(clientX, clientY)
+	function handleTouchDragImage({clientX, clientY}:any, isMouse?:boolean) {
+		handleImageMouseMove(clientX, clientY, isMouse)
 	}
 
-	function handleTouchEndImage({changedTouches}:any) {
+	function handleTouchEndImage({clientX, clientY}:any) {
 		const target = viewImageRef.current as HTMLImageElement
 		const {clientWidth, clientHeight} = target
-		const {clientX, clientY} = changedTouches[0]
 
 		let {x: prevOffsetX, y: prevOffsetY} = viewImageDragOffset
 		
@@ -429,8 +431,94 @@ function App() {
 		setViewImageDragOffset({x: clamppedOffsetX, y: clamppedOffsetY})
 	}
 
+	/* Handle Image Viewing: Switching, Drag-Switching */
+
+	const [openImageIndex, setOpenImageIndex] = useState<number>(-1)
+	const [isDraggingImageSwitch, setIsDraggingImageSwitch] = useState<boolean>(false)
+	const [imageSwitchTransform, setImageSwitchTransform] = useState({translate: "", scale: ""})
+	const [imageSwitchTransition, setImageSwitchTransition] = useState("")
+
+	function prevImage() {
+		setOpenImageIndex( oldIndex => Math.max(oldIndex - 1, 0))
+	}
+
+	function nextImage() {
+		setOpenImageIndex( oldIndex => Math.min(oldIndex + 1, focusedPost ? (focusedPost?.images.length - 1) : 1))
+	}
+
+	function handleImageSwitchDragStart(xCord: any) {
+		setIsDraggingImageSwitch(true)
+		setImageSwitchTransition("")
+		setStartDragMousePosX(xCord)
+	}
+
+	function handleImageSwitchDrag(xCord: any) {
+		let startingPercent = ((startDragMousePosX - (windowWidth/2))/windowWidth)*100
+		let currentPercent = ((xCord - (windowWidth/2))/windowWidth)*100
+
+		let percentDelta = currentPercent - startingPercent
+
+		if (openImageIndex === 0) {
+			percentDelta = Math.min(percentDelta, 0)
+		}
+
+		if (openImageIndex === (focusedPost ? (focusedPost?.images.length - 1) : 1)) {
+			percentDelta = Math.max(percentDelta, 0)
+		}
+
+		if (isDraggingImageSwitch && isMobile) {
+			setImageSwitchTransform({translate: `translateX(${percentDelta}%)`, scale: `scale(${100 - Math.abs(percentDelta)}%)`})
+		}
+	}
+
+	function handleImageSwitchDragEnd(xCord: any) {
+		if (isDraggingImageSwitch && isMobile) {
+			setIsDraggingImageSwitch(false)
+
+			let startingPercent = ((startDragMousePosX - (windowWidth/2))/windowWidth)*100
+			let currentPercent = ((xCord - (windowWidth/2))/windowWidth)*100
+	
+			let percentDelta = currentPercent - startingPercent
+			
+			if (openImageIndex === 0) {
+				percentDelta = Math.min(percentDelta, 0)
+			}
+	
+			if (openImageIndex === (focusedPost ? (focusedPost?.images.length - 1) : 1)) {
+				percentDelta = Math.max(percentDelta, 0)
+			}
+
+			if (percentDelta < -20) {
+				setImageSwitchTransform({translate: `translateX(100%)`, scale: `scale(0.25)`})
+				nextImage()
+			} else if (percentDelta > 20) {
+				setImageSwitchTransform({translate: `translateX(-100%)`, scale: `scale(0.25)`})
+				prevImage()
+			}
+			setTimeout(() => {
+				setImageSwitchTransition("transform 0.5s")
+				setImageSwitchTransform({translate: `translateX(0)`, scale: `scale(1)`})
+			}, 10)
+		}
+	}
+
+	function handleTouchStartImageSwitch({changedTouches}:any) {
+		const {clientX} = changedTouches[0]
+		handleImageSwitchDragStart(clientX)
+	}
+
+	function handleTouchMoveImageSwitch({changedTouches}:any) {
+		const {clientX} = changedTouches[0]
+		handleImageSwitchDrag(clientX)
+	}
+
+	function handleTouchEndImageSwitch({changedTouches}:any) {
+		const {clientX} = changedTouches[0]
+		handleImageSwitchDragEnd(clientX)
+	}
+
 	return (
-		<div className={"App" + ((isPostViewOpen && focusedPost !== undefined) ? " viewing-post" : "")} onMouseMove={({clientX}) => handlefocusedPostDrag(clientX)} onTouchMove={handleTouchMovePost} onMouseUp={({clientX}) => handlefocusedPostDragEnd(clientX)} onTouchEnd={handleTouchEndPost}>
+		<div className={"App" + ((isPostViewOpen && focusedPost !== undefined) ? " viewing-post" : "")}>
 			{!isMobile && <SortingBar floating={true} handleTagClick={handleTagClick} handleSelectChange={handleSelectChange}/>}
 			
 			<main className='main-area' tabIndex={-1}>
@@ -445,7 +533,15 @@ function App() {
 
 				<div className='selected-post' style={isMobile ? {transform: focusedPostTransform, transition: focusedPostTransition} : {}}>
 					
-					{isMobile && <div className="drag-region" onMouseDown={({clientX}) => handlefocusedPostDragStart(clientX)} onTouchStart={handleTouchStartPost}/>}
+					{isMobile && <div 
+									className="drag-region"
+									onMouseDown={({clientX}) => handlefocusedPostDragStart(clientX)}
+									onMouseMove={({clientX}) => handlefocusedPostDrag(clientX)}
+									onMouseUp={({clientX}) => handlefocusedPostDragEnd(clientX)}
+									onTouchStart={handleTouchStartPost}
+									onTouchMove={handleTouchMovePost}
+									onTouchEnd={handleTouchEndPost}
+								/>}
 					
 					<div className="title" style={{backgroundImage: `var(--post-image-over-gradient), url(/maps/${focusedPost?.map}.png)`}}>
 						
@@ -484,18 +580,36 @@ function App() {
 				{openImageIndex > -1 && <div className='view-image'
 					onMouseMove={({nativeEvent}) => {!isMobile && handleImageMouseMove(nativeEvent.clientX, nativeEvent.clientY)}}>
 					{(focusedPost.images.length > 1 && !isMobile) && <>
-						<div className={`left-button ${openImageIndex === 0 && "disabled"}`} onClick={() => setOpenImageIndex( oldIndex => Math.max(oldIndex - 1, 0))}><FontAwesomeIcon icon={faCaretLeft}/></div>
-						<div className={`right-button ${openImageIndex === (focusedPost?.images.length - 1) && "disabled"}`} onClick={() => setOpenImageIndex( oldIndex => Math.min(oldIndex + 1, focusedPost ? (focusedPost?.images.length - 1) : 1))}><FontAwesomeIcon icon={faCaretRight}/></div>
+						<div className={`left-button ${openImageIndex === 0 && "disabled"}`} onClick={prevImage}><FontAwesomeIcon icon={faCaretLeft}/></div>
+						<div className={`right-button ${openImageIndex === (focusedPost?.images.length - 1) && "disabled"}`} onClick={nextImage}><FontAwesomeIcon icon={faCaretRight}/></div>
 					</>}
+					{(isMobile && !isImageZoomed) && (
+						<div
+							className="drag-image-switch" 
+							style={{transform: `${imageSwitchTransform.translate}`}}
+							onMouseDown={({clientX}) => handleImageSwitchDragStart(clientX)}
+							onMouseMove={({clientX}) => handleImageSwitchDrag(clientX)}
+							onMouseUp={({clientX}) => handleImageSwitchDragEnd(clientX)}
+							onTouchStart={handleTouchStartImageSwitch}
+							onTouchMove={handleTouchMoveImageSwitch}
+							onTouchEnd={handleTouchEndImageSwitch}
+						/>
+					)}
 					<img
+						draggable={false}
 						ref={viewImageRef}
+						style={{transform: `${imageSwitchTransform.translate} ${imageSwitchTransform.scale}`, transition: imageSwitchTransition}}
 						className={`${isImageZoomed && "zoomed"}`}
 						src={focusedPost?.images[openImageIndex].url}
 						alt={`Post Number: ${openImageIndex + 1}`}
 						onClick={handleImageZoom}
-						onTouchStart={e => handleTouchStartImage(e)}
-						onTouchMove={e => handleTouchDragImage(e)}
-						onTouchEnd={e => handleTouchEndImage(e)}/>
+						onMouseDown={({clientX, clientY}) => handleTouchStartImage({clientX, clientY})}
+						onMouseMove={({clientX, clientY}) => handleTouchDragImage({clientX, clientY}, true)}
+						onMouseUp={({clientX, clientY}) => handleTouchEndImage({clientX, clientY})}
+						onTouchStart={({changedTouches}) => handleTouchStartImage(changedTouches[0])}
+						onTouchMove={({changedTouches}) => handleTouchDragImage(changedTouches[0])}
+						onTouchEnd={({changedTouches}) => handleTouchEndImage(changedTouches[0])}
+					/>
 					<div 
 						tabIndex={0} 
 						className="close-button" 
