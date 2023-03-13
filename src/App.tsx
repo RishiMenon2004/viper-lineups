@@ -284,11 +284,11 @@ function App() {
 					switch (imageSet.length) {
 						case 5: {
 							switch (index) {
-								case 0: span = {row: 4, column: 3}; break;
-								case 1: span = {row: 4, column: 3}; break;
-								case 2: span = {row: 2, column: 2}; break;
-								case 3: span = {row: 2, column: 2}; break;
-								case 4: span = {row: 2, column: 2}; break;
+								case 0: span = {row: 3, column: 3}; break;
+								case 1: span = {row: 3, column: 3}; break;
+								case 2: span = {row: 3, column: 2}; break;
+								case 3: span = {row: 3, column: 2}; break;
+								case 4: span = {row: 3, column: 2}; break;
 							}
 							break;
 						}
@@ -303,22 +303,22 @@ function App() {
 						}
 						case 3: {
 							switch (index) {
-								case 0: span = {row: 6, column: 3}; break;
-								case 1: span = {row: 3, column: 3}; break;
-								case 2: span = {row: 3, column: 3}; break;
+								case 0: span = {row: 4, column: 4}; break;
+								case 1: span = {row: 2, column: 2}; break;
+								case 2: span = {row: 2, column: 2}; break;
 							}
 							break;
 						}
 						case 2: {
 							switch (index) {
-								case 0: span = {row: 6, column: 3}; break;
-								case 1: span = {row: 6, column: 3}; break;
+								case 0: span = {row: 5, column: 3}; break;
+								case 1: span = {row: 5, column: 3}; break;
 							}
 							break;
 						}
 						case 1: {
 							switch (index) {
-								case 0: span = {row: 6, column: 6}; break;
+								case 0: span = {row: 5, column: 6}; break;
 							}
 							break;
 						}

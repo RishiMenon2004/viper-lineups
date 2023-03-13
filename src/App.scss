@@ -137,6 +137,11 @@
 					background-position: center;
 					border-radius: 0.5rem;
 					cursor: pointer;
+
+					&:hover {
+						outline: hsl(141, 78%, 25%) 0.25rem solid;
+						outline-offset: -0.25rem;
+					}
 				}
 			}
 
