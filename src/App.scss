@@ -209,6 +209,81 @@
 			}
 		}
 	}
+
+	.view-image {
+		position: absolute;
+		inset: 0;
+		background-color: hsl(0, 0%, 0%, 50%);
+		display: grid;
+		grid-template-areas: "back-button image next-button";
+		grid-template-columns: max-content 1fr max-content;
+		z-index: 2;
+		place-items: center;
+		backdrop-filter: blur(4px);
+
+		.close-button {
+			position: absolute;
+			top: 1rem;
+			right: 1rem;
+			display: grid;
+			place-items: center;
+			font-size: 2rem;
+			height: 2rem;
+			aspect-ratio: 1;
+			background-color: transparent;
+			transition: background-color 0.1s ease;
+			cursor: pointer;
+
+			&:hover,
+			&:focus-visible {
+				background-color: hsl(0, 0, 0%, 50%);
+				border-radius: 0.25rem;
+			}
+
+			&:focus-visible {
+				outline: hsl(141, 78%, 25%) 2px solid;
+			}
+		}
+
+		.left-button,
+		.right-button {
+			font-size: 3rem;
+			padding: 1rem;
+			cursor: pointer;
+
+			&.disabled {
+				color: transparent;
+				cursor: default;
+			}
+
+			&:hover > * {
+				transform: scale(1.2);
+			}
+		}
+
+		.left-button {
+			padding: 1rem 0rem 1rem 2rem;
+		}
+
+		.right-button {
+			padding: 1rem 2rem 1rem 0rem;
+		}
+
+		img {
+			grid-area: image;
+			max-height: 90vh;
+			max-width: 70vw;
+			border-radius: 0.5rem;
+			transition: scale 0.5s;
+			cursor: zoom-in;
+			scale: 1;
+			
+			&.zoomed {
+				scale: 2;
+				cursor: zoom-out;
+			}
+		}
+	}
 }
 
 .map-selector {

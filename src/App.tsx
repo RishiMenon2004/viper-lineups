@@ -7,7 +7,7 @@ import Search from './components/Search';
 import Post from './components/Post';
 import SortingBar from './components/SortingBar';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faCaretLeft, faCaretRight, faSpinner, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { Document, Id } from './convex/_generated/dataModel';
 
 function App() {
@@ -38,18 +38,19 @@ function App() {
 
 	const [isPostViewOpen, setIsPostViewOpen] = useState(false)
 	const [currentOpenPostId, setCurrentOpenPostId] = useState<any>(null)
+	const [openImageIndex, setOpenImageIndex] = useState<number>(-1)
 	const [selectedTags, setSelectedTags] = useState<{abilities: string[], sides: string[]}>({abilities: [], sides: []})
 	const [selectedMap, setSelectedMap] = useState("All")
 	const [searchQuery, setSearchQuery] = useState("")
 
-	const [startDragMousePosX, setStartDragMousePosX] = useState(0)
-	const [isDragging, setIsDragging] = useState(false)
-	const [focusedPostTransform, setfocusedPostTransform] = useState("translateX(100%)")
-	const [focusedPostTransition, setfocusedPostTransition] = useState("transform 0.25s ease-in-out")
+	const [startDragMousePosX, setStartDragMousePosX] = useState<number>(0)
+	const [isDragging, setIsDragging] = useState<boolean>(false)
+	const [focusedPostTransform, setfocusedPostTransform] = useState<string>("translateX(100%)")
+	const [focusedPostTransition, setfocusedPostTransition] = useState<string>("transform 0.25s ease-in-out")
+	const [isImageZoomed, setIsImageZoomed] = useState<boolean>(false)
 
 	const postsQuery = useQuery("posts/getFilteredPosts", selectedTags, selectedMap)
 	const postsContainer = useRef() as MutableRefObject<HTMLDivElement>
-	const focusedPostRef = useRef() as MutableRefObject<HTMLDivElement>
 
 	/* Interrations */
 
@@ -324,7 +325,21 @@ function App() {
 						}
 					}
 
-					return <div className="image" key={index} style={{backgroundImage: `url(${image.url})`, gridRow: `span ${span.row}`, gridColumn: `span ${span.column}`}}/>
+					let globalIndex = allImages.findIndex(allImage => {
+						return allImage === image
+					})
+
+					return (
+						<div
+						className="image"
+						onClick={() => setOpenImageIndex(globalIndex)}
+						key={index} 
+						style={{
+							backgroundImage: `url(${image.url})`,
+							gridRow: `span ${span.row}`, 
+							gridColumn: `span ${span.column}`}}
+						/>
+					)
 				})
 
 				startIndex = i * 5
@@ -334,6 +349,40 @@ function App() {
 		}
 
 		return postImageGrids
+	}
+
+	function handleImageZoom() {
+		const target = viewImageRef.current as HTMLImageElement
+		const {offsetLeft, offsetTop} = target
+		setViewImageOffset({offsetLeft: offsetLeft, offsetTop: offsetTop})
+
+		target.style.transform = ""
+
+		setIsImageZoomed(oldValue => !oldValue)
+	}
+
+	const [viewImageOffset, setViewImageOffset] = useState({offsetLeft: 0, offsetTop: 0})
+	const viewImageRef = useRef<HTMLImageElement | null>(null)
+
+	function handleImageMouseMove({nativeEvent}:any) {
+
+		const {screenX, screenY} = nativeEvent
+
+		const target = viewImageRef.current as HTMLImageElement
+
+		const {clientWidth, clientHeight} = target
+
+		const offsetX = screenX - viewImageOffset.offsetLeft
+		const offsetY = screenY - viewImageOffset.offsetTop
+
+		const widthOffset = clientWidth/2
+		const heightOffset = clientHeight/2
+
+		if (isImageZoomed) {
+			const xDelta = Math.min(Math.max((widthOffset - offsetX), -widthOffset), widthOffset)
+			const yDelta = Math.min(Math.max((heightOffset - offsetY), -heightOffset), heightOffset)
+			target.style.transform = `translate(${xDelta/2}px, ${yDelta/2}px)`
+		}
 	}
 
 	return (
@@ -348,9 +397,9 @@ function App() {
 			</div>
 			</main>
 
-			{focusedPost !== undefined && (
+			{focusedPost !== undefined && (<>
 
-				<div ref={focusedPostRef} className='selected-post' style={isMobile ? {transform: focusedPostTransform, transition: focusedPostTransition} : {}}>
+				<div className='selected-post' style={isMobile ? {transform: focusedPostTransform, transition: focusedPostTransition} : {}}>
 					
 					{isMobile && <div className="drag-region" onMouseDown={({clientX}) => handlefocusedPostDragStart(clientX)} onTouchStart={handleTouchStart}/>}
 					
@@ -388,7 +437,32 @@ function App() {
 						</div>
 					</div>
 				</div>
-			)}
+				{openImageIndex > -1 && <div className='view-image'
+					onMouseMove={handleImageMouseMove}>
+					{focusedPost.images.length > 1 && <>
+						<div className={`left-button ${openImageIndex === 0 && "disabled"}`} onClick={() => setOpenImageIndex( oldIndex => Math.max(oldIndex - 1, 0))}><FontAwesomeIcon icon={faCaretLeft}/></div>
+						<div className={`right-button ${openImageIndex === (focusedPost?.images.length - 1) && "disabled"}`} onClick={() => setOpenImageIndex( oldIndex => Math.min(oldIndex + 1, focusedPost ? (focusedPost?.images.length - 1) : 1))}><FontAwesomeIcon icon={faCaretRight}/></div>
+					</>}
+					<img
+						ref={viewImageRef}
+						className={`${isImageZoomed && "zoomed"}`}
+						src={focusedPost?.images[openImageIndex].url}
+						alt={`Post Number: ${openImageIndex + 1}`}
+						onClick={handleImageZoom}/>
+					<div 
+						tabIndex={0} 
+						className="close-button" 
+						onClick={() => {
+							setOpenImageIndex(-1)
+							setIsImageZoomed(false)
+						}}
+						onKeyDown={(e) => {
+							e.key === "Enter" && togglePostWithId(focusedPost?._id.id, focusedPost?._id)
+						}}>
+							<FontAwesomeIcon icon={faXmark}/>
+					</div>
+				</div>}
+			</>)}
 		</div>
 	)
 }
