@@ -435,7 +435,7 @@ function App() {
 
 	const [openImageIndex, setOpenImageIndex] = useState<number>(-1)
 	const [isDraggingImageSwitch, setIsDraggingImageSwitch] = useState<boolean>(false)
-	const [imageSwitchTransform, setImageSwitchTransform] = useState({translate: "", scale: ""})
+	const [imageSwitchTransform, setImageSwitchTransform] = useState({translate: "", scale: "", rotate: ""})
 	const [imageSwitchTransition, setImageSwitchTransition] = useState("")
 
 	function prevImage() {
@@ -467,7 +467,7 @@ function App() {
 		}
 
 		if (isDraggingImageSwitch && isMobile) {
-			setImageSwitchTransform({translate: `translateX(${percentDelta}%)`, scale: `scale(${100 - Math.abs(percentDelta)}%)`})
+			setImageSwitchTransform({translate: `translateX(${percentDelta}%)`, scale: `scale(${100 - Math.abs(percentDelta)}%)`, rotate:`rotateY(${45 * (-percentDelta/50)}deg)`})
 		}
 	}
 
@@ -489,15 +489,15 @@ function App() {
 			}
 
 			if (percentDelta < -20) {
-				setImageSwitchTransform({translate: `translateX(100%)`, scale: `scale(0.25)`})
+				setImageSwitchTransform({translate: `translateX(100%)`, scale: `scale(0.25)`, rotate: `rotateY(-45deg)`})
 				nextImage()
 			} else if (percentDelta > 20) {
-				setImageSwitchTransform({translate: `translateX(-100%)`, scale: `scale(0.25)`})
+				setImageSwitchTransform({translate: `translateX(-100%)`, scale: `scale(0.25)`, rotate: `rotateY(45deg)`})
 				prevImage()
 			}
 			setTimeout(() => {
 				setImageSwitchTransition("transform 0.5s")
-				setImageSwitchTransform({translate: `translateX(0)`, scale: `scale(1)`})
+				setImageSwitchTransform({translate: `translateX(0)`, scale: `scale(1)`, rotate: `rotateY(0)`})
 			}, 10)
 		}
 	}
@@ -598,7 +598,7 @@ function App() {
 					<img
 						draggable={false}
 						ref={viewImageRef}
-						style={{transform: `${imageSwitchTransform.translate} ${imageSwitchTransform.scale}`, transition: imageSwitchTransition}}
+						style={{transform: `${imageSwitchTransform.translate} ${imageSwitchTransform.scale} ${imageSwitchTransform.rotate}`, transition: imageSwitchTransition}}
 						className={`${isImageZoomed && "zoomed"}`}
 						src={focusedPost?.images[openImageIndex].url}
 						alt={`Post Number: ${openImageIndex + 1}`}

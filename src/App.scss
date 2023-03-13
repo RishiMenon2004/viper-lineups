@@ -220,6 +220,7 @@
 		z-index: 2;
 		place-items: center;
 		backdrop-filter: blur(4px);
+		perspective: 500px;
 
 		.close-button {
 			position: absolute;
@@ -278,8 +279,8 @@
 		
 		img {
 			grid-area: image;
-			max-height: 90vh;
-			max-width: 70vw;
+			max-height: 60vh;
+			max-width: 95vw;
 			border-radius: 0.5rem;
 			transition: scale 0.5s;
 			cursor: zoom-in;
@@ -289,6 +290,11 @@
 			&.zoomed {
 				scale: 2;
 				cursor: zoom-out;
+			}
+
+			@media screen and (min-width: 600px) {
+				max-height: 90vw;
+				max-width: 70vw;
 			}
 		}
 	}
