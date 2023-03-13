@@ -16,7 +16,7 @@ function Tag({isSmall, id}: {isSmall?: boolean, id:any}) {
 		}
 
 		return (<>
-			<FontAwesomeIcon icon={faSpinner}/>
+			<FontAwesomeIcon className="spinner-icon" spin icon={faSpinner}/>
 			Getting
 		</>)
 	}

@@ -1,5 +1,18 @@
 :root {
 	--post-image-over-gradient: linear-gradient(to top, hsl(0, 0%, 0%, 90%), transparent);
+
+	.spinner-icon {
+		animation: rotate 1s linear infinite forwards;	
+
+		@keyframes rotate {
+			0% {
+				transform: rotate(0deg);
+			}
+			100% {
+				transform: rotate(360deg);
+			}
+		}
+	}
 }
 
 .App {
@@ -103,6 +116,7 @@
 			
 			.tags-container {
 				display: flex;
+				flex-wrap: wrap;
 				gap: 0.25rem;
 				height: fit-content;
 			}
@@ -380,8 +394,17 @@
 					outline-offset: -3px;
 					position: relative;
 					isolation: isolate;
-					display: grid;
-					place-items: center;
+					overflow: hidden;
+					
+					.spinner {
+						position: absolute;
+						inset: 3px;
+						background: hsl(0, 0, 0, 25%);
+						border-radius: 1rem;
+						display: grid;
+						place-items: center;
+						backdrop-filter: blur(2px);
+					}
 
 					.cover-icon {
 						z-index: 1;

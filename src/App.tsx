@@ -132,7 +132,7 @@ function App() {
 				})
 			}
 		}  else {
-			finalPosts = <div className="fetching-message"><FontAwesomeIcon icon={faSpinner}/> Fetching...</div>
+			finalPosts = <div className="fetching-message"><FontAwesomeIcon className="spinner-icon" icon={faSpinner}/> Fetching...</div>
 		}
 	}
 	

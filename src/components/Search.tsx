@@ -51,7 +51,6 @@ function Search({onChangeHandler}:any) {
     const [selectedTags, setSelectedTags] = useState<{side: string, abilities: string[]}>({side: "attack", abilities: []})
     const [selectedMap, setSelectedMap] = useState("Ascent")
     const [uploadedImages, setUploadedImages] = useState<{cover?: boolean, url?: any, storageId?: any, uploading?: boolean}[]>([])
-    const [isUploadOnTimeout, setIsUploadOnTimeout] = useState(false)
 
     /* Searchbar/New Post Function */
 
@@ -81,7 +80,6 @@ function Search({onChangeHandler}:any) {
         })
 
         setUploadedImages([])
-        setIsUploadOnTimeout(false)
     }
 
     function checkFields() {
@@ -277,28 +275,23 @@ function Search({onChangeHandler}:any) {
     }
 
     function getImageFromClipboard(event:any) {
-        if (!isUploadOnTimeout) {
-            // use event.originalEvent.clipboard for newer chrome versions
-            let items = (event.clipboardData || event.originalEvent.clipboardData).items
+        // use event.originalEvent.clipboard for newer chrome versions
+        let items = (event.clipboardData || event.originalEvent.clipboardData).items
 
-            // find pasted image among pasted items
-            let blob:any = null
-            for (let i = 0; i < items.length; i++) {
-                if (items[i].type.indexOf("image") === 0) {
-                    blob = items[i].getAsFile()
-                }
+        // find pasted image among pasted items
+        let blob:any = null
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf("image") === 0) {
+                blob = items[i].getAsFile()
             }
+        }
 
-            if (blob !== null) {
-                let reader = new FileReader()
-                reader.onload = async function(event) {
-                    uploadImage(blob, event.target?.result)
-                }
-                reader.readAsDataURL(blob)
+        if (blob !== null) {
+            let reader = new FileReader()
+            reader.onload = function(event) {
+                uploadImage(blob, event.target?.result)
             }
-
-            // load image if there is a pasted image
-            
+            reader.readAsDataURL(blob)
         }
     }
 
@@ -325,37 +318,45 @@ function Search({onChangeHandler}:any) {
     }
 
     async function uploadImage(data:any, preview:any) {
-        let newSelectedImages = uploadedImages
+        //save index for later to modify the item in state
+        let imageIndex = 0
 
-        let newImage = {
-            uploading: true
-        }
+        //add new item to state
+        setUploadedImages(oldValue => {
+            imageIndex = oldValue.length; 
 
-        let isCover = newSelectedImages.length === 0
+            return [...oldValue, {
+                uploading: true,
+                cover: false, 
+                url: preview,
+                storageId: undefined
+            }]
+        })
         
-        newSelectedImages.push(newImage)
-        setUploadedImages([...newSelectedImages])
-
-        setIsUploadOnTimeout(true)
         //upload image to file storage
         const storageId = await postImage(data)
 
-        //add the image to state after uploading
-        newSelectedImages[newSelectedImages.indexOf(newImage)] = {
-            cover: isCover, 
-            url: preview,
-            storageId: storageId
-        }
-
-        setUploadedImages([...newSelectedImages])
-
-        setIsUploadOnTimeout(false)
+        //modify item with new data
+        setUploadedImages(oldValue => oldValue.map((image, index) => {
+            if (imageIndex === index) {
+                image = {
+                    uploading: false,
+                    cover: index === 0, 
+                    url: preview,
+                    storageId: storageId
+                }
+            }
+            
+            return image
+        }))
     }
 
     /* function deleteAllImages() {
         if (imagesQuery !== undefined) {
             for (const image of imagesQuery) {
-                deleteImage(image.storageId)
+                // if (uploadedImages.find(uploadedImage =>  {return uploadedImage.storageId === image.storageId}) !== undefined) {
+                    deleteImage(image.storageId)
+                // }
             }
         }
         setUploadedImages([])
@@ -394,8 +395,6 @@ function Search({onChangeHandler}:any) {
         setUploadedImages([...newSelectedImages])
 
         deleteImage(image.storageId)
-
-        setIsUploadOnTimeout(false)
     }
 
     /* Rendering */
@@ -403,8 +402,8 @@ function Search({onChangeHandler}:any) {
     function ImagePreview({image}: any) {
         const [mouseEvents, setMouseEvents] = useState(true)
         return image.uploading ? 
-        <div className="image">
-            <FontAwesomeIcon icon={faSpinner}/>
+        <div className="image" style={{backgroundImage: `url(${image.url})`}}>
+            <div className="spinner"><FontAwesomeIcon className="spinner-icon" icon={faSpinner}/></div>
         </div> 
         : <div className="image" onClick={() => mouseEvents && setAsCover(image)} style={{backgroundImage: `url(${image.url})`}}>
             {image.cover && <div className="cover-icon">
@@ -414,7 +413,7 @@ function Search({onChangeHandler}:any) {
         </div>
     }
 
-    const imagePreviews = uploadedImages?.map((image:any, index:number) => {
+    const imagePreviews = uploadedImages.map((image, index) => {
         return <ImagePreview key={index} image={image}/>
     })
 
