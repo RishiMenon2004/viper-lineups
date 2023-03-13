@@ -144,6 +144,33 @@
 				display: flex;
 				align-items: center;
 				justify-content: end;
+
+				button {
+					display: none;
+					width: max-content;
+					padding: 0.5rem 1rem;
+					font-size: 0.875rem;
+					color: white;
+					background-color: hsl(0, 78%, 30%);
+					border: none;
+					border-radius: 100vh;
+					outline-offset: -1px;
+					cursor: pointer;
+
+					&:hover, &:focus-visible {
+						background-color: hsl(0, 78%, 35%);
+						outline: hsl(0, 42%, 44%) 2px solid;
+					}
+					
+					&:active {
+						background-color: hsl(0, 78%, 25%);
+						outline: hsl(0, 42%, 39%) 2px solid;
+					}
+
+					@media screen and (min-width: 600px) {
+						display: block;
+					}
+				}
 			}
 		}
 	}
@@ -664,10 +691,11 @@
 			background-size: cover;
 			background-position: center;
 			overflow: hidden;
+			align-items: center;
 			
 			h3 {
 				margin: 0;
-				white-space: nowrap;
+				white-space: normal;
 				overflow: hidden;
 				text-overflow: "";
 			}
