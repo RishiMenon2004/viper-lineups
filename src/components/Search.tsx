@@ -141,7 +141,7 @@ function Search({onChangeHandler}:any) {
         let imagesData:{cover: boolean, url: string}[] = []
 
         uploadedImages.forEach((selectedImage:any) => {
-            let imageDocument = imagesQuery?.find(image => {
+            let imageDocument = imagesQuery?.find((image:Document<"images">) => {
                 return image.storageId === selectedImage.storageId
             })
 

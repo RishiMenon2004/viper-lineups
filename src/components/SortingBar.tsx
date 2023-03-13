@@ -10,11 +10,11 @@ export default function SortingBar({floating, handleTagClick, handleSelectChange
 	
 	const tagsQuery = useQuery("tags/getTags")
 
-	const sideTags = tagsQuery?.filter(tag => {
+	const sideTags = tagsQuery?.filter((tag:Document<"tags">) => {
 		return tag.category === "sides"
 	})
 
-	const abilityTags = tagsQuery?.filter(tag => {
+	const abilityTags = tagsQuery?.filter((tag:Document<"tags">) => {
 		return tag.category === "abilities"
 	})
 
