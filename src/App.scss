@@ -41,7 +41,7 @@
 		position: unset;
 	}
 
-	.view-post {
+	.selected-post {
 		display: flex;
 		flex-direction: column;
 		position: absolute;
@@ -127,7 +127,7 @@
 				grid-template-columns: repeat( 6, calc(100%/6 - 0.5rem));
 				grid-template-rows: repeat( 6, calc(100%/6 - 0.5rem));
 				width: 100%;
-				aspect-ratio: 16/9;
+				aspect-ratio: 4/3;
 				gap: 0.5rem;
 
 				.image {
@@ -155,7 +155,7 @@
 				border-radius: 0 0.5rem 0.5rem 0;
 			}
 
-			.view-post {
+			.selected-post {
 				display: none;
 				position: relative;
 				transition: none;
@@ -170,7 +170,7 @@
 			&.viewing-post {
 				grid-template-areas: "main viewPost";
 
-				.view-post {
+				.selected-post {
 					display: flex;
 					grid-area: viewPost;
 				}
@@ -536,7 +536,7 @@
 				padding-bottom: calc(2rem + (1rem * 2) + (0.5rem * 2));
 			}
 			
-			& ~ .view-post {
+			& ~ .selected-post {
 				.content-grid {
 					padding-bottom: calc(2rem + (1rem * 2) + (0.5rem * 3));
 				}

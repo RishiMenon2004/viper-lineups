@@ -346,7 +346,7 @@ function App() {
 			</div>
 			</main>
 			{focusedPost !== undefined && (
-				<div ref={focusedPostRef} className='view-post' style={isMobile ? {transform: focusedPostTransform, transition: focusedPostTransition} : {}}>
+				<div ref={focusedPostRef} className='selected-post' style={isMobile ? {transform: focusedPostTransform, transition: focusedPostTransition} : {}}>
 					{isMobile && <div className="drag-region" onMouseDown={({clientX}) => handlefocusedPostDragStart(clientX)} onTouchStart={handleTouchStart}></div>}
 					<div className="title" style={{backgroundImage: `var(--post-image-over-gradient), url(/maps/${focusedPost?.map}.png)`}}>
 						<div 
