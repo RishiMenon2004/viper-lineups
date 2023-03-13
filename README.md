@@ -1,46 +1,35 @@
-# Getting Started with Create React App
+# Viper Lineups
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+![viper](public/banner.png)
 
-## Available Scripts
+## Introduction
+I kinda made this to use for myself, and I never planned to let anyone use it or tweak it, but I figured I'd make it open so anyone interested can clone it and tweak it for their own Valorant agent.
 
-In the project directory, you can run:
+## Tech Stack
+This is a `create-react-app` project. You will need intermediate knowledge of React.
 
-### `npm start`
+It is a `typescript` project, so please be familiarised with it's little kinks and typing before diving into this.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+I use [convex.dev](https://www.convex.dev/) for my backend, so make sure to check out the [docs](https://doc.convex.dev/) before messing with the backend.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+It should handle all the basic functions as is and you'd only need to set up the database with some default values for the `tags` table.
 
-### `npm test`
+## Code
+Again, because I didn't plan to let anyone tinker with this project, as of now my code is super messy.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Over time I will be cleaning it up and making things more readable,  useable and extensible.
 
-### `npm run build`
+## Development
+Given that you have read the Convex docs, I would assume that you have done `$ npx convex init` and have initialised your convex project. 
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+> This requires you to login with your GitHub account and authorise Convex.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+After you've done that, you'll need to start two terminal sessions and run one of these commands in each
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. `$npm start`
 
-### `npm run eject`
+2. `$npx convex dev`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+And you're all set to go :+1:
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+**READ CONVEX DOCS ON [HOSTING](https://docs.convex.dev/using/hosting) BEFORE DEPLOYING TO NETLIFY OR VERCEL**
