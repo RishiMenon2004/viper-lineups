@@ -401,14 +401,21 @@ function Search({onChangeHandler}:any) {
 
     function ImagePreview({image}: any) {
         const [mouseEvents, setMouseEvents] = useState(true)
-        return image.uploading ? 
-        <div className="image" style={{backgroundImage: `url(${image.url})`}}>
-            <div className="spinner"><FontAwesomeIcon className="spinner-icon" icon={faSpinner}/></div>
-        </div> 
-        : <div className="image" onClick={() => mouseEvents && setAsCover(image)} style={{backgroundImage: `url(${image.url})`}}>
-            {image.cover && <div className="cover-icon">
-                <FontAwesomeIcon icon={faCheckCircle}/>
-            </div>}
+
+        if (image.uploading) { return (
+            <div className="image" style={{backgroundImage: `url(${image.url})`}}>
+                <div className="spinner">
+                    <FontAwesomeIcon className="spinner-icon" icon={faSpinner}/>
+                </div>
+            </div>
+        )}
+
+        return <div className="image" onClick={() => mouseEvents && setAsCover(image)} style={{backgroundImage: `url(${image.url})`}}>
+            {image.cover && (
+                <div className="cover-icon">
+                    <FontAwesomeIcon icon={faCheckCircle}/>
+                </div>
+            )}
             <FontAwesomeIcon onMouseEnter={() => setMouseEvents(false)} onMouseLeave={() => setMouseEvents(true)} className="delete-button" onClick={() => handleDeleteImage(image)} icon={faTrash}/>
         </div>
     }

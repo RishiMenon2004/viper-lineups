@@ -125,14 +125,14 @@ function App() {
 			if (postsList.length <= 0 ) {
 				finalPosts = <div className="fetching-message">{notMatchingMessage}</div>
 			} else {
-				finalPosts = postsList.map((post: any, index: number) => {
-					return <Post key={index} data={post}
-						onClick={() => togglePostWithId(post._id.id, post._id)}
-					/>
-				})
+				finalPosts = postsList.map((post: any, index: number) => { return (
+					<Post key={index} data={post} onClick={() => togglePostWithId(post._id.id, post._id)}/>
+				)})
 			}
 		}  else {
-			finalPosts = <div className="fetching-message"><FontAwesomeIcon className="spinner-icon" icon={faSpinner}/> Fetching...</div>
+			finalPosts = <div className="fetching-message">
+				<FontAwesomeIcon className="spinner-icon" icon={faSpinner}/> Fetching...
+			</div>
 		}
 	}
 	
@@ -263,8 +263,7 @@ function App() {
 		console.log("post delete")
 	}
 
-	
-	function mapImages() {
+	function createImageGrids() {
 		let postImageGrids:any[] = []
 	
 		if (focusedPost !== undefined) {
@@ -338,6 +337,7 @@ function App() {
 	return (
 		<div className={"App" + ((isPostViewOpen && focusedPost !== undefined) ? " viewing-post" : "")} onMouseMove={({clientX}) => handlefocusedPostDrag(clientX)} onTouchMove={handleTouchMove} onMouseUp={({clientX}) => handlefocusedPostDragEnd(clientX)} onTouchEnd={handleTouchEnd}>
 			{!isMobile && <SortingBar floating={true} handleTagClick={handleTagClick} handleSelectChange={handleSelectChange}/>}
+			
 			<main className='main-area' tabIndex={-1}>
 				<Search onChangeHandler={onSearchInputChange}/>
 				{isMobile && <SortingBar floating={false} handleTagClick={handleTagClick} handleSelectChange={handleSelectChange}/>}
@@ -345,10 +345,15 @@ function App() {
 					{finalPosts}
 			</div>
 			</main>
+
 			{focusedPost !== undefined && (
+
 				<div ref={focusedPostRef} className='selected-post' style={isMobile ? {transform: focusedPostTransform, transition: focusedPostTransition} : {}}>
-					{isMobile && <div className="drag-region" onMouseDown={({clientX}) => handlefocusedPostDragStart(clientX)} onTouchStart={handleTouchStart}></div>}
+					
+					{isMobile && <div className="drag-region" onMouseDown={({clientX}) => handlefocusedPostDragStart(clientX)} onTouchStart={handleTouchStart}/>}
+					
 					<div className="title" style={{backgroundImage: `var(--post-image-over-gradient), url(/maps/${focusedPost?.map}.png)`}}>
+						
 						<div 
 						tabIndex={0} 
 						className="close-button" 
@@ -358,24 +363,24 @@ function App() {
 						}}>
 							<FontAwesomeIcon icon={faXmark}/>
 						</div>
+						
 						{focusedPost?.title}
+						
 						<div className='map-name'>{focusedPost?.map}</div>
 					</div>
+					
 					<div className="content-grid">
+						
 						<div className='tags-container'>
 							{focusedPost?.tags.map((tag: string, index: number) => {
 								return <Tag key={index} id={tag}/>
 							})}
 						</div>
+						
 						{focusedPost.body}
-						{/* <div className="image-grid">
-							{focusedPost.images.map((image, index) => {
-								if (index < 4) {
-									return <div className="image" style={{backgroundImage: `url(${image.url})`}}/>
-								}
-							})}
-						</div> */}
-						{mapImages()}
+						
+						{createImageGrids()}
+						
 						<div className="post-buttons">
 							<button onClick={handleDeletePost}>Delete Post</button>
 						</div>
