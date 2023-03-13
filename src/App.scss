@@ -124,8 +124,8 @@
 			.image-grid {
 				display: grid;
 				place-items: center;
-				grid-template-columns: repeat( 6, calc(100%/6 - 0.5rem));
-				grid-template-rows: repeat( 6, calc(100%/6 - 0.5rem));
+				grid-template-columns: repeat(6, 1fr);
+				grid-template-rows: repeat(6, 1fr);
 				width: 100%;
 				aspect-ratio: 4/3;
 				gap: 0.5rem;
