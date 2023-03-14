@@ -9,6 +9,7 @@ import PostViewer from './components/PostViewer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner} from '@fortawesome/free-solid-svg-icons';
 import { Document, Id } from './convex/_generated/dataModel';
+import { TagObject } from './components/Tags/TagObject';
 
 export const MobileContext = createContext<{isMobile: boolean, windowWidth: number}>({isMobile: false, windowWidth: 0})
 
@@ -38,92 +39,47 @@ function App() {
 
 	/* =========================================== */
 
-	const [isPostViewOpen, setIsPostViewOpen] = useState<boolean>(false)
-	const [currentOpenPostId, setCurrentOpenPostId] = useState<Id<"posts"> | undefined	>(undefined)
-	const [selectedTags, setSelectedTags] = useState<{abilities: string[], sides: string[]}>({abilities: [], sides: []})
+	const [currentOpenPost, setCurrentOpenPost] = useState<Document<"posts"> | undefined>(undefined)
+	
+	const [selectedTags, setSelectedTags] = useState<{abilities: TagObject[], sides: TagObject[]}>({abilities: [], sides: []})
 	const [selectedMap, setSelectedMap] = useState("All")
 	const [searchQuery, setSearchQuery] = useState("")
-
-	const postsQuery = useQuery("posts/getPosts:getFilteredPosts", selectedTags, selectedMap)
-	const postsContainer = useRef() as MutableRefObject<HTMLDivElement>
-
-	/* Interractions */
 	
-	function handleTagClick(tag:string, category:"ability"|"side") {
+	const postsQuery = useQuery("post:getFilteredPosts", selectedTags, selectedMap)
+	
+	/* Interractions */
+	function handleTagClick(tag:TagObject) {
 		let abilities = selectedTags.abilities
 		let sides = selectedTags.sides
 
-		switch(category) {
+		switch(tag.category) {
 			case "ability": {
 				if (abilities.includes(tag)) {
-					let tagIndex = abilities.indexOf(tag)
-		
-					if (tagIndex > -1) { // only splice array when item is found
-						abilities.splice(tagIndex, 1); // 2nd parameter means remove one item only
-					}
-			
+					abilities = abilities.filter(abilityTag => {
+						return abilityTag !== tag
+					})
 				} else {
 					abilities = [...abilities, tag]
 				}
-				break;
+				break
 			}
 
 			case "side": {
 				if (sides.includes(tag)) {
-					let tagIndex = sides.indexOf(tag)
-		
-					if (tagIndex > -1) { // only splice array when item is found
-						sides.splice(tagIndex, 1); // 2nd parameter means remove one item only
-					}
-			
+					sides = sides.filter(sideTag => {
+						return sideTag !== tag
+					})
 				} else {
 					sides = [...sides, tag]
 				}
-				break;
+				break
 			}
 		}
 
 		setSelectedTags({abilities: abilities, sides: sides})
 	}
 
-	function Posts({postsList}:any) {
-		let search = searchQuery
-		let tags = ""
-		let connector = ""
-
-		if (searchQuery !== "") {
-			search = `"${searchQuery}"`
-		}
-		
-		if (selectedTags.abilities.length > 0 || selectedTags.sides.length > 0) {
-			tags = "Selected Tags"
-		}
-		
-		if (searchQuery !== "" && (selectedTags.abilities.length > 0 || selectedTags.sides.length > 0)) {
-			connector = "and"
-		}
-
-		let notMatchingMessage = `No Posts Matching: ${search} ${connector} ${tags}`
-
-		if (postsList === undefined) {
-			return <div className="fetching-message">
-				<FontAwesomeIcon className="spinner-icon" icon={faSpinner}/> Fetching...
-			</div>
-		}
-
-		if (postsList.length <= 0 ) {
-			return <div className="fetching-message">{notMatchingMessage}</div>
-		}
-
-		return postsList.map((post: any, index: number) => { return (
-			<PostCard
-			selected={post._id === currentOpenPostId}
-			key={index}
-			data={post}
-			onClick={() => togglePostWithId(post._id)}/>
-		)})
-	}
-	
+	/* Filtering the queries posts */
 	function textSearchFilter() {
 		let newFilteredPosts:Document<"posts">[] | undefined = postsQuery
 		
@@ -154,23 +110,57 @@ function App() {
 	}
 
 	const filteredPosts = textSearchFilter()
+	
 
-	let finalPosts:JSX.Element = <Posts postsList={filteredPosts}/>
+	function FilteredPosts({postsList}:any) {
+		let search = searchQuery
+		let tags = ""
+		let connector = ""
 
+		if (searchQuery !== "") {
+			search = `"${searchQuery}"`
+		}
+		
+		if (selectedTags.abilities.length > 0 || selectedTags.sides.length > 0) {
+			tags = "Selected Tags"
+		}
+		
+		if (searchQuery !== "" && (selectedTags.abilities.length > 0 || selectedTags.sides.length > 0)) {
+			connector = "and"
+		}
+
+		let notMatchingMessage = `No Posts Matching: ${search} ${connector} ${tags}`
+
+		if (postsList === undefined) {
+			return <div className="fetching-message">
+				<FontAwesomeIcon className="spinner-icon" icon={faSpinner}/> Fetching...
+			</div>
+		}
+
+		if (postsList.length <= 0 ) {
+			return <div className="fetching-message">{notMatchingMessage}</div>
+		}
+
+		return postsList.map((post: Document<"posts">, index: number) => { 
+			return (
+			<PostCard
+			selected={post._id === currentOpenPost?._id}
+			key={index}
+			data={post}
+			onClick={() => togglePost(post)}/>
+		)})
+	}
 
 	/* Toggle Post Viewing */
-
-	function togglePostWithId(doc_id:any) {
-		if (doc_id === currentOpenPostId) {
-			setIsPostViewOpen(false)
-			setCurrentOpenPostId(undefined)
+	function togglePost(post:any) {
+		if (post._id === currentOpenPost?._id) {
+			setCurrentOpenPost(undefined)
 		} else {
-			setIsPostViewOpen(true)
-			setCurrentOpenPostId(doc_id)
+			setCurrentOpenPost(post)
 		}
 	}
 
-	return (<div className={"App" + ((isPostViewOpen && currentOpenPostId !== undefined) ? " viewing-post" : "")}>
+	return (<div className={"App" + ((currentOpenPost) ? " viewing-post" : "")}>
 		{!isMobile && <SortingBar
 			floating={true}
 			handleTagClick={handleTagClick}
@@ -187,16 +177,16 @@ function App() {
 					handleSelectChange={setSelectedMap}
 				/>}
 				
-				<div ref={postsContainer} className="post-grid">
-					{finalPosts}
+				<div className="post-grid">
+					<FilteredPosts postsList={filteredPosts}/>
 				</div>
 			</main>
 
-			{(currentOpenPostId !== undefined) && (<>
+			{currentOpenPost && (<>
 				<PostViewer 
-					isActive={isPostViewOpen}
-					currentOpenPostId={currentOpenPostId}
-					togglePostWithId={() => togglePostWithId(currentOpenPostId)}
+					isActive={currentOpenPost && true}
+					togglePostWithId={() => togglePost(currentOpenPost)}
+					post={currentOpenPost}
 				/>
 			</>)}
 		</MobileContext.Provider>

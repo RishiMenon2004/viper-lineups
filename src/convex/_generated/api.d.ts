@@ -10,14 +10,8 @@
  */
 
 import type { ApiFromModules } from "convex/api";
-import type * as posts_createNewPost from "../posts/createNewPost";
-import type * as posts_deleteImage from "../posts/deleteImage";
-import type * as posts_deletePost from "../posts/deletePost";
-import type * as posts_getImages from "../posts/getImages";
-import type * as posts_getPosts from "../posts/getPosts";
-import type * as posts_uploadImage from "../posts/uploadImage";
-import type * as tags_getTagByID from "../tags/getTagByID";
-import type * as tags_getTags from "../tags/getTags";
+import type * as image from "../image";
+import type * as post from "../post";
 
 /**
  * A type describing your app's public Convex API.
@@ -29,12 +23,6 @@ import type * as tags_getTags from "../tags/getTags";
  * `ConvexReactClient` to create app-specific types.
  */
 export type API = ApiFromModules<{
-  "posts/createNewPost": typeof posts_createNewPost;
-  "posts/deleteImage": typeof posts_deleteImage;
-  "posts/deletePost": typeof posts_deletePost;
-  "posts/getImages": typeof posts_getImages;
-  "posts/getPosts": typeof posts_getPosts;
-  "posts/uploadImage": typeof posts_uploadImage;
-  "tags/getTagByID": typeof tags_getTagByID;
-  "tags/getTags": typeof tags_getTags;
+  image: typeof image;
+  post: typeof post;
 }>;

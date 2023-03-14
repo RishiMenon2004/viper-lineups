@@ -18,6 +18,7 @@ import { MobileContext } from "../App"
 import { Document } from "../convex/_generated/dataModel"
 import { useMutation, useQuery } from "../convex/_generated/react"
 import { SelectableTag } from "./Tags"
+import { TagObject, AllTags } from "./Tags/TagObject"
 
 
 function Search({onChangeHandler}:any) {
@@ -28,12 +29,14 @@ function Search({onChangeHandler}:any) {
 
 	/* =========================================== */
 
+    const defaultSideTag = AllTags.find(tag => tag.id === "attack") as TagObject
+
     const [isInputModeNewPost, setIsInputModeNewPost] = useState(false)
-    const [sidesTagsState, setSidesTagState] = useState({attack: true, defend: false})
+	const [selectedSideIndex, setSelectedSideIndex] = useState<number>(0)
 
     const [searchValue, setSearchValue] = useState("")
     const [messageValue, setMessageValue] = useState("")
-    const [selectedTags, setSelectedTags] = useState<{side: string, abilities: string[]}>({side: "attack", abilities: []})
+    const [selectedTags, setSelectedTags] = useState<{side: TagObject, abilities: TagObject[]}>({side: defaultSideTag, abilities: []})
     const [selectedMap, setSelectedMap] = useState("Ascent")
     const [uploadedImages, setUploadedImages] = useState<{cover?: boolean, url?: any, storageId?: any, uploading?: boolean}[]>([])
 
@@ -56,9 +59,9 @@ function Search({onChangeHandler}:any) {
     function clearFields(onSubmit:boolean) {
         setSearchValue("")
         setMessageValue("")
-        setSelectedTags({side: "attack", abilities: []})
+        setSelectedTags({side: defaultSideTag, abilities: []})
         setSelectedMap("Ascent")
-        setSidesTagState({attack: true, defend: false})
+        setSelectedSideIndex(0)
         
         if (!onSubmit) uploadedImages.forEach(async (image) => {
             await deleteImage(image.storageId)
@@ -118,8 +121,8 @@ function Search({onChangeHandler}:any) {
         return true
     }
 
-    const submitNewPost = useMutation("posts/createNewPost")
-    const imagesQuery = useQuery("posts/getImages:getAllImages")
+    const submitNewPost = useMutation("post:createNewPost")
+    const imagesQuery = useQuery("image:getImages")
 
     async function handleSubmit() {
 
@@ -173,55 +176,37 @@ function Search({onChangeHandler}:any) {
 
     /* Tags Selection */
 
-    const tagsQuery = useQuery("tags/getTags")
+    const tagsQuery = AllTags
 
-    const sideTags = tagsQuery?.filter((tag:Document<"tags">) => {
-		return tag.category === "sides"
+    const sideTags = tagsQuery.filter((tag:TagObject) => {
+		return tag.category === "side"
 	})
 
-	const abilityTags = tagsQuery?.filter((tag:Document<"tags">) => {
-		return tag.category === "abilities"
+	const abilityTags = tagsQuery.filter((tag:TagObject) => {
+		return tag.category === "ability"
 	})
 
-    function handleTagSelect(tag:string, category:"ability"|"side") {
+    function handleTagSelect(tag:TagObject) {
         let abilities = selectedTags.abilities
 		let side = selectedTags.side
 
-        switch(category) {
+        switch(tag.category) {
 			case "ability": {
 				if (abilities.includes(tag)) {
-					let tagIndex = abilities.indexOf(tag)
-		
-					if (tagIndex > -1) { // only splice array when item is found
-						abilities.splice(tagIndex, 1); // 2nd parameter means remove one item only
-					}
+                    abilities = abilities.filter(abilityTag => {
+                        return abilityTag !== tag
+                    })
 			
 				} else {
 					abilities = [...abilities, tag].sort()
 				}
-				break;
+
+				break
 			}
 
 			case "side": {
-                let newSidesTagState = sidesTagsState
-                
-                switch (tag) {
-                    case "attack": {
-                        newSidesTagState.attack = true
-                        newSidesTagState.defend = false
-                        break
-                    }
-                    
-                    case "defend": {
-                        newSidesTagState.attack = false
-                        newSidesTagState.defend = true
-                        break
-                    }
-                }
-                
-                setSidesTagState(newSidesTagState)
                 side = tag
-				break;
+				break
 			}
 		}
 
@@ -282,8 +267,8 @@ function Search({onChangeHandler}:any) {
 
     /* Uploading File to Storage and DB */
 
-    const generateUploadUrl = useMutation("posts/uploadImage:generateUploadUrl")
-    const sendImage = useMutation("posts/uploadImage:sendImage")
+    const generateUploadUrl = useMutation("image:generateUploadUrl")
+    const sendImage = useMutation("image:sendImage")
 
     async function postImage(image:any) {
 
@@ -365,19 +350,15 @@ function Search({onChangeHandler}:any) {
 
     /* File Deletion */
 
-    const deleteImage = useMutation("posts/deleteImage")
+    const deleteImage = useMutation("image:deleteImage")
 
     function handleDeleteImage(image:any) {
 
-        let newSelectedImages = uploadedImages
+        let newUploadedImages = uploadedImages.filter(uploadedImage => {
+            return uploadedImage !== image
+        })
 
-        const index = newSelectedImages.indexOf(image)
-
-        if (index > -1) {
-            newSelectedImages.splice(index, 1)
-        }
-
-        setUploadedImages([...newSelectedImages])
+        setUploadedImages([...newUploadedImages])
 
         deleteImage(image.storageId)
     }
@@ -423,7 +404,7 @@ function Search({onChangeHandler}:any) {
             value={searchValue}/>
 
             <textarea className="input message" placeholder="Enter a message"
-            maxLength={1000} rows={1}
+            maxLength={500} rows={1}
             onPaste={getImageFromClipboard}
             onChange={onMessageChange}
             value={messageValue}/>
@@ -482,12 +463,15 @@ function Search({onChangeHandler}:any) {
                 
                 <div className="section-content">
                     {sideTags?.map((tag, index) => {
-                        let state = tag.id === "attack" ? sidesTagsState.attack : sidesTagsState.defend
+                        let state = selectedSideIndex === index
                         return <div
                         key={index}
                         tabIndex={0}
-                        onClick={() => {handleTagSelect(tag.id, "side")}}
-                        onKeyDown={(e) => {e.key === "Enter" && handleTagSelect(tag.id, "side")}}
+                        onClick={() => {
+                            setSelectedSideIndex(index)
+                            handleTagSelect(tag)
+                        }}
+                        onKeyDown={(e) => {e.key === "Enter" && handleTagSelect(tag)}}
                         className={"tag selectable" + (state ? ' selected' : '')}>
                             <img src={`/tag_icons/${tag.id}.png`} className='icon' alt="tag icon"/>
                             {tag.displayText}
@@ -508,8 +492,8 @@ function Search({onChangeHandler}:any) {
                         return <SelectableTag
                         key={index}
                         isSmall={false}
-                        id={tag.id}
-                        onClick={() => handleTagSelect(tag.id, "ability")}/>
+                        tag={tag}
+                        onClick={() => handleTagSelect(tag)}/>
                     })}
                 </div>
             </div>

@@ -26,6 +26,7 @@
 	grid-template-columns: auto 40vw;
 	overflow: hidden;
 	position: relative;
+	isolation: isolate;
 
 	.main-area {
 		display: flex;
@@ -39,11 +40,14 @@
 		overflow: auto;
 		container: main-area / inline-size;
 		position: unset;
+		z-index: 0;
 	}
 
 	.blur-background {
 		position: absolute;
 		inset: 0;
+		z-index: 1;
+		backdrop-filter: blur(10px);
 	}
 
 	.selected-post {
@@ -57,6 +61,7 @@
 		overflow: hidden;
 		box-sizing: border-box;
 		transform: translateX(100%);
+		z-index: 2;
 
 		&.active {
 			transform: translateX(0%);
@@ -79,6 +84,7 @@
 			background-size: cover;
 			background-position: center;
 			position: relative;
+			word-break: break-all;
 
 			.close-button {
 				position: absolute;
@@ -122,6 +128,7 @@
 			height: 100%;
 			overflow: scroll;
 			grid-auto-rows: max-content;
+			word-break: break-all;
 			
 			.tags-container {
 				display: flex;
@@ -146,6 +153,7 @@
 					background-position: center;
 					border-radius: 0.5rem;
 					cursor: pointer;
+					background-color: hsl(260, 7%, 12%);
 
 					&:hover {
 						outline: hsl(141, 78%, 25%) 0.25rem solid;
@@ -524,7 +532,6 @@
 					outline-offset: -3px;
 					position: relative;
 					isolation: isolate;
-					overflow: hidden;
 					
 					.spinner {
 						position: absolute;
@@ -801,6 +808,7 @@
 				white-space: normal;
 				overflow: hidden;
 				text-overflow: "";
+				word-break: break-all;
 			}
 			
 			h3, .map-name {

@@ -2,15 +2,18 @@ import { faCaretLeft, faCaretRight, faXmark } from "@fortawesome/free-solid-svg-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useContext, useRef, useState } from "react"
 import { MobileContext } from "../App"
-import { Id } from "../convex/_generated/dataModel"
-import { useQuery } from "../convex/_generated/react"
+import { Document} from "../convex/_generated/dataModel"
 
 function ImageViewer({
 	openImageIndexState,
-	currentOpenPostId,
+	images,
 }:{
 	openImageIndexState: [number, Function],
-	currentOpenPostId: Id<"posts">, 
+	images: {
+		cover: boolean,
+		storageId: string,
+		url: string
+	}[]
 }) {
 
 	const {isMobile, windowWidth} = useContext(MobileContext)
@@ -24,9 +27,7 @@ function ImageViewer({
 	const [isImageZoomed, setIsImageZoomed] = useState<boolean>(false)
 	
 	const viewImageRef = useRef<HTMLImageElement | null>(null)
-
-	const focusedPost = useQuery("posts/getPosts:getPost", currentOpenPostId)
-	const totalImages = focusedPost ? focusedPost?.images.length : 1 
+	const totalImages = images.length
 
 	function handleImageZoom() {
 		const target = viewImageRef.current as HTMLImageElement
@@ -155,7 +156,7 @@ function ImageViewer({
 				percentDelta = Math.min(percentDelta, 0)
 			}
 	
-			if (openImageIndex === (focusedPost ? (focusedPost?.images.length - 1) : 1)) {
+			if (openImageIndex === (totalImages - 1)) {
 				percentDelta = Math.max(percentDelta, 0)
 			}
 
@@ -188,7 +189,6 @@ function ImageViewer({
 		handleImageSwitchDragEnd(clientX)
 	}
 	
-	
 	return (
 		<div
 			className='view-image'
@@ -219,8 +219,8 @@ function ImageViewer({
 				draggable={false}
 				ref={viewImageRef}
 				style={{transform: `${imageSwitchTransform.translate} ${imageSwitchTransform.scale} ${imageSwitchTransform.rotate}`, transition: imageSwitchTransition}}
-				className={`${isImageZoomed && "zoomed"}`}
-				src={focusedPost?.images[openImageIndex].url}
+				className={`${isImageZoomed ? "zoomed" : ""}`}
+				src={images[openImageIndex].url}
 				alt={`Post Number: ${openImageIndex + 1}`}
 				onClick={handleImageZoom}
 				onMouseDown={({clientX, clientY}) => handleTouchStartImage({clientX, clientY})}
@@ -230,6 +230,7 @@ function ImageViewer({
 				onTouchMove={({changedTouches}) => handleTouchDragImage(changedTouches[0])}
 				onTouchEnd={({changedTouches}) => handleTouchEndImage(changedTouches[0])}
 			/>
+			
 			<div 
 				tabIndex={0} 
 				className="close-button" 

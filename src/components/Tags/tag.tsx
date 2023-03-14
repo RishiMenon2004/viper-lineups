@@ -1,11 +1,8 @@
-import { faSpinner } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { useQuery } from "../../convex/_generated/react"
+import { faSpinner } from "@fortawesome/free-solid-svg-icons"
+import { TagObject } from "./TagObject"
 
-function Tag({isSmall, id}: {isSmall?: boolean, id:any}) {
-	
-	const tagQuery = useQuery("tags/getTagByID", id)
-	const tag = tagQuery?.at(0)
+function Tag({isSmall, tag}: {isSmall?: boolean, tag:TagObject | undefined}) {
 
 	const TagContents = () => {
 		if (tag !== undefined) {

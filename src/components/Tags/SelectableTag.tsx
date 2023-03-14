@@ -1,9 +1,9 @@
-import { faSpinner } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useState } from "react"
-import { useQuery } from "../../convex/_generated/react"
+import { TagObject } from "./TagObject"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faSpinner } from "@fortawesome/free-solid-svg-icons"
 
-function SelectableTag({id, onClick, isSmall}: {id:string, onClick:Function, isSmall?:boolean}) {
+function SelectableTag({tag, onClick, isSmall}: {tag:TagObject, onClick:Function, isSmall?:boolean}) {
 	const [selected, setSelected] = useState(false)
 	
 	let classList = ['tag', 'selectable']
@@ -14,9 +14,6 @@ function SelectableTag({id, onClick, isSmall}: {id:string, onClick:Function, isS
 		setSelected(!selected)
 		onClick()
 	}
-
-	const tagQuery = useQuery("tags/getTagByID", id)
-	let tag = tagQuery !== undefined ? tagQuery[0] : {id: 0, displayText: ""} 
 
 	const TagContents = () => {
 		if (tag !== undefined) {
@@ -32,7 +29,7 @@ function SelectableTag({id, onClick, isSmall}: {id:string, onClick:Function, isS
 	}
 
 	return (
-		<div tabIndex={0} onClick={() => {handleClick()}} onKeyDown={(e) => {e.key === "Enter" && handleClick()}} className={classList.join(' ') + (selected ? ' selected' : '')}>
+		<div tabIndex={0} onClick={handleClick} onKeyDown={(e) => {e.key === "Enter" && handleClick()}} className={classList.join(' ') + (selected ? ' selected' : '')}>
 			<TagContents/>
 		</div>
 	)

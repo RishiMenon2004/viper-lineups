@@ -1,21 +1,28 @@
+import { useQuery } from '../convex/_generated/react';
+import { Document, Id } from "../convex/_generated/dataModel";
+import { Tag } from './Tags';
+import { TagObject } from './Tags/TagObject';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage } from '@fortawesome/free-solid-svg-icons';
-import { Document } from "../convex/_generated/dataModel";
-import { Tag } from './Tags';
+import { useState } from 'react';
 
 function PostCard({
 	selected,
 	onClick,
-	data
+	data,
 }: {
 	selected: boolean,
 	onClick: Function,
-	data: Document<"posts">
+	data: Document<"posts">,
 }) {
 
-	const coverImage = data.images.find(image => {
+	const imagesLength = data.images.length
+	
+	const getCoverImage = data.images.find(image => {
 		return image.cover
 	})
+
+	const coverImage = useQuery("image:getImage", getCoverImage?.storageId)
 
 	return (
 		<article id={data._id.id} className={"card-post" + (selected ? " selected" : "")} onClick={() => onClick()} onKeyDown={(e) => {e.key === "Enter" && onClick()}} tabIndex={0}>
@@ -28,15 +35,15 @@ function PostCard({
 			<div className='card-description' style={{whiteSpace: "pre-line"}}>
 				{data.body}
 			</div>
-			<div className='card-content' style={{backgroundImage: `url(${coverImage?.url})`}}>
+			<div className='card-content' style={{backgroundImage: `url(${getCoverImage?.url})`}}>
 				<div className='post-details'>
 					<div className='tags-container'>
-						{data.tags.map((tag: string, index: number) => {
-							return index < 3 && <Tag key={index} isSmall={true} id={tag}/>
+						{data.tags.map((tag: TagObject, index: number) => {
+							return index < 3 && <Tag key={index} isSmall={true} tag={tag}/>
 						})}
 					</div>
-					{(data.images.length > 1) && <div className='images-overflow'>
-						<FontAwesomeIcon icon={faImage}/> +{data.images.length - 1}
+					{(imagesLength && imagesLength > 1) && <div className='images-overflow'>
+						<FontAwesomeIcon icon={faImage}/> +{imagesLength - 1}
 					</div>}
 				</div>
 			</div>

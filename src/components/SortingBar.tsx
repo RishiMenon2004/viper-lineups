@@ -1,22 +1,21 @@
 import { faCircleHalfStroke, faLocationCrosshairs, faScrewdriverWrench } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChangeEvent } from "react";
-import { Document } from "../convex/_generated/dataModel";
-import { useQuery } from "../convex/_generated/react";
 import { SelectableTag } from "./Tags";
+import { AllTags, TagObject } from "./Tags/TagObject";
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { faFilter } from '@fortawesome/free-solid-svg-icons';
 
 export default function SortingBar({floating, handleTagClick, handleSelectChange}: {floating:boolean, handleTagClick:Function, handleSelectChange:Function}) {
 	
-	const tagsQuery = useQuery("tags/getTags")
+	const tagsQuery = AllTags
 
-	const sideTags = tagsQuery?.filter((tag:Document<"tags">) => {
-		return tag.category === "sides"
+	const sideTags = tagsQuery.filter((tag:TagObject) => {
+		return tag.category === "side"
 	})
 
-	const abilityTags = tagsQuery?.filter((tag:Document<"tags">) => {
-		return tag.category === "abilities"
+	const abilityTags = tagsQuery.filter((tag:TagObject) => {
+		return tag.category === "ability"
 	})
 
 	return (
@@ -48,8 +47,8 @@ export default function SortingBar({floating, handleTagClick, handleSelectChange
 					Side
 				</div>
 				<div className="section-content">
-					{sideTags?.map((tag:Document<"tags">, index:number) => {
-						return <SelectableTag key={index} onClick={() => handleTagClick(tag.id, "side")} id={tag.id}/>
+					{sideTags?.map((tag:TagObject, index:number) => {
+						return <SelectableTag key={index} onClick={() => handleTagClick(tag)} tag={tag}/>
 					})}
 				</div>
 			</div>
@@ -60,8 +59,8 @@ export default function SortingBar({floating, handleTagClick, handleSelectChange
 					Ability
 				</div>
 				<div className="section-content" tabIndex={-1}>
-					{abilityTags?.map((tag:Document<"tags">, index:number) => {
-						return <SelectableTag key={index} onClick={() => handleTagClick(tag.id, "ability")} id={tag.id}/>
+					{abilityTags?.map((tag:TagObject, index:number) => {
+						return <SelectableTag key={index} onClick={() => handleTagClick(tag)} tag={tag}/>
 					})}
 				</div>
 			</div>

@@ -2,57 +2,53 @@ import { faSpinner, faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useContext, useState } from "react"
 import { MobileContext } from "../App"
-import { Id } from "../convex/_generated/dataModel"
-import { useQuery } from "../convex/_generated/react"
+import { Document } from "../convex/_generated/dataModel"
+import { useMutation } from "../convex/_generated/react"
 import ImageViewer from "./ImageViewer"
 import { Tag } from "./Tags"
+import { TagObject } from "./Tags/TagObject"
 
 function PostViewer({
-	currentOpenPostId,
 	togglePostWithId,
-	focusedPostTransformState,
 	isActive,
+	post,
 }:{
-	currentOpenPostId: Id<"posts">, 
-	togglePostWithId: Function, 
-	focusedPostTransformState?: [string, Function],
+	togglePostWithId: Function,
 	isActive: boolean,
+	post: Document<"posts">
 }) {
 
 	const {isMobile, windowWidth} = useContext(MobileContext)
 
-	// const [focusedPostTransform, setFocusedPostTransform] = focusedPostTransformState
-	const [focusedPostTransform, setFocusedPostTransform] = useState<number>(-1)
-	const [focusedPostTransition, setFocusedPostTransition] = useState<string>("0.25s ease-in-out")
+	const [postContainerTransform, setPostContainerTransform] = useState<number>(0)
+	const [PostContainerTransition, setPostContainerTransition] = useState<string>("0.25s ease-in-out")
 	const [openImageIndex, setOpenImageIndex] = useState<number>(-1)
 
 	/* Handle Dragging the Focused Post */
 	const [dragStartPosX, setDragMousePosXStart] = useState<number>(0)
 	const [isDraggingPost, setIsDraggingPost] = useState<boolean>(false)
 
-	const focusedPost = useQuery("posts/getPosts:getPost", currentOpenPostId)
-
-	function handleFocusedPostDragStart(xCord: number) {
+	function handlePostContainerDragStart(xCord: number) {
 		openImageIndex < 0 && setIsDraggingPost(true)
-		setFocusedPostTransition("")
+		setPostContainerTransition("")
 		setDragMousePosXStart(xCord)
 	}
 
-	function handleFocusedPostDrag(xCord: number) {
+	function handlePostContainerDrag(xCord: number) {
 		let startingPercent = (dragStartPosX/windowWidth)*100
 		let currentPercent = (xCord/windowWidth)*100
 
 		let percentDelta = Math.max(currentPercent - startingPercent, 0)
 
 		if (isDraggingPost && isMobile) {
-			setFocusedPostTransform(percentDelta)
+			setPostContainerTransform(percentDelta)
 		}
 	}
 
-	function handleFocusedPostDragEnd(xCord: number) {
+	function handlePostContainerDragEnd(xCord: number) {
 		if (isDraggingPost && isMobile) {
 			setIsDraggingPost(false)
-			setFocusedPostTransition("0.25s ease-in-out")
+			setPostContainerTransition("0.25s ease-in-out")
 
 			let startingPercent = (dragStartPosX/windowWidth)*100
 			let currentPercent = (xCord/windowWidth)*100
@@ -60,28 +56,30 @@ function PostViewer({
 			let percentDelta = currentPercent - startingPercent
 
 			if (percentDelta < 30) {
-				setFocusedPostTransform(0)
+				setPostContainerTransform(0)
 			} else {
-				setFocusedPostTransform(100)
+				setPostContainerTransform(100)
 				
 				setTimeout(() => togglePostWithId(), 250)
 			}
 		}
 	}
 
-	/* const deletePost = useMutation("posts/deletePost")
+	const deletePost = useMutation("post:deletePost")
 
-	async function handleDeletePost(postId: Id<"posts"> | undefined) {
-		await deletePost(postId)
-	} */
+	async function handleDeletePost(post: Document<"posts">) {
+		togglePostWithId(post._id)
+		await deletePost(post)
+	}
 
 	/* Split images and put them into a grid of max. 5 */
-
+	const getPostImages = post.images
+	
 	function createImageGrids() {
 		let postImageGrids:any[] = []
 	
-		if (focusedPost !== undefined) {
-			let allImages = focusedPost?.images !== undefined ? focusedPost?.images : []
+		if (getPostImages) {
+			let allImages = getPostImages
 		
 			let startIndex:number = 0
 
@@ -163,9 +161,9 @@ function PostViewer({
 	}
 
 	const PostContent = () => {
-		if (focusedPost !== undefined && focusedPost !== null) {
+		if (post) {
 			return (<>
-				<div className="title" style={{backgroundImage: `var(--post-image-over-gradient), url(/maps/${focusedPost?.map}.png)`}}>
+				<div className="title" style={{backgroundImage: `var(--post-image-over-gradient), url(/maps/${post.map}.png)`}}>
 					<div 
 						tabIndex={0} 
 						className="close-button"
@@ -177,26 +175,28 @@ function PostViewer({
 						<FontAwesomeIcon icon={faXmark}/>
 					</div>
 					
-					{focusedPost.title}
+					<div className="title-text">{post.title}</div>
 					
-					<div className='map-name'>{focusedPost.map}</div>
+					<div className='map-name'>{post.map}</div>
 				</div>
 				
 				<div className="content-grid">
 					
 					<div className='tags-container'>
-						{focusedPost?.tags.map((tag: string, index: number) => {
-							return <Tag key={index} id={tag}/>
+						{post.tags.map((tag: TagObject, index: number) => {
+							return <Tag key={index} tag={tag}/>
 						})}
 					</div>
 					
-					{focusedPost.body}
+					{post.body}
 					
-					{createImageGrids()}
+					{createImageGrids().map(imageGrid => {
+						return imageGrid
+					})}
 					
-					{/* <div className="post-buttons">
-						<button onClick={() => handleDeletePost(focusedPost?._id)}>Delete Post</button>
-					</div> */}
+					<div className="post-buttons">
+						<button onClick={() => handleDeletePost(post)}>Delete Post</button>
+					</div>
 				</div>
 			</>)
 		} else {
@@ -209,7 +209,7 @@ function PostViewer({
 				<div className="content-grid">
 					
 					<div className='tags-container'>
-						<Tag id={"placeholder"}/>
+						<Tag tag={undefined}/>
 					</div>
 
 					<FontAwesomeIcon className="spinner-icon" spin icon={faSpinner}/>
@@ -221,37 +221,37 @@ function PostViewer({
 	console.log(isActive)
 
 	return (<>
-		<div className={"blur-background" + ((isMobile && isActive) ? " active" : "")}
-		style={{
-			backdropFilter: `blur(${(100-focusedPostTransform)/100 * 10}px)`,
-			transition: `backdrop-filter ${focusedPostTransition}`
-		}}>
-
-		</div>
 		<div className={"selected-post" + ((isMobile && isActive) ? " active" : "")}
 		style={isMobile ? {
-				transform: `TranslateX(${focusedPostTransform}%)`,
-				transition: `transform ${focusedPostTransition}`
+				transform: `TranslateX(${postContainerTransform}%)`,
+				transition: `transform ${PostContainerTransition}`
 			} : {}}>
 							
 			{isMobile && (
 				<div 
 					className="drag-region"
-					onMouseDown={({clientX}) => handleFocusedPostDragStart(clientX)}
-					onMouseMove={({clientX}) => handleFocusedPostDrag(clientX)}
-					onMouseUp={({clientX}) => handleFocusedPostDragEnd(clientX)}
-					onTouchStart={({changedTouches}) => handleFocusedPostDragStart(changedTouches[0].clientX)}
-					onTouchMove={({changedTouches}) => handleFocusedPostDrag(changedTouches[0].clientX)}
-					onTouchEnd={({changedTouches}) => handleFocusedPostDragEnd(changedTouches[0].clientX)}
+					onMouseDown={({clientX}) => handlePostContainerDragStart(clientX)}
+					onMouseMove={({clientX}) => handlePostContainerDrag(clientX)}
+					onMouseUp={({clientX}) => handlePostContainerDragEnd(clientX)}
+					onTouchStart={({changedTouches}) => handlePostContainerDragStart(changedTouches[0].clientX)}
+					onTouchMove={({changedTouches}) => handlePostContainerDrag(changedTouches[0].clientX)}
+					onTouchEnd={({changedTouches}) => handlePostContainerDragEnd(changedTouches[0].clientX)}
 				/>
 			)}
 
 			<PostContent/>
 
 		</div>
+		{isMobile && (
+			<div className="blur-background"
+			style={{
+				backdropFilter: `blur(${(100-Math.max(postContainerTransform, 1))/100 * 10}px)`,
+				transition: `backdrop-filter ${PostContainerTransition}`
+			}}/>
+		)}
 		{openImageIndex > -1 && <ImageViewer
 			openImageIndexState={[openImageIndex, setOpenImageIndex]}
-			currentOpenPostId={currentOpenPostId}
+			images={post.images}
 		/>}
 	</>)
 }
