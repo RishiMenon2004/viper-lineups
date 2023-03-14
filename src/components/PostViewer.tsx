@@ -65,12 +65,12 @@ function PostViewer({
 		}
 	}
 
-	const deletePost = useMutation("post:deletePost")
+	/* const deletePost = useMutation("post:deletePost")
 
 	async function handleDeletePost(post: Document<"posts">) {
 		togglePostWithId(post._id)
 		await deletePost(post)
-	}
+	} */
 
 	/* Split images and put them into a grid of max. 5 */
 	const getPostImages = post ? post.images : []
@@ -222,9 +222,9 @@ function PostViewer({
 					return imageGrid
 				})}
 				
-				<div className="post-buttons">
+				{/* <div className="post-buttons">
 					<button onClick={() => handleDeletePost(post)}>Delete Post</button>
-				</div>
+				</div> */}
 			</div>
 
 		</div>
