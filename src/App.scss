@@ -87,7 +87,7 @@
 			background-size: cover;
 			background-position: center;
 			position: relative;
-			word-break: break-all;
+			word-break: break-word;
 
 			.close-button {
 				position: absolute;
@@ -131,7 +131,7 @@
 			height: 100%;
 			overflow: scroll;
 			grid-auto-rows: max-content;
-			word-break: break-all;
+			word-break: break-word;
 			overscroll-behavior: contain;
 			
 			.tags-container {
@@ -802,33 +802,30 @@
 		.card-title {
 			display: flex;
 			position: relative;
-			padding: 3rem 0.75rem 1rem;
+			padding: 3.5rem 0.75rem 1rem;
 			background-size: cover;
 			background-position: center;
-			overflow: hidden;
+			overflow-x: hidden;
 			align-items: center;
 			
 			h3 {
 				margin: 0;
 				white-space: normal;
-				overflow: hidden;
-				text-overflow: "";
-				word-break: break-all;
-			}
-			
-			h3, .map-name {
+				word-break: break-word;
 				font-size: 1.25rem;
-				line-height: 1.25rem;
+				line-height: 1em;
 				font-weight: 500;
 			}
-	
+			
 			.map-name {
+				font-size: 0.75rem;
+				top: 0.75rem;
+				left: 0.75rem;
+				padding: 0.3rem;
+				line-height: 1em;
+				position: absolute;
 				border-radius: 0.25rem;
-
-				&::after {
-					content: "|";
-					margin-inline: 0.5rem;
-				}
+				background-color: hsl(0, 0%, 0%, 0.5);
 			}
 		}
 
