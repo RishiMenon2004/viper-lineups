@@ -117,32 +117,24 @@ function ImageViewer({
 		setOpenImageIndex((oldIndex:number) => Math.min(oldIndex + 1, totalImages - 1))
 	}
 
-	function handleImageSwitchDragStart(clientX: any) {
+	function handleImageSwitchDragStart({clientX}: any) {
 		setIsDraggingImageSwitch(true)
 		setImageSwitchTransition("")
 		setImageSwitchMousePosXStart(clientX)
 	}
 
-	function handleImageSwitchDrag(clientX: any) {
+	function handleImageSwitchDrag({clientX}: any) {
 		let startingPercent = ((imageSwitchStartPosX - (windowWidth/2))/windowWidth)*100
 		let currentPercent = ((clientX - (windowWidth/2))/windowWidth)*100
 
 		let percentDelta = currentPercent - startingPercent
-
-		if (openImageIndex === 0) {
-			percentDelta = Math.min(percentDelta, 0)
-		}
-
-		if (openImageIndex === totalImages) {
-			percentDelta = Math.max(percentDelta, 0)
-		}
 
 		if (isDraggingImageSwitch && isMobile) {
 			setImageSwitchTransform({translate: `translateX(${percentDelta}%)`, scale: `scale(${100 - Math.abs(percentDelta)}%)`, rotate:`rotateY(${45 * (-percentDelta/50)}deg)`})
 		}
 	}
 
-	function handleImageSwitchDragEnd(clientX: any) {
+	function handleImageSwitchDragEnd({clientX}: any) {
 		if (isDraggingImageSwitch && isMobile) {
 			setIsDraggingImageSwitch(false)
 
@@ -189,7 +181,6 @@ function ImageViewer({
 			{(isMobile && !isImageZoomed) && (
 				<div
 					className="drag-image-switch" 
-					style={{transform: `${imageSwitchTransform.translate}`}}
 					onMouseDown={handleImageSwitchDragStart}
 					onMouseMove={handleImageSwitchDrag}
 					onMouseUp={handleImageSwitchDragEnd}
