@@ -11,7 +11,7 @@ function ImageViewer({
 	images: {
 		cover: boolean,
 		storageId: string,
-		url: string
+		url?: string
 	}[]
 }) {
 

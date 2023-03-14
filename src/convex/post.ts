@@ -8,70 +8,90 @@ export const createNewPost = mutation(async({db}, {title, body, images, tags, ma
 	await db.insert("posts", post)
 })
 
-export const getPost = query(async ({db}, documentId) => {
-	return await db.query("posts").filter(q => q.eq(q.field("_id"), documentId)).unique()
+export const getPost = query(async ({db, storage}, documentId) => {
+	const post = await db.query("posts").filter(q => q.eq(q.field("_id"), documentId)).unique()
+
+	if (post) {
+		for (const image of post.images) {
+			const downloadUrl =  await storage.getUrl(image.storageId)
+			if (downloadUrl) {
+				image.url = downloadUrl
+			}
+		}
+	}
+
+	return post
 })
 
-export const getFilteredPosts = query(async ({db}, tags:{abilities: TagObject[], sides: TagObject[]}, map:string) => {
+export const getFilteredPosts = query(async ({db, storage}, tags:{abilities: TagObject[], sides: TagObject[]}, map:string) => {
 
 	let posts = await db
 	.query("posts")
 	.order("desc")
 	.collect()
 	
-	if (map !== "") {
-		if (map !== "All") {
-			const postsFilteredByMap = posts.filter(post => {
-				return post.map === map
-			})
-	
-			posts = postsFilteredByMap
-		}
+	if (map !== "" && map !== "All") {
+		const postsFilteredByMap = posts.filter(post => {
+			return post.map === map
+		})
+
+		posts = postsFilteredByMap
 	}
 
-	if (tags.abilities.length !== 0 || tags.sides.length !== 0) {
 
-		let postsFilteredByTags = posts
+	let postsFilteredByTags = posts
 
-		if (tags.abilities.length !== 0){
-			const postsFilteredByAbilityTags = postsFilteredByTags.filter(post => {
-				let hasOneTag = false
-				
-				tags.abilities.every((tag:TagObject) => {
-					if (post.tags.includes(tag)) {
-						hasOneTag = true
-						return false
-					}
+	if (tags.sides.length !== 0){
+		const postsFilteredBySidesTags = postsFilteredByTags.filter(post => {
+			let hasOneTag = false
+			
+			tags.sides.every((tag:TagObject) => {
+				if (post.tags.find(postTag => postTag.id === tag.id )) {
+					hasOneTag = true
+					console.log("sides", hasOneTag)
+					return false
+				}
 
-					return true
-				})
-
-				return hasOneTag
+				return true
 			})
 
-			postsFilteredByTags = postsFilteredByAbilityTags
-		}
+			return hasOneTag
+		})
 
-		if (tags.sides.length !== 0){
-			const postsFilteredBySidesTags = postsFilteredByTags.filter(post => {
-				let hasOneTag = false
-				
-				tags.sides.every((tag:TagObject) => {
-					if (post.tags.includes(tag)) {
-						hasOneTag = true
-						return false
-					}
+		postsFilteredByTags = postsFilteredBySidesTags
+	}
 
-					return true
-				})
+	if (tags.abilities.length !== 0){
+		const postsFilteredByAbilityTags = postsFilteredByTags.filter(post => {
+			let hasOneTag = false
+			
+			tags.abilities.every((tag:TagObject) => {
+				if (post.tags.find(postTag => postTag.id === tag.id )) {
+					hasOneTag = true
+					console.log("ability", hasOneTag)
+					return false
+				}
 
-				return hasOneTag
+				return true
 			})
 
-			postsFilteredByTags = postsFilteredBySidesTags
+			return hasOneTag
+		})
+
+		postsFilteredByTags = postsFilteredByAbilityTags
+	}
+	
+	posts = postsFilteredByTags
+
+	for (const post of posts) {
+		for (const image of post.images) {
+			const downloadUrl =  await storage.getUrl(image.storageId)
+			if (downloadUrl) {
+				console.log("got", downloadUrl)
+				image.url = downloadUrl
+				console.log("set", image.url)
+			}
 		}
-		
-		posts = postsFilteredByTags
 	}
 
 	return posts
@@ -84,25 +104,14 @@ export const deletePost = mutation(async({db, storage}, document?: Document<"pos
 		})
 	}
 	
-	if (document !== undefined){
+	if (document){
 		const postImages = document.images.map(image => {return image.storageId})
 
 		for (const storageId of postImages) {
-			const imgDoc = await db.query("images").filter(q => q.eq(q.field("storageId"), storageId)).unique()
-
-			if (imgDoc !== null) {
-				await storage.delete(imgDoc.storageId)
-				await db.delete(imgDoc._id)
-			}
+			await storage.delete(storageId)
 		}
 
-		try {
-			await db.delete(document._id)
-		} 
-		catch (err) {
-			console.error(err)
-			return ("Task Unsuccessful")
-		}
+		await db.delete(document._id)
 
 		return "Successfully Deleted"
 	}

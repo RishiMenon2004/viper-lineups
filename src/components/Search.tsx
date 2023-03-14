@@ -15,8 +15,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useContext, useEffect,  useRef,  useState } from "react"
 import { MobileContext } from "../App"
-import { Document } from "../convex/_generated/dataModel"
-import { useMutation, useQuery } from "../convex/_generated/react"
+import { useMutation } from "../convex/_generated/react"
 import { SelectableTag } from "./Tags"
 import { TagObject, AllTags } from "./Tags/TagObject"
 
@@ -265,7 +264,6 @@ function Search({onChangeHandler}:any) {
     /* Uploading File to Storage and DB */
 
     const generateUploadUrl = useMutation("image:generateUploadUrl")
-    const sendImage = useMutation("image:sendImage")
 
     async function postImage(image:any) {
 
@@ -279,9 +277,7 @@ function Search({onChangeHandler}:any) {
 
         const { storageId } = await result.json()
 
-        const downloadUrl = await sendImage(storageId)
-
-        return [storageId, downloadUrl]
+        return storageId
     }
 
     async function uploadImage(data:any, preview:any) {
@@ -301,7 +297,7 @@ function Search({onChangeHandler}:any) {
         })
         
         //upload image to file storage
-        const [storageId, downloadUrl] = await postImage(data)
+        const storageId = await postImage(data)
 
         //modify item with new data
         setUploadedImages(oldValue => oldValue.map((image, index) => {
@@ -309,7 +305,7 @@ function Search({onChangeHandler}:any) {
                 image = {
                     uploading: false,
                     cover: index === 0, 
-                    url: downloadUrl,
+                    url: preview,
                     storageId: storageId
                 }
             }
