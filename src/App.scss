@@ -41,6 +41,11 @@
 		position: unset;
 	}
 
+	.blur-background {
+		position: absolute;
+		inset: 0;
+	}
+
 	.selected-post {
 		display: flex;
 		flex-direction: column;
@@ -51,6 +56,11 @@
 		user-select: none;
 		overflow: hidden;
 		box-sizing: border-box;
+		transform: translateX(100%);
+
+		&.active {
+			transform: translateX(0%);
+		}
 
 		.drag-region {
 			position: absolute;
@@ -104,7 +114,6 @@
 				border-radius: 0.25rem;
 			}
 		}
-
 		
 		.content-grid{
 			display: grid;
@@ -293,7 +302,7 @@
 			}
 
 			@media screen and (min-width: 600px) {
-				max-height: 90vw;
+				max-height: 90vh;
 				max-width: 70vw;
 			}
 		}

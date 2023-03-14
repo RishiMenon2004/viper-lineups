@@ -1,5 +1,6 @@
 import { faCircleHalfStroke, faLocationCrosshairs, faScrewdriverWrench } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ChangeEvent } from "react";
 import { Document } from "../convex/_generated/dataModel";
 import { useQuery } from "../convex/_generated/react";
 import { SelectableTag } from "./Tags";
@@ -26,7 +27,7 @@ export default function SortingBar({floating, handleTagClick, handleSelectChange
 					Map
 				</div>
 				<div className="section-content">
-					<select className="map-selector" onChange={e => handleSelectChange(e)}>
+					<select className="map-selector" onChange={(e:ChangeEvent<HTMLSelectElement>) => handleSelectChange(e.target.value)}>
 						<option>All</option>
 						<option>Ascent</option>
 						<option>Fracture</option>

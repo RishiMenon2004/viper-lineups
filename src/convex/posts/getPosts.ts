@@ -1,6 +1,10 @@
 import { query } from "../_generated/server";
 
-export default query(async ({db}, tags?:{abilities: string[], sides: string[]}, map?:string) => {
+export const getPost = query(async ({db}, documentId) => {
+	return await db.query("posts").filter(q => q.eq(q.field("_id"), documentId)).unique()
+})
+
+export const getFilteredPosts = query(async ({db}, tags?:{abilities: string[], sides: string[]}, map?:string) => {
 
 	let posts = await db
 	.query("posts")

@@ -13,7 +13,8 @@ import {
     faXmark 
 } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { useEffect,  useRef,  useState } from "react"
+import { useContext, useEffect,  useRef,  useState } from "react"
+import { MobileContext } from "../App"
 import { Document } from "../convex/_generated/dataModel"
 import { useMutation, useQuery } from "../convex/_generated/react"
 import { SelectableTag } from "./Tags"
@@ -23,23 +24,7 @@ function Search({onChangeHandler}:any) {
 
 	/* Used to swap out mobile and desktop elements */
 
-    const [isMobile, setIsMobile] = useState(false)
-    const [containerWidth, setContainerWidth] = useState(0)
-
-    function getContainerWidth() {
-        const {clientWidth: width} = document.body
-        return width
-    }
-
-    function handleResize() {
-        setContainerWidth(getContainerWidth())
-        setIsMobile(containerWidth <= 600)
-    }
-
-    useEffect(() => {
-        window.addEventListener('resize', handleResize)
-        return () => window.removeEventListener('resize', handleResize)
-    })
+    const {isMobile} = useContext(MobileContext)
 
 	/* =========================================== */
 
