@@ -10,6 +10,8 @@ export const sendImage = mutation(async ({db, storage}, storageId) => {
 	const downloadUrl = await storage.getUrl(storageId) as string
 	const imageDocument = {storageId: storageId, downloadUrl: downloadUrl}
 	await db.insert("images", imageDocument)
+
+	return downloadUrl
 })
 
 export const getImages = query(async ({db}) => {

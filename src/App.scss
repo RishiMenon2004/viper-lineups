@@ -18,7 +18,7 @@
 .App {
 	background-color: hsl(260, 7%, 10%);
 	color: white;
-	max-height: 100vh;
+	max-height: 100svh;
 	box-sizing: border-box;
 	display: grid;
 	gap	: 0.5rem;
@@ -27,15 +27,16 @@
 	overflow: hidden;
 	position: relative;
 	isolation: isolate;
-
+	
 	.main-area {
+		overscroll-behavior: contain;
 		display: flex;
 		flex-direction: column;
 		background-color: hsl(260, 7%, 15%);
 		padding: 1.5rem;
 		gap	: 2rem;
 		grid-area: main;
-		height: 100vh;
+		height: 100svh;
 		box-sizing: border-box;
 		overflow: auto;
 		container: main-area / inline-size;
@@ -51,11 +52,12 @@
 	}
 
 	.selected-post {
+		overscroll-behavior: contain;
 		display: flex;
 		flex-direction: column;
 		position: absolute;
 		inset: 0;
-		height: 100vh;
+		height: 100svh;
 		background-color: hsl(260, 7%, 17%);
 		user-select: none;
 		overflow: hidden;
@@ -74,6 +76,7 @@
 			bottom: 0;
 			width: 20%;
 			z-index: 2;
+			overscroll-behavior: contain;
 		}
 		
 		.title {
@@ -129,6 +132,7 @@
 			overflow: scroll;
 			grid-auto-rows: max-content;
 			word-break: break-all;
+			overscroll-behavior: contain;
 			
 			.tags-container {
 				display: flex;
@@ -234,10 +238,11 @@
 		display: grid;
 		grid-template-areas: "back-button image next-button";
 		grid-template-columns: max-content 1fr max-content;
-		z-index: 2;
+		z-index: 10;
 		place-items: center;
 		backdrop-filter: blur(4px);
 		perspective: 500px;
+		overscroll-behavior: contain;
 
 		.close-button {
 			position: absolute;
@@ -296,7 +301,7 @@
 		
 		img {
 			grid-area: image;
-			max-height: 60vh;
+			max-height: 60svh;
 			max-width: 95vw;
 			border-radius: 0.5rem;
 			transition: scale 0.5s;
@@ -662,7 +667,7 @@
 		&.floating	 {
 			position: absolute;
 			inset: auto 1.5rem 1rem;
-			z-index: 1;
+			z-index: 5;
 			display: flex;
 			gap: 1rem;
 			align-items: center;

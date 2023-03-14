@@ -1,7 +1,7 @@
-import { faSpinner, faXmark } from "@fortawesome/free-solid-svg-icons"
+import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useContext, useState } from "react"
-import { MobileContext } from "../App"
+import { MobileContext, PostContext } from "../App"
 import { Document } from "../convex/_generated/dataModel"
 import { useMutation } from "../convex/_generated/react"
 import ImageViewer from "./ImageViewer"
@@ -11,12 +11,12 @@ import { TagObject } from "./Tags/TagObject"
 function PostViewer({
 	togglePostWithId,
 	isActive,
-	post,
 }:{
 	togglePostWithId: Function,
 	isActive: boolean,
-	post: Document<"posts">
 }) {
+
+	const post = useContext(PostContext) as Document<"posts">
 
 	const {isMobile, windowWidth} = useContext(MobileContext)
 
@@ -65,15 +65,15 @@ function PostViewer({
 		}
 	}
 
-	/* const deletePost = useMutation("post:deletePost")
+	const deletePost = useMutation("post:deletePost")
 
 	async function handleDeletePost(post: Document<"posts">) {
 		togglePostWithId(post._id)
 		await deletePost(post)
-	} */
+	}
 
 	/* Split images and put them into a grid of max. 5 */
-	const getPostImages = post.images
+	const getPostImages = post ? post.images : []
 	
 	function createImageGrids() {
 		let postImageGrids:any[] = []
@@ -160,66 +160,6 @@ function PostViewer({
 		return postImageGrids
 	}
 
-	const PostContent = () => {
-		if (post) {
-			return (<>
-				<div className="title" style={{backgroundImage: `var(--post-image-over-gradient), url(/maps/${post.map}.png)`}}>
-					<div 
-						tabIndex={0} 
-						className="close-button"
-						onClick={() => togglePostWithId()} 
-						onKeyDown={(e) => {
-							e.key === "Enter" && togglePostWithId()
-						}}
-					>
-						<FontAwesomeIcon icon={faXmark}/>
-					</div>
-					
-					<div className="title-text">{post.title}</div>
-					
-					<div className='map-name'>{post.map}</div>
-				</div>
-				
-				<div className="content-grid">
-					
-					<div className='tags-container'>
-						{post.tags.map((tag: TagObject, index: number) => {
-							return <Tag key={index} tag={tag}/>
-						})}
-					</div>
-					
-					{post.body}
-					
-					{createImageGrids().map(imageGrid => {
-						return imageGrid
-					})}
-					
-					{/* <div className="post-buttons">
-						<button onClick={() => handleDeletePost(post)}>Delete Post</button>
-					</div> */}
-				</div>
-			</>)
-		} else {
-			return (<>
-				<div className="title placeholder" style={{backgroundImage: `var(--post-image-over-gradient), url(/maps/Ascent.png)`}}>
-				<FontAwesomeIcon className="spinner-icon" spin icon={faSpinner}/>
-					<div className='map-name placeholder'><FontAwesomeIcon className="spinner-icon" spin icon={faSpinner}/></div>
-				</div>
-				
-				<div className="content-grid">
-					
-					<div className='tags-container'>
-						<Tag tag={undefined}/>
-					</div>
-
-					<FontAwesomeIcon className="spinner-icon" spin icon={faSpinner}/>
-				</div>
-			</>)
-		}
-	}
-
-	console.log(isActive)
-
 	return (<>
 		<div className={"selected-post" + ((isMobile && isActive) ? " active" : "")}
 		style={isMobile ? {
@@ -230,22 +170,68 @@ function PostViewer({
 			{isMobile && (
 				<div 
 					className="drag-region"
-					onMouseDown={({clientX}) => handlePostContainerDragStart(clientX)}
-					onMouseMove={({clientX}) => handlePostContainerDrag(clientX)}
-					onMouseUp={({clientX}) => handlePostContainerDragEnd(clientX)}
-					onTouchStart={({changedTouches}) => handlePostContainerDragStart(changedTouches[0].clientX)}
-					onTouchMove={({changedTouches}) => handlePostContainerDrag(changedTouches[0].clientX)}
-					onTouchEnd={({changedTouches}) => handlePostContainerDragEnd(changedTouches[0].clientX)}
+					onMouseDown={({clientX}) => {
+						handlePostContainerDragStart(clientX)
+					}}
+					onMouseMove={({clientX}) => {
+						handlePostContainerDrag(clientX)
+					}}
+					onMouseUp={({clientX}) => {
+						handlePostContainerDragEnd(clientX)
+					}}
+					onTouchStart={({changedTouches}) => {
+						handlePostContainerDragStart(changedTouches[0].clientX)
+					}}
+					onTouchMove={({changedTouches}) => {
+						handlePostContainerDrag(changedTouches[0].clientX)
+					}}
+					onTouchEnd={({changedTouches}) => {
+						handlePostContainerDragEnd(changedTouches[0].clientX)
+					}}
 				/>
 			)}
 
-			<PostContent/>
+			<div className="title" style={{backgroundImage: `var(--post-image-over-gradient), url(/maps/${post.map}.png)`}}>
+				<div 
+					tabIndex={0} 
+					className="close-button"
+					onClick={() => togglePostWithId()} 
+					onKeyDown={(e) => {
+						e.key === "Enter" && togglePostWithId()
+					}}
+				>
+					<FontAwesomeIcon icon={faXmark}/>
+				</div>
+				
+				<div className="title-text">{post.title}</div>
+				
+				<div className='map-name'>{post.map}</div>
+			</div>
+			
+			<div className="content-grid">
+				
+				<div className='tags-container'>
+					{post.tags.map((tag: TagObject, index: number) => {
+						return <Tag key={index} tag={tag}/>
+					})}
+				</div>
+				
+				{post.body}
+				
+				{createImageGrids().map(imageGrid => {
+					return imageGrid
+				})}
+				
+				<div className="post-buttons">
+					<button onClick={() => handleDeletePost(post)}>Delete Post</button>
+				</div>
+			</div>
 
 		</div>
 		{isMobile && (
 			<div className="blur-background"
 			style={{
-				backdropFilter: `blur(${(100-Math.max(postContainerTransform, 1))/100 * 10}px)`,
+				backdropFilter: `blur(${(100-postContainerTransform)/100 * 10}px)`,
 				transition: `backdrop-filter ${PostContainerTransition}`
 			}}/>
 		)}

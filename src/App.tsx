@@ -8,10 +8,11 @@ import PostCard from './components/PostCard';
 import PostViewer from './components/PostViewer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner} from '@fortawesome/free-solid-svg-icons';
-import { Document, Id } from './convex/_generated/dataModel';
+import { Document } from './convex/_generated/dataModel';
 import { TagObject } from './components/Tags/TagObject';
 
 export const MobileContext = createContext<{isMobile: boolean, windowWidth: number}>({isMobile: false, windowWidth: 0})
+export const PostContext = createContext<Document<"posts"> | any>(undefined)
 
 function App() {
 
@@ -46,6 +47,23 @@ function App() {
 	const [searchQuery, setSearchQuery] = useState("")
 	
 	const postsQuery = useQuery("post:getFilteredPosts", selectedTags, selectedMap)
+
+	function checkIfCurrentExists() {
+		if (currentOpenPost && postsQuery) {
+			const existingDocument = postsQuery.find(post => {
+				return currentOpenPost._id === post._id
+			})
+
+			if (existingDocument === undefined) {
+				setCurrentOpenPost(undefined)
+				return
+			}
+		}
+	}
+
+	useEffect(() => {
+		checkIfCurrentExists()
+	})
 	
 	/* Interractions */
 	function handleTagClick(tag:TagObject) {
@@ -181,14 +199,14 @@ function App() {
 					<FilteredPosts postsList={filteredPosts}/>
 				</div>
 			</main>
-
-			{currentOpenPost && (<>
-				<PostViewer 
-					isActive={currentOpenPost && true}
-					togglePostWithId={() => togglePost(currentOpenPost)}
-					post={currentOpenPost}
-				/>
-			</>)}
+			<PostContext.Provider value={currentOpenPost}>
+				{currentOpenPost && (<>
+					<PostViewer 
+						isActive={currentOpenPost && true}
+						togglePostWithId={() => togglePost(currentOpenPost)}
+					/>
+				</>)}
+			</PostContext.Provider>
 		</MobileContext.Provider>
 	</div>)
 }

@@ -77,29 +77,33 @@ export const getFilteredPosts = query(async ({db}, tags:{abilities: TagObject[],
 	return posts
 })
 
-export const deletePost = mutation(async({db, storage}, document: Document<"posts">) => {
-	if (document !== undefined) {
+export const deletePost = mutation(async({db, storage}, document?: Document<"posts">, documentId?: string) => {
+	if (documentId !== undefined) {
+		document = (await db.query("posts").collect()).find(post => {
+			return post._id.id === documentId
+		})
+	}
+	
+	if (document !== undefined){
 		const postImages = document.images.map(image => {return image.storageId})
 
-		console.log(postImages)
+		for (const storageId of postImages) {
+			const imgDoc = await db.query("images").filter(q => q.eq(q.field("storageId"), storageId)).unique()
 
-		const imageDocuments = (await db.query("images").collect()).filter(imageDoc => {
-			return postImages?.includes(imageDoc.storageId)
-		})
-
-		for (const imageDoc of imageDocuments) {
-			await storage.delete(imageDoc.storageId)
-			await db.delete(imageDoc._id)
+			if (imgDoc !== null) {
+				await storage.delete(imgDoc.storageId)
+				await db.delete(imgDoc._id)
+			}
 		}
-	}
 
-	try {
-		await db.delete(document._id)
-	} 
-	catch (err) {
-		console.error(err)
-		return ("Task Unsuccessful")
-	}
+		try {
+			await db.delete(document._id)
+		} 
+		catch (err) {
+			console.error(err)
+			return ("Task Unsuccessful")
+		}
 
-	return "Successfully Deleted"
+		return "Successfully Deleted"
+	}
 })

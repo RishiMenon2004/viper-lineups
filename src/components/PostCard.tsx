@@ -22,8 +22,6 @@ function PostCard({
 		return image.cover
 	})
 
-	const coverImage = useQuery("image:getImage", getCoverImage?.storageId)
-
 	return (
 		<article id={data._id.id} className={"card-post" + (selected ? " selected" : "")} onClick={() => onClick()} onKeyDown={(e) => {e.key === "Enter" && onClick()}} tabIndex={0}>
 			<div className='card-title' style={{backgroundImage: `var(--post-image-over-gradient), url(/maps/${data.map}.png)`}}>

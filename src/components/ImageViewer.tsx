@@ -2,7 +2,6 @@ import { faCaretLeft, faCaretRight, faXmark } from "@fortawesome/free-solid-svg-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useContext, useRef, useState } from "react"
 import { MobileContext } from "../App"
-import { Document} from "../convex/_generated/dataModel"
 
 function ImageViewer({
 	openImageIndexState,
@@ -118,15 +117,15 @@ function ImageViewer({
 		setOpenImageIndex((oldIndex:number) => Math.min(oldIndex + 1, totalImages - 1))
 	}
 
-	function handleImageSwitchDragStart(xCord: any) {
+	function handleImageSwitchDragStart(clientX: any) {
 		setIsDraggingImageSwitch(true)
 		setImageSwitchTransition("")
-		setImageSwitchMousePosXStart(xCord)
+		setImageSwitchMousePosXStart(clientX)
 	}
 
-	function handleImageSwitchDrag(xCord: any) {
+	function handleImageSwitchDrag(clientX: any) {
 		let startingPercent = ((imageSwitchStartPosX - (windowWidth/2))/windowWidth)*100
-		let currentPercent = ((xCord - (windowWidth/2))/windowWidth)*100
+		let currentPercent = ((clientX - (windowWidth/2))/windowWidth)*100
 
 		let percentDelta = currentPercent - startingPercent
 
@@ -143,12 +142,12 @@ function ImageViewer({
 		}
 	}
 
-	function handleImageSwitchDragEnd(xCord: any) {
+	function handleImageSwitchDragEnd(clientX: any) {
 		if (isDraggingImageSwitch && isMobile) {
 			setIsDraggingImageSwitch(false)
 
 			let startingPercent = ((imageSwitchStartPosX - (windowWidth/2))/windowWidth)*100
-			let currentPercent = ((xCord - (windowWidth/2))/windowWidth)*100
+			let currentPercent = ((clientX - (windowWidth/2))/windowWidth)*100
 	
 			let percentDelta = currentPercent - startingPercent
 			
@@ -173,21 +172,6 @@ function ImageViewer({
 			}, 10)
 		}
 	}
-
-	function handleTouchStartImageSwitch({changedTouches}:any) {
-		const {clientX} = changedTouches[0]
-		handleImageSwitchDragStart(clientX)
-	}
-
-	function handleTouchMoveImageSwitch({changedTouches}:any) {
-		const {clientX} = changedTouches[0]
-		handleImageSwitchDrag(clientX)
-	}
-
-	function handleTouchEndImageSwitch({changedTouches}:any) {
-		const {clientX} = changedTouches[0]
-		handleImageSwitchDragEnd(clientX)
-	}
 	
 	return (
 		<div
@@ -206,12 +190,12 @@ function ImageViewer({
 				<div
 					className="drag-image-switch" 
 					style={{transform: `${imageSwitchTransform.translate}`}}
-					onMouseDown={({clientX}) => handleImageSwitchDragStart(clientX)}
-					onMouseMove={({clientX}) => handleImageSwitchDrag(clientX)}
-					onMouseUp={({clientX}) => handleImageSwitchDragEnd(clientX)}
-					onTouchStart={handleTouchStartImageSwitch}
-					onTouchMove={handleTouchMoveImageSwitch}
-					onTouchEnd={handleTouchEndImageSwitch}
+					onMouseDown={handleImageSwitchDragStart}
+					onMouseMove={handleImageSwitchDrag}
+					onMouseUp={handleImageSwitchDragEnd}
+					onTouchStart={({changedTouches}) => handleImageSwitchDragStart(changedTouches[0])}
+					onTouchMove={({changedTouches}) => handleImageSwitchDrag(changedTouches[0])}
+					onTouchEnd={({changedTouches}) => handleImageSwitchDragEnd(changedTouches[0])}
 				/>
 			)}
 
@@ -223,9 +207,9 @@ function ImageViewer({
 				src={images[openImageIndex].url}
 				alt={`Post Number: ${openImageIndex + 1}`}
 				onClick={handleImageZoom}
-				onMouseDown={({clientX, clientY}) => handleTouchStartImage({clientX, clientY})}
+				onMouseDown={handleTouchStartImage}
 				onMouseMove={({clientX, clientY}) => handleTouchDragImage({clientX, clientY}, true)}
-				onMouseUp={({clientX, clientY}) => handleTouchEndImage({clientX, clientY})}
+				onMouseUp={handleTouchEndImage}
 				onTouchStart={({changedTouches}) => handleTouchStartImage(changedTouches[0])}
 				onTouchMove={({changedTouches}) => handleTouchDragImage(changedTouches[0])}
 				onTouchEnd={({changedTouches}) => handleTouchEndImage(changedTouches[0])}

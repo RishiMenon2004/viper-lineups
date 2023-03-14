@@ -38,7 +38,7 @@ function Search({onChangeHandler}:any) {
     const [messageValue, setMessageValue] = useState("")
     const [selectedTags, setSelectedTags] = useState<{side: TagObject, abilities: TagObject[]}>({side: defaultSideTag, abilities: []})
     const [selectedMap, setSelectedMap] = useState("Ascent")
-    const [uploadedImages, setUploadedImages] = useState<{cover?: boolean, url?: any, storageId?: any, uploading?: boolean}[]>([])
+    const [uploadedImages, setUploadedImages] = useState<{cover: boolean, url: any, storageId: any, uploading: boolean}[]>([])
 
     /* Searchbar/New Post Function */
 
@@ -122,18 +122,15 @@ function Search({onChangeHandler}:any) {
     }
 
     const submitNewPost = useMutation("post:createNewPost")
-    const imagesQuery = useQuery("image:getImages")
 
     async function handleSubmit() {
 
-        let imagesData:{cover: boolean, url: string}[] = []
-
-        uploadedImages.forEach((selectedImage:any) => {
-            let imageDocument = imagesQuery?.find((image:Document<"images">) => {
-                return image.storageId === selectedImage.storageId
-            })
-
-            imageDocument !== undefined && imagesData.push({cover: selectedImage.cover, url: imageDocument.downloadUrl})
+        let imagesData = uploadedImages.map(uploadedImage => {
+            return {
+                cover: uploadedImage.cover,
+                storageId: uploadedImage.storageId,
+                url: uploadedImage.url
+            }
         })
         
         const data = {
@@ -282,9 +279,9 @@ function Search({onChangeHandler}:any) {
 
         const { storageId } = await result.json()
 
-        await sendImage(storageId)
+        const downloadUrl = await sendImage(storageId)
 
-        return storageId
+        return [storageId, downloadUrl]
     }
 
     async function uploadImage(data:any, preview:any) {
@@ -304,7 +301,7 @@ function Search({onChangeHandler}:any) {
         })
         
         //upload image to file storage
-        const storageId = await postImage(data)
+        const [storageId, downloadUrl] = await postImage(data)
 
         //modify item with new data
         setUploadedImages(oldValue => oldValue.map((image, index) => {
@@ -312,7 +309,7 @@ function Search({onChangeHandler}:any) {
                 image = {
                     uploading: false,
                     cover: index === 0, 
-                    url: preview,
+                    url: downloadUrl,
                     storageId: storageId
                 }
             }
