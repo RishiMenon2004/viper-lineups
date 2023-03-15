@@ -1,3 +1,6 @@
+import { ChangeEvent, useContext, useEffect,  useRef,  useState } from "react"
+import { useMutation } from "../convex/_generated/react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { 
     faCheckCircle, 
     faCircleHalfStroke, 
@@ -12,13 +15,10 @@ import {
     faTrash, 
     faXmark 
 } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { useContext, useEffect,  useRef,  useState } from "react"
-import { MobileContext } from "../App"
-import { useMutation } from "../convex/_generated/react"
-import { SelectableTag } from "./Tags"
-import { TagObject, AllTags } from "./Tags/TagObject"
+import { SelectableTag } from "../modules/Tags"
+import { TagObject, AllTags } from "../modules/Tags/TagObject"
 
+import { MobileContext } from "../App"
 
 function Search({onChangeHandler}:any) {
 
@@ -37,17 +37,18 @@ function Search({onChangeHandler}:any) {
     const [messageValue, setMessageValue] = useState("")
     const [selectedTags, setSelectedTags] = useState<{side: TagObject, abilities: TagObject[]}>({side: defaultSideTag, abilities: []})
     const [selectedMap, setSelectedMap] = useState("Ascent")
-    const [uploadedImages, setUploadedImages] = useState<{cover: boolean, url: any, storageId: any, uploading: boolean}[]>([])
+    const [selectedImages, setSelectedImages] = useState<{cover: boolean, url: any, uploading?: boolean, data: any, uploaded?: boolean}[]>([])
+    // const [uploadedImages, setUploadedImages] = useState<{cover: boolean, url: any, storageId: any, uploading: boolean}[]>([])
 
     /* Searchbar/New Post Function */
 
-    function toggleInputMode(value: boolean, onSubmit:boolean) {
+    function toggleInputMode(value: boolean) {
         setIsInputModeNewPost(value)
 
         if (value) {
             onChangeHandler("")
         } else {
-            clearFields(onSubmit)
+            clearFields()
         }
     }
 
@@ -55,18 +56,13 @@ function Search({onChangeHandler}:any) {
 
     /* Form Handling */
 
-    function clearFields(onSubmit:boolean) {
+    function clearFields() {
         setSearchValue("")
         setMessageValue("")
         setSelectedTags({side: defaultSideTag, abilities: []})
         setSelectedMap("Ascent")
         setSelectedSideIndex(0)
-        
-        if (!onSubmit) uploadedImages.forEach(async (image) => {
-            await deleteImage(image.storageId)
-        })
-
-        setUploadedImages([])
+        setSelectedImages([])
     }
 
     function checkFields() {
@@ -83,10 +79,10 @@ function Search({onChangeHandler}:any) {
             return false
         }
 
-        if (uploadedImages.length > 0){
+        if (selectedImages.length > 0){
             let hasCover = false
 
-            uploadedImages.every(image => {
+            selectedImages.every(image => {
                 if (image.cover) {
                     hasCover = true
                     return false
@@ -96,21 +92,6 @@ function Search({onChangeHandler}:any) {
             })
 
             if (hasCover === false) {
-                return false
-            }
-
-            let hasUploading = false
-
-            uploadedImages.every(image => {
-                if (image.uploading) {
-                    hasUploading = true
-                    return false
-                }
-
-                return true
-            })
-
-            if (hasUploading) {
                 return false
             }
         } else {
@@ -124,13 +105,33 @@ function Search({onChangeHandler}:any) {
 
     async function handleSubmit() {
 
-        let imagesData = uploadedImages.map(uploadedImage => {
-            return {
-                cover: uploadedImage.cover,
-                storageId: uploadedImage.storageId,
-                url: uploadedImage.url
+        let imagesData = []
+
+        const uploadingImages = [...selectedImages]
+
+        setSelectedImages(oldValue => oldValue.map((image) => {
+            image = {
+                ...image,
+                uploading: true
             }
-        })
+            
+            return image
+        }))
+
+        for(const imageIndex in uploadingImages) {
+            let selectedImage = uploadingImages[imageIndex]
+
+            const storageId = await uploadImage(selectedImage.data, parseInt(imageIndex))
+
+            console.log(storageId)
+
+            let uploadedImage = {
+                cover: selectedImage.cover,
+                storageId: storageId
+            }
+
+            imagesData.push(uploadedImage)
+        }
         
         const data = {
             title: searchValue,
@@ -139,11 +140,12 @@ function Search({onChangeHandler}:any) {
             tags: [selectedTags.side, ...selectedTags.abilities],
             map: selectedMap
         }
+
+        console.log(data)
         
         await submitNewPost(data)
 
-        // clearFields(true)
-        toggleInputMode(false, true)
+        toggleInputMode(false)
     }
 
     /* =========================================== */
@@ -232,7 +234,7 @@ function Search({onChangeHandler}:any) {
             if (blob !== null) {
                 let reader = new FileReader()
                 reader.onload = async function(event) {
-                    await uploadImage(blob, event.target?.result)
+                    selectImage(blob, event.target?.result)
                 }
                 reader.readAsDataURL(blob)
             }
@@ -255,7 +257,7 @@ function Search({onChangeHandler}:any) {
         if (blob !== null) {
             let reader = new FileReader()
             reader.onload = function(event) {
-                uploadImage(blob, event.target?.result)
+                selectImage(blob, event.target?.result)
             }
             reader.readAsDataURL(blob)
         }
@@ -280,38 +282,37 @@ function Search({onChangeHandler}:any) {
         return storageId
     }
 
-    async function uploadImage(data:any, preview:any) {
-        //save index for later to modify the item in state
-        let imageIndex = 0
-
+    function selectImage(data: any, preview:any) {
         //add new item to state
-        setUploadedImages(oldValue => {
-            imageIndex = oldValue.length; 
-
+        setSelectedImages(oldValue => {
             return [...oldValue, {
-                uploading: true,
-                cover: false, 
+                uploading: false,
+                cover: oldValue.length === 0, 
                 url: preview,
-                storageId: undefined
+                data: data
             }]
         })
-        
-        //upload image to file storage
+    }
+
+    async function uploadImage(data: any, imageIndex:number) {
+        //upload image to file storage and get storageID
         const storageId = await postImage(data)
 
         //modify item with new data
-        setUploadedImages(oldValue => oldValue.map((image, index) => {
+        setSelectedImages(oldValue => oldValue.map((image, index) => {
             if (imageIndex === index) {
                 image = {
+                    ...image,
                     uploading: false,
-                    cover: index === 0, 
-                    url: preview,
-                    storageId: storageId
+                    uploaded: true
                 }
             }
             
             return image
         }))
+
+        //return storageId so it can be used when submitting the form
+        return storageId
     }
 
     /* function deleteAllImages() {
@@ -326,34 +327,57 @@ function Search({onChangeHandler}:any) {
     } */
 
     function setAsCover(image: any) {
-        let newSelectedImages = uploadedImages
+        setSelectedImages(oldValue => oldValue.map(oldImage => {
+            oldImage = {
+                ...oldImage,
+                cover: true
+            }
 
-        for (const image of newSelectedImages) {
-            image.cover = false
-        }
-        
-        let index = newSelectedImages.indexOf(image)
-        
-        if (index > -1) {
-            newSelectedImages[index].cover = true
-        }
+            if (oldImage.data !== image.data) {
+                oldImage = {
+                    ...oldImage,
+                    cover: false
+                }
+            }
 
-        setUploadedImages([...newSelectedImages])
+            return oldImage
+
+        }))
     }
 
     /* File Deletion */
 
-    const deleteImage = useMutation("image:deleteImage")
-
     function handleDeleteImage(image:any) {
+        setSelectedImages(oldValue => {
+            let isCoverDeleted = false
 
-        let newUploadedImages = uploadedImages.filter(uploadedImage => {
-            return uploadedImage !== image
+            let newValue = oldValue.filter((selectedImage) => {
+                if (selectedImage === image) {
+                    if (selectedImage.cover) {
+                        isCoverDeleted = true
+                        console.log("cover deleted")
+                    }
+                    return false
+                } else {
+                    return true
+                }
+            })
+
+            if (isCoverDeleted) {
+                newValue = newValue.map((selectedImage, index) => {
+                    if (index === 0) {
+                        selectedImage = {
+                            ...selectedImage,
+                            cover: true
+                        }
+                    } 
+
+                    return selectedImage
+                })
+            }
+
+            return newValue
         })
-
-        setUploadedImages([...newUploadedImages])
-
-        deleteImage(image.storageId)
     }
 
     /* Rendering */
@@ -369,6 +393,14 @@ function Search({onChangeHandler}:any) {
             </div>
         )}
 
+        if (image.uploaded) {return (
+            <div className="image" style={{backgroundImage: `url(${image.url})`}}>
+                <div className="spinner">
+                    <FontAwesomeIcon icon={faCheckCircle}/>
+                </div>
+            </div>
+        )}
+
         return <div className="image" onClick={() => mouseEvents && setAsCover(image)} style={{backgroundImage: `url(${image.url})`}}>
             {image.cover && (
                 <div className="cover-icon">
@@ -379,7 +411,7 @@ function Search({onChangeHandler}:any) {
         </div>
     }
 
-    const imagePreviews = uploadedImages.map((image, index) => {
+    const imagePreviews = selectedImages.map((image, index) => {
         return <ImagePreview key={index} image={image}/>
     })
 
@@ -387,7 +419,7 @@ function Search({onChangeHandler}:any) {
     <div className="searchbar new-post">
 
         <div className="content-input">
-            <div className="dynamic-icon" onClick={() => toggleInputMode(false, false)}>
+            <div className="dynamic-icon" onClick={() => toggleInputMode(false)}>
                 <FontAwesomeIcon icon={faCircleXmark}/>
             </div>
             
@@ -433,7 +465,7 @@ function Search({onChangeHandler}:any) {
                     <select 
                     className="map-selector"
                     value={selectedMap}
-                    onChange={({target}:any) => {setSelectedMap(target.value)}}>
+                    onChange={({target}:ChangeEvent<HTMLSelectElement>) => {setSelectedMap(target.value)}}>
                         <option>Ascent</option>
                         <option>Fracture</option>
                         <option>Haven</option>
@@ -513,7 +545,7 @@ function Search({onChangeHandler}:any) {
             onClick={() => setSearchValue("")}/>
         )}
 		
-        <button onClick={() => toggleInputMode(true, false)} >
+        <button onClick={() => toggleInputMode(true)} >
             <FontAwesomeIcon icon={faCrosshairs} /> New Lineup
         </button>
 	</div>

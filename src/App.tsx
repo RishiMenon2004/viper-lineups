@@ -1,15 +1,14 @@
 import './App.scss';
-import { createContext, MutableRefObject, useEffect, useRef, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import { useQuery } from './convex/_generated/react';
+import { Document } from './convex/_generated/dataModel';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner} from '@fortawesome/free-solid-svg-icons';
 
 import Search from './components/Search';
 import SortingBar from './components/SortingBar';
-import PostCard from './components/PostCard';
-import PostViewer from './components/PostViewer';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner} from '@fortawesome/free-solid-svg-icons';
-import { Document } from './convex/_generated/dataModel';
-import { TagObject } from './components/Tags/TagObject';
+import { PostCard, PostViewer } from './modules/Posts';
+import { TagObject } from './modules/Tags/TagObject';
 
 export const MobileContext = createContext<{isMobile: boolean, windowWidth: number}>({isMobile: false, windowWidth: 0})
 export const PostContext = createContext<Document<"posts"> | any>(undefined)
@@ -17,7 +16,6 @@ export const PostContext = createContext<Document<"posts"> | any>(undefined)
 function App() {
 
 	/* Used to swap out mobile and desktop elements */
-	
     const [isMobile, setIsMobile] = useState<boolean>(false)
     const [windowWidth, setWindowWidth] = useState<number>(0)
 
@@ -37,7 +35,6 @@ function App() {
         window.addEventListener('resize', handleResize)
         return () => window.removeEventListener('resize', handleResize)
     })
-
 	/* =========================================== */
 
 	const [currentOpenPost, setCurrentOpenPost] = useState<Document<"posts"> | undefined>(undefined)
@@ -131,7 +128,7 @@ function App() {
 	
 
 	function FilteredPosts({postsList}:any) {
-		let search = searchQuery
+		let search = ""
 		let tags = ""
 		let connector = ""
 

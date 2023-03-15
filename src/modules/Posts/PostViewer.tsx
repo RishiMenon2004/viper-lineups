@@ -1,14 +1,14 @@
+import { useContext, useState } from "react"
+import { Document } from "../../convex/_generated/dataModel"
+import { useMutation } from "../../convex/_generated/react"
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { useContext, useState } from "react"
-import { MobileContext, PostContext } from "../App"
-import { Document } from "../convex/_generated/dataModel"
-import { useMutation } from "../convex/_generated/react"
-import ImageViewer from "./ImageViewer"
-import { Tag } from "./Tags"
-import { TagObject } from "./Tags/TagObject"
+import { Tag } from "../Tags"
+import { TagObject } from "../Tags/TagObject"
+import ImageViewer from "../../components/ImageViewer"
 
-function PostViewer({
+import { MobileContext, PostContext } from "../../App"
+export function PostViewer({
 	togglePostWithId,
 	isActive,
 }:{
@@ -64,13 +64,6 @@ function PostViewer({
 			}
 		}
 	}
-
-	/* const deletePost = useMutation("post:deletePost")
-
-	async function handleDeletePost(post: Document<"posts">) {
-		togglePostWithId(post._id)
-		await deletePost(post)
-	} */
 
 	/* Split images and put them into a grid of max. 5 */
 	const getPostImages = post ? post.images : []
@@ -160,6 +153,20 @@ function PostViewer({
 		return postImageGrids
 	}
 
+	const deletePost = useMutation("post:deletePost")
+
+	function DeleteButton() {
+
+		async function handleDeletePost(post: Document<"posts">) {
+			togglePostWithId(post._id)
+			await deletePost(post)
+		}
+
+		return <div className="post-buttons">
+			<button onClick={() => handleDeletePost(post)}>Delete Post</button>
+		</div>
+	}
+
 	return (<>
 		<div className={"selected-post" + ((isMobile && isActive) ? " active" : "")}
 		style={isMobile ? {
@@ -222,9 +229,7 @@ function PostViewer({
 					return imageGrid
 				})}
 				
-				{/* <div className="post-buttons">
-					<button onClick={() => handleDeletePost(post)}>Delete Post</button>
-				</div> */}
+				<DeleteButton />
 			</div>
 
 		</div>
@@ -241,5 +246,3 @@ function PostViewer({
 		/>}
 	</>)
 }
-
-export default PostViewer

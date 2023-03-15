@@ -1,12 +1,10 @@
-import { useQuery } from '../convex/_generated/react';
-import { Document, Id } from "../convex/_generated/dataModel";
-import { Tag } from './Tags';
-import { TagObject } from './Tags/TagObject';
+import { Document } from "../../convex/_generated/dataModel";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage } from '@fortawesome/free-solid-svg-icons';
-import { useState } from 'react';
+import { Tag } from '../Tags';
+import { TagObject } from '../Tags/TagObject';
 
-function PostCard({
+export function PostCard({
 	selected,
 	onClick,
 	data,
@@ -48,5 +46,3 @@ function PostCard({
 		</article>
 	)
 }
-
-export default PostCard

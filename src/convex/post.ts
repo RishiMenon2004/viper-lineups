@@ -1,7 +1,7 @@
 import { query } from "./_generated/server"
 import { mutation } from "./_generated/server"
-import { TagObject } from "../components/Tags/TagObject"
 import { Document } from "./_generated/dataModel"
+import { TagObject } from "../modules/Tags/TagObject"
 
 export const createNewPost = mutation(async({db}, {title, body, images, tags, map}: any) => {
 	const post = {title, body, images, tags, map}
@@ -84,9 +84,7 @@ export const getFilteredPosts = query(async ({db, storage}, tags:{abilities: Tag
 		for (const image of post.images) {
 			const downloadUrl =  await storage.getUrl(image.storageId)
 			if (downloadUrl) {
-				console.log("got", downloadUrl)
 				image.url = downloadUrl
-				console.log("set", image.url)
 			}
 		}
 	}
