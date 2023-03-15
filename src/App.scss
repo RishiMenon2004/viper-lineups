@@ -519,6 +519,10 @@
 					bottom: 50%;
 					font-size: 0.75rem;
 				}
+
+				&.disabled {
+					display: none;
+				}
 			}
 
 			.image-grid {

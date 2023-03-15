@@ -1,5 +1,7 @@
 import { ChangeEvent, useContext, useEffect,  useRef,  useState } from "react"
 import { useMutation } from "../convex/_generated/react"
+import { Infer } from "convex/schema"
+import { postSchema } from "../convex/schema"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { 
     faCheckCircle, 
@@ -38,7 +40,7 @@ function Search({onChangeHandler}:any) {
     const [selectedTags, setSelectedTags] = useState<{side: TagObject, abilities: TagObject[]}>({side: defaultSideTag, abilities: []})
     const [selectedMap, setSelectedMap] = useState("Ascent")
     const [selectedImages, setSelectedImages] = useState<{cover: boolean, url: any, uploading?: boolean, data: any, uploaded?: boolean}[]>([])
-    // const [uploadedImages, setUploadedImages] = useState<{cover: boolean, url: any, storageId: any, uploading: boolean}[]>([])
+    const [isInputDisabled, setIsInputDisabled] = useState<boolean>(false)
 
     /* Searchbar/New Post Function */
 
@@ -107,8 +109,9 @@ function Search({onChangeHandler}:any) {
 
         let imagesData = []
 
+        setIsInputDisabled(true)
+        
         const uploadingImages = [...selectedImages]
-
         setSelectedImages(oldValue => oldValue.map((image) => {
             image = {
                 ...image,
@@ -131,16 +134,18 @@ function Search({onChangeHandler}:any) {
             imagesData.push(uploadedImage)
         }
         
-        const data = {
+        const data: Infer<typeof postSchema> = {
             title: searchValue,
             body: messageValue,
             images: [...imagesData],
-            tags: [selectedTags.side, ...selectedTags.abilities],
+            side: selectedTags.side,
+            abilities: [...selectedTags.abilities],
             map: selectedMap
         }
 
         await submitNewPost(data)
 
+        setIsInputDisabled(false)
         toggleInputMode(false)
     }
 
@@ -397,6 +402,21 @@ function Search({onChangeHandler}:any) {
         return <ImagePreview key={index} image={image}/>
     })
 
+    function UploadImageButton() {
+        return <div className={"upload-button" + (isInputDisabled ? " disabled" : "")} onClick={() => fileInputRef?.current?.click()}>
+            <input 
+            ref={fileInputRef}
+            style={{display: "none"}} 
+            type={"file"}
+            onChange={handleFileChange}
+            multiple={true}
+            disabled={isInputDisabled}
+            />
+            <FontAwesomeIcon className="upload-button-icon" icon={faImage}/>
+            <FontAwesomeIcon className="upload-button-plus" icon={faPlus}/>
+        </div>
+    } 
+
 	return (isInputModeNewPost && !isMobile) ?
     <div className="searchbar new-post">
 
@@ -408,29 +428,22 @@ function Search({onChangeHandler}:any) {
             <input className="input title" placeholder="Title" maxLength={64}
             onChange={(e) => onSearchChange(e, false)}
             onPaste={getImageFromClipboard}
-            value={searchValue}/>
+            value={searchValue}
+            disabled={isInputDisabled}
+            />
 
             <textarea className="input message" placeholder="Enter a message"
             maxLength={500} rows={1}
             onPaste={getImageFromClipboard}
             onChange={onMessageChange}
-            value={messageValue}/>
+            value={messageValue}
+            disabled={isInputDisabled}
+            />
         </div>
         
         <div className="upload-input">
-            <input 
-            ref={fileInputRef}
-            style={{display: "none"}} 
-            type={"file"}
-            onChange={handleFileChange} multiple={true}/>
-            
             <div className="image-grid">
-
-                <div className="upload-button" onClick={() => fileInputRef?.current?.click()}>
-                    <FontAwesomeIcon className="upload-button-icon" icon={faImage}/>
-                    <FontAwesomeIcon className="upload-button-plus" icon={faPlus}/>
-                </div>
-                
+                <UploadImageButton/>
                 {imagePreviews}
             </div>
         </div>
