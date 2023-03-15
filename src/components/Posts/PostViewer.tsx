@@ -228,9 +228,11 @@ export function PostViewer({
 				
 				{post.body}
 				
-				{createImageGrids().map(imageGrid => {
-					return imageGrid
-				})}
+				<div className="image-grid-wrapper">
+					{createImageGrids().map(imageGrid => {
+						return imageGrid
+					})}
+				</div>
 				
 				<DeleteButton />
 			</div>
