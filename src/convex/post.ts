@@ -1,7 +1,8 @@
 import { query } from "./_generated/server"
 import { mutation } from "./_generated/server"
+import { Infer } from "convex/schema"
+import { tagSchema } from "./schema"
 import { Document } from "./_generated/dataModel"
-import { TagObject } from "../modules/Tags/tagObject"
 
 export const createNewPost = mutation(async({db}, {title, body, images, tags, map}: any) => {
 	const post = {title, body, images, tags, map, abilities: [], side: {displayText: "", id: ""}}
@@ -23,7 +24,7 @@ export const getPost = query(async ({db, storage}, documentId) => {
 	return post
 })
 
-export const getFilteredPosts = query(async ({db, storage}, {abilities, sides}:{abilities: TagObject[], sides: TagObject[]}, map:string) => {
+export const getFilteredPosts = query(async ({db, storage}, {abilities, sides}:{abilities: Infer<typeof tagSchema>[], sides: Infer<typeof tagSchema>[]}, map:string) => {
 
 	let posts = (map !== "" && map !== "All") ? 
 	await db
