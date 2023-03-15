@@ -1,8 +1,8 @@
 import { ChangeEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleHalfStroke, faLocationCrosshairs, faScrewdriverWrench } from "@fortawesome/free-solid-svg-icons";
-import { SelectableTag } from "../modules/Tags";
-import { AbilityTags, SideTags, TagObject } from "../modules/Tags/tagObject";
+import { SelectableTag } from "./Tags";
+import { AbilityTags, SideTags, TagObject } from "./Tags/tagObject";
 
 export default function SortingBar({floating, handleTagClick, handleSelectChange}: {floating:boolean, handleTagClick:Function, handleSelectChange:Function}) {
 	

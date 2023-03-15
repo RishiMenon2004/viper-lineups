@@ -111,10 +111,7 @@ function ImageViewer({
 
 	function switchImage(next: boolean) {
 		setOpenImageIndex((oldIndex:number) => {
-			console.log(oldIndex)
-			let newIndex = Math.min(Math.max((next ? oldIndex + 1 : oldIndex - 1), 0), totalImages - 1)
-			console.log(newIndex)
-			return newIndex 
+			return Math.min(Math.max((next ? oldIndex + 1 : oldIndex - 1), 0), totalImages - 1)
 		})
 	}
 

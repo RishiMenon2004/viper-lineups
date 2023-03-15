@@ -7,8 +7,8 @@ import { faSpinner} from '@fortawesome/free-solid-svg-icons';
 
 import Search from './components/Search';
 import SortingBar from './components/SortingBar';
-import { PostCard, PostViewer } from './modules/Posts';
-import { TagObject } from './modules/Tags/tagObject';
+import { PostCard, PostViewer } from './components/Posts';
+import { TagObject } from './components/Tags/tagObject';
 
 export const MobileContext = createContext<{isMobile: boolean, windowWidth: number}>({isMobile: false, windowWidth: 0})
 export const PostContext = createContext<Document<"posts"> | any>(undefined)

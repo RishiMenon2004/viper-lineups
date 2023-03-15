@@ -15,8 +15,8 @@ import {
     faTrash, 
     faXmark 
 } from "@fortawesome/free-solid-svg-icons"
-import { SelectableTag } from "../modules/Tags"
-import { TagObject, SideTags, AbilityTags } from "../modules/Tags/tagObject"
+import { SelectableTag } from "./Tags"
+import { TagObject, SideTags, AbilityTags } from "./Tags/tagObject"
 
 import { MobileContext } from "../App"
 

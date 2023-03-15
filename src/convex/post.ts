@@ -58,14 +58,8 @@ export const getFilteredPosts = query(async ({db, storage}, {abilities, sides}:{
 
 			post.abilities.every(postTag => {
 
-				let objone = {id: "snakebite"}
-				let objtwo = {id: "snakebite"}
-
-				console.log(objone === objtwo)
-
 				if (abilities.find(tag => tag.id === postTag.id)) {
 					hasOneTag = true
-					console.log(hasOneTag)
 					return false
 				}
 

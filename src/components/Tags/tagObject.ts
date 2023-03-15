@@ -1,7 +1,6 @@
 import { Infer } from "convex/schema"
 import { tagSchema } from "../../convex/schema"
 
-
 export type TagObject = Infer<typeof tagSchema>
 
 export const SideTags:TagObject[] = [
