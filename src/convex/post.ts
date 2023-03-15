@@ -1,8 +1,7 @@
 import { query } from "./_generated/server"
 import { mutation } from "./_generated/server"
-import { Infer } from "convex/schema"
-import { tagSchema } from "./schema"
 import { Document } from "./_generated/dataModel"
+import { TagObject } from "../components/Tags/tagObject"
 
 export const createNewPost = mutation(async({db}, {title, body, images, tags, map}: any) => {
 	const post = {title, body, images, tags, map, abilities: [], side: {displayText: "", id: ""}}
@@ -24,7 +23,13 @@ export const getPost = query(async ({db, storage}, documentId) => {
 	return post
 })
 
-export const getFilteredPosts = query(async ({db, storage}, {abilities, sides}:{abilities: Infer<typeof tagSchema>[], sides: Infer<typeof tagSchema>[]}, map:string) => {
+function hasTag(tag: TagObject, checkArray: TagObject[]) {
+	return checkArray.find(checkTag => {
+		return checkTag.id === tag.id
+	}) !== undefined
+}
+
+export const getFilteredPosts = query(async ({db, storage}, {abilities, sides}:{abilities: TagObject[], sides: TagObject[]}, map:string) => {
 
 	let posts = (map !== "" && map !== "All") ? 
 	await db
@@ -41,12 +46,7 @@ export const getFilteredPosts = query(async ({db, storage}, {abilities, sides}:{
 
 	if (sides.length !== 0) {
 		const postsFilteredBySidesTags = postsFilteredByTags.filter(post => {
-			
-			const hasTag = sides.find(tag => {
-				return tag.id === post.side.id
-			}) !== undefined
-
-			return hasTag
+			return hasTag(post.side, sides) !== undefined 
 		})
 
 		postsFilteredByTags = postsFilteredBySidesTags
@@ -55,20 +55,12 @@ export const getFilteredPosts = query(async ({db, storage}, {abilities, sides}:{
 	if (abilities.length !== 0){
 		const postsFilteredByAbilityTags = postsFilteredByTags.filter(post => {
 			let hasOneTag = false
-
 			post.abilities.every(postTag => {
-
-				if (abilities.find(tag => tag.id === postTag.id)) {
-					hasOneTag = true
-					return false
-				}
-
-				return true
+				hasOneTag = hasTag(postTag, abilities)
+				return !hasOneTag
 			})
-
 			return hasOneTag
 		})
-
 		postsFilteredByTags = postsFilteredByAbilityTags
 	}
 	
