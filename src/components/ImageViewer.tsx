@@ -110,7 +110,12 @@ function ImageViewer({
 	const [imageSwitchTransition, setImageSwitchTransition] = useState("")
 
 	function switchImage(next: boolean) {
-		setOpenImageIndex((oldIndex:number) => Math.min(Math.max((next ? oldIndex++ : oldIndex--), 0), totalImages - 1))
+		setOpenImageIndex((oldIndex:number) => {
+			console.log(oldIndex)
+			let newIndex = Math.min(Math.max((next ? oldIndex + 1 : oldIndex - 1), 0), totalImages - 1)
+			console.log(newIndex)
+			return newIndex 
+		})
 	}
 
 	function handleImageSwitchDragStart({clientX}: any) {
