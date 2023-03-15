@@ -337,7 +337,7 @@ function Search({onChangeHandler}:any) {
                 image = {
                     ...image,
                     uploading: false,
-                    uploaded: false
+                    uploaded: true
                 }
             }
             
