@@ -13,10 +13,5 @@ export default defineSchema({
       })
     ),
     title: s.string(),
-  }),
-  tags: defineTable({
-    category: s.string(),
-    displayText: s.string(),
-    id: s.string(),
-  }),
+  }).index("by_map", ["map"])
 });

@@ -25,19 +25,16 @@ export const getPost = query(async ({db, storage}, documentId) => {
 
 export const getFilteredPosts = query(async ({db, storage}, tags:{abilities: TagObject[], sides: TagObject[]}, map:string) => {
 
-	let posts = await db
-	.query("posts")
-	.order("desc")
-	.collect()
-	
-	if (map !== "" && map !== "All") {
-		const postsFilteredByMap = posts.filter(post => {
-			return post.map === map
-		})
-
-		posts = postsFilteredByMap
-	}
-
+	let posts = (map !== "" && map !== "All") ? 
+	await db
+		.query("posts")
+		.withIndex("by_map", q => q.eq("map", map))
+		.order("desc")
+		.collect()
+	: await db
+		.query("posts")
+		.order("desc")
+		.collect()
 
 	let postsFilteredByTags = posts
 
