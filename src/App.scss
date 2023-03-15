@@ -1,5 +1,6 @@
 :root {
 	--post-image-over-gradient: linear-gradient(to top, hsl(0, 0%, 0%, 90%), transparent);
+	--side-panel-width: 40vw;
 
 	.spinner-icon {
 		animation: rotate 1s linear infinite forwards;	
@@ -23,7 +24,7 @@
 	display: grid;
 	gap	: 0.5rem;
 	grid-template-areas: "main main";
-	grid-template-columns: auto 40vw;
+	grid-template-columns: auto var(--side-panel-width);
 	overflow: hidden;
 	position: relative;
 	isolation: isolate;
@@ -39,7 +40,6 @@
 		height: 100svh;
 		box-sizing: border-box;
 		overflow: auto;
-		container: main-area / inline-size;
 		position: unset;
 		z-index: 0;
 	}
@@ -206,6 +206,8 @@
 			.main-area {
 				gap: 1rem;
 				border-radius: 0 0.5rem 0.5rem 0;
+				padding-bottom: calc(2rem + (1rem * 2) + (0.5rem * 2));
+				z-index: unset;
 			}
 
 			.selected-post {
@@ -226,6 +228,10 @@
 				.selected-post {
 					display: flex;
 					grid-area: viewPost;
+				}
+
+				.sorting-bar {
+					right: calc(var(--side-panel-width) + 2rem);
 				}
 			}
 		}
@@ -678,16 +684,6 @@
 			height: 2rem;
 			padding: 0.5rem;
 
-			& ~ .main-area {
-				padding-bottom: calc(2rem + (1rem * 2) + (0.5rem * 2));
-			}
-			
-			& ~ .selected-post {
-				.content-grid {
-					padding-bottom: calc(2rem + (1rem * 2) + (0.5rem * 3));
-				}
-			}
-
 			.section {
 				display: flex;
 				align-items: center;
@@ -761,125 +757,129 @@
 	}
 }
 
-.post-grid {
-	display: grid;
-	grid-template-columns: repeat(1, 1fr);
-	gap: 2rem;
-	
-	@container main-area (min-width: 600px) {
-		gap: 1rem;
-		& {grid-template-columns: repeat(2, 1fr);}
-	}
-	
-	@container main-area (min-width: 900px) {
-		& {grid-template-columns: repeat(3, 1fr);}
-	}
+.post-grid-wrapper {
+	container: post-grid / inline-size;
 
-	.card-post {
+	.post-grid {
 		display: grid;
-		gap: 0.5rem;
-		position: relative;
-		background-color: hsl(260, 7%, 10%);
-		border-radius: 0.75rem;
-		outline: hsl(0, 0%, 100%, 0%) 2px solid;
-		outline-offset: 1px;
-		cursor: pointer;
-		user-select: none;
-		overflow: hidden;
-		transition: transform 0.2s ease-in, box-shadow 0.2s ease-in;
-		--post-image-over-gradient: linear-gradient(to top, hsl(260, 7%, 10%), transparent);
-
-		&:hover, &:focus-visible, &.selected {
-			transform: translateY(-4px);
-			box-shadow: 0 0.5rem 1rem hsl(0, 0%, 0%, 24%);
-		}
-
-		&:focus-visible {
-			outline-color: hsl(141, 78%, 25%);
+		grid-template-columns: repeat(1, 1fr);
+		gap: 2rem;
+		
+		@container post-grid (min-width: 600px) {
+			gap: 1rem;
+			& {grid-template-columns: repeat(2, 1fr);}
 		}
 		
-		&.selected {
-			outline-color: hsl(141, 78%, 25%);
-			outline-width: 2px;
-		}
-	
-		.card-title {
-			display: flex;
-			position: relative;
-			padding: 3.5rem 0.75rem 1rem;
-			background-size: cover;
-			background-position: center;
-			overflow-x: hidden;
-			align-items: center;
-			
-			h3 {
-				margin: 0;
-				white-space: normal;
-				word-break: break-word;
-				font-size: 1.25rem;
-				line-height: 1em;
-				font-weight: 500;
-			}
-			
-			.map-name {
-				font-size: 0.75rem;
-				top: 0.75rem;
-				left: 0.75rem;
-				padding: 0.3rem;
-				line-height: 1em;
-				position: absolute;
-				border-radius: 0.25rem;
-				background-color: hsl(0, 0%, 0%, 50%);
-			}
+		@container post-grid (min-width: 900px) {
+			& {grid-template-columns: repeat(3, 1fr);}
 		}
 
-		.card-description {
-			padding: 0 0.75rem;
-			white-space: nowrap;
+		.card-post {
+			display: grid;
+			gap: 0.5rem;
+			position: relative;
+			background-color: hsl(260, 7%, 10%);
+			border-radius: 0.75rem;
+			outline: hsl(0, 0%, 100%, 0%) 2px solid;
+			outline-offset: 1px;
+			cursor: pointer;
+			user-select: none;
 			overflow: hidden;
-			text-overflow: ellipsis;
-		}
+			transition: transform 0.2s ease-in, box-shadow 0.2s ease-in;
+			--post-image-over-gradient: linear-gradient(to top, hsl(260, 7%, 10%), transparent);
 
-		.card-content {
-			background-position: center;
-			background-size: cover;
-			height: 15rem;
-			position: relative;
-			margin: 0 0.5rem 0.5rem;
-			border-radius: 0.5rem;
+			&:hover, &:focus-visible, &.selected {
+				transform: translateY(-4px);
+				box-shadow: 0 0.5rem 1rem hsl(0, 0%, 0%, 24%);
+			}
 
-			.post-details {
-				position: absolute;
-				inset: 0.5rem;
-				display: flex;
-				justify-content: flex-end;
+			&:focus-visible {
+				outline-color: hsl(141, 78%, 25%);
+			}
+			
+			&.selected {
+				outline-color: hsl(141, 78%, 25%);
+				outline-width: 2px;
+			}
 		
-				.tags-container {
-					display: flex;
-					flex-wrap: wrap;
-					position: absolute;
-					left: 0;
-					gap: 0.25rem;
+			.card-title {
+				display: flex;
+				position: relative;
+				padding: 3.5rem 0.75rem 1rem;
+				background-size: cover;
+				background-position: center;
+				overflow-x: hidden;
+				align-items: center;
+				
+				h3 {
+					margin: 0;
+					white-space: normal;
+					word-break: break-word;
+					font-size: 1.25rem;
+					line-height: 1em;
+					font-weight: 500;
 				}
 				
-				.images-overflow {
-					position: absolute;
-					bottom: 0;
-					width: fit-content;
-					background-color: hsl(0, 0%, 0%, 40%);
+				.map-name {
 					font-size: 0.75rem;
-					padding: 0 0.25rem;
+					top: 0.75rem;
+					left: 0.75rem;
+					padding: 0.3rem;
+					line-height: 1em;
+					position: absolute;
 					border-radius: 0.25rem;
-					font-weight: bold;
+					background-color: hsl(0, 0%, 0%, 50%);
+				}
+			}
+
+			.card-description {
+				padding: 0 0.75rem;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+
+			.card-content {
+				background-position: center;
+				background-size: cover;
+				height: 15rem;
+				position: relative;
+				margin: 0 0.5rem 0.5rem;
+				border-radius: 0.5rem;
+
+				.post-details {
+					position: absolute;
+					inset: 0.5rem;
+					display: flex;
+					justify-content: flex-end;
+			
+					.tags-container {
+						display: flex;
+						flex-wrap: wrap;
+						position: absolute;
+						left: 0;
+						gap: 0.25rem;
+					}
 					
+					.images-overflow {
+						position: absolute;
+						bottom: 0;
+						width: fit-content;
+						background-color: hsl(0, 0%, 0%, 40%);
+						font-size: 0.75rem;
+						padding: 0 0.25rem;
+						border-radius: 0.25rem;
+						font-weight: bold;
+						
+					}
 				}
 			}
 		}
-	}
 
-	.fetching-message {
-		grid-column: span 3;
-		text-align: center;
-		font-size: 1.5rem;
+		.fetching-message {
+			grid-column: span 3;
+			text-align: center;
+			font-size: 1.5rem;
+		}
 	}
 }

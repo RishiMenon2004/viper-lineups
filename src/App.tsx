@@ -176,25 +176,21 @@ function App() {
 		}
 	}
 
-	return (<div className={"App" + ((currentOpenPost) ? " viewing-post" : "")}>
-		{!isMobile && <SortingBar
-			floating={true}
-			handleTagClick={handleTagClick}
-			handleSelectChange={setSelectedMap}
-		/>}
-		
+	return (<div className={"App" + ((currentOpenPost) ? " viewing-post" : "")}>		
 		<MobileContext.Provider value={{isMobile: isMobile, windowWidth: windowWidth}}>
 			<main className='main-area' tabIndex={-1}>
 				<Search onChangeHandler={setSearchQuery}/>
 				
-				{isMobile && <SortingBar
-					floating={false}
+				<SortingBar
+					floating={!isMobile}
 					handleTagClick={handleTagClick}
 					handleSelectChange={setSelectedMap}
-				/>}
+				/>
 				
-				<div className="post-grid">
-					<FilteredPosts postsList={filteredPosts}/>
+				<div className="post-grid-wrapper">
+					<div className="post-grid">
+						<FilteredPosts postsList={filteredPosts}/>
+					</div>
 				</div>
 			</main>
 			<PostContext.Provider value={currentOpenPost}>
