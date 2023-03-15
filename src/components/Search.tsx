@@ -285,9 +285,51 @@ function Search({onChangeHandler}:any) {
         })
     }
 
+    async function getResizedImage(file:any, width?:number, height?:number, quality:number = 0.6) {
+        return new Promise((resolve) => {
+            let image = new Image()
+            image.src = URL.createObjectURL(file)
+            image.onload = _ => {
+                let imageWidth = image.width
+                let imageHeight = image.height
+                let canvas = document.createElement('canvas')
+
+                // resize the canvas and draw the image data into it
+                if (width && height) {
+                    canvas.width = width
+                    canvas.height = height
+                } else if (width) {
+                    canvas.width = width;
+                    canvas.height = Math.floor(imageHeight * width / imageWidth)
+                } else if (height) {
+                    canvas.width = Math.floor(imageWidth * height / imageHeight);
+                    canvas.height = height
+                } else {
+                    canvas.width = imageWidth
+                    canvas.height = imageHeight
+                }
+
+                let ctx = canvas.getContext("2d")
+                ctx !== null && ctx.drawImage(image, 0, 0, canvas.width, canvas.height)
+
+                canvas.toBlob((blob) => {
+                    if (blob !== null) {
+                        let file = new File([blob], "fileName.jpg", { type: "image/jpeg" })
+                        resolve(file)
+                    }
+                  }, "image/jpeg", quality)
+            }
+        }).then(file => {
+            return file
+        })
+    }
+
     async function uploadImage(data: any, imageIndex:number) {
+        //compress the image because i don't want to pay for convex file serving
+        const compressedData = await getResizedImage(data)
+        
         //upload image to file storage and get storageID
-        const storageId = await postImage(data)
+        const storageId = await postImage(compressedData)
 
         //modify item with new data
         setSelectedImages(oldValue => oldValue.map((image, index) => {
@@ -295,7 +337,7 @@ function Search({onChangeHandler}:any) {
                 image = {
                     ...image,
                     uploading: false,
-                    uploaded: true
+                    uploaded: false
                 }
             }
             
