@@ -164,9 +164,8 @@ export function PostViewer({
 			await deletePost(post)
 		}
 
-		return <div className="post-buttons">
-			<button onClick={() => handleDeletePost(post)}>Delete Post</button>
-		</div>
+		return <button onClick={() => handleDeletePost(post)}>Delete Post</button>
+	
 	}
 
 	return (<>
@@ -234,7 +233,9 @@ export function PostViewer({
 					})}
 				</div>
 				
-				<DeleteButton />
+				{!isMobile && <div className="post-buttons">
+					<DeleteButton />
+				</div>}
 			</div>
 
 		</div>
