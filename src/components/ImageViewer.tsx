@@ -102,19 +102,15 @@ function ImageViewer({
 		setViewImageDragOffset({x: clamppedOffsetX, y: clamppedOffsetY})
 	}
 
-	/* Handle Image Viewing: Switching, Drag-Switching */
+	/* Handle Image Viewing: Switching */
 
 	const [imageSwitchStartPosX, setImageSwitchMousePosXStart] = useState<number>(0)
 	const [isDraggingImageSwitch, setIsDraggingImageSwitch] = useState<boolean>(false)
 	const [imageSwitchTransform, setImageSwitchTransform] = useState({translate: "", scale: "", rotate: ""})
 	const [imageSwitchTransition, setImageSwitchTransition] = useState("")
 
-	function prevImage() {
-		setOpenImageIndex((oldIndex:number) => Math.max(oldIndex - 1, 0))
-	}
-
-	function nextImage() {
-		setOpenImageIndex((oldIndex:number) => Math.min(oldIndex + 1, totalImages - 1))
+	function switchImage(next: boolean) {
+		setOpenImageIndex((oldIndex:number) => Math.min(Math.max((next ? oldIndex++ : oldIndex--), 0), totalImages - 1))
 	}
 
 	function handleImageSwitchDragStart({clientX}: any) {
@@ -153,10 +149,10 @@ function ImageViewer({
 
 			if (percentDelta < -20) {
 				setImageSwitchTransform({translate: `translateX(100%)`, scale: `scale(0.25)`, rotate: `rotateY(-45deg)`})
-				nextImage()
+				switchImage(true)
 			} else if (percentDelta > 20) {
 				setImageSwitchTransform({translate: `translateX(-100%)`, scale: `scale(0.25)`, rotate: `rotateY(45deg)`})
-				prevImage()
+				switchImage(false)
 			}
 			setTimeout(() => {
 				setImageSwitchTransition("transform 0.5s")
@@ -174,8 +170,12 @@ function ImageViewer({
 			>
 			
 			{(totalImages > 1 && !isMobile) && <>
-				<div className={`left-button ${openImageIndex === 0 && "disabled"}`} onClick={prevImage}><FontAwesomeIcon icon={faCaretLeft}/></div>
-				<div className={`right-button ${openImageIndex === (totalImages - 1) && "disabled"}`} onClick={nextImage}><FontAwesomeIcon icon={faCaretRight}/></div>
+				<div className={`left-button ${openImageIndex === 0 && "disabled"}`} onClick={() => switchImage(false)}>
+					<FontAwesomeIcon icon={faCaretLeft}/>
+				</div>
+				<div className={`right-button ${openImageIndex === (totalImages - 1) && "disabled"}`} onClick={() => switchImage(true)}>
+					<FontAwesomeIcon icon={faCaretRight}/>
+				</div>
 			</>}
 
 			{(isMobile && !isImageZoomed) && (
