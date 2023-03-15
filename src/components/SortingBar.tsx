@@ -2,19 +2,13 @@ import { ChangeEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleHalfStroke, faLocationCrosshairs, faScrewdriverWrench } from "@fortawesome/free-solid-svg-icons";
 import { SelectableTag } from "../modules/Tags";
-import { AllTags, TagObject } from "../modules/Tags/TagObject";
+import { AbilityTags, SideTags, TagObject } from "../modules/Tags/tagObject";
 
 export default function SortingBar({floating, handleTagClick, handleSelectChange}: {floating:boolean, handleTagClick:Function, handleSelectChange:Function}) {
 	
-	const tagsQuery = AllTags
+	const sideTags = SideTags
 
-	const sideTags = tagsQuery.filter((tag:TagObject) => {
-		return tag.category === "side"
-	})
-
-	const abilityTags = tagsQuery.filter((tag:TagObject) => {
-		return tag.category === "ability"
-	})
+	const abilityTags = AbilityTags
 
 	return (
 		<div className={'sorting-bar' + (floating ? " floating" : "")}>
@@ -46,7 +40,7 @@ export default function SortingBar({floating, handleTagClick, handleSelectChange
 				</div>
 				<div className="section-content">
 					{sideTags?.map((tag:TagObject, index:number) => {
-						return <SelectableTag key={index} onClick={() => handleTagClick(tag)} tag={tag}/>
+						return <SelectableTag key={index} onClick={() => handleTagClick(tag, "side")} tag={tag}/>
 					})}
 				</div>
 			</div>
@@ -58,7 +52,7 @@ export default function SortingBar({floating, handleTagClick, handleSelectChange
 				</div>
 				<div className="section-content" tabIndex={-1}>
 					{abilityTags?.map((tag:TagObject, index:number) => {
-						return <SelectableTag key={index} onClick={() => handleTagClick(tag)} tag={tag}/>
+						return <SelectableTag key={index} onClick={() => handleTagClick(tag, "ability")} tag={tag}/>
 					})}
 				</div>
 			</div>

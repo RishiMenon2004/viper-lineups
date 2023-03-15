@@ -1,38 +1,34 @@
-export interface TagObject {
-	category: string,
-	displayText: string,
-	id: string
-}
+import { Infer } from "convex/schema"
+import { tagSchema } from "../../convex/schema"
 
-export const AllTags:TagObject[] = [
+
+export type TagObject = Infer<typeof tagSchema>
+
+export const SideTags:TagObject[] = [
 	{
-		category: "side",
 		displayText: "Attack",
 		id: "attack"
 	},
 	{
-		category: "side",
 		displayText: "Defend",
 		id: "defend"
 	},
+]
 
+export const AbilityTags:TagObject[] = [
 	{
-		category: "ability",
 		displayText: "Snakebite",
 		id: "snakebite"
 	},
 	{
-		category: "ability",
 		displayText: "Poison Cloud",
 		id: "poison_cloud"
 	},
 	{
-		category: "ability",
 		displayText: "Toxic Screen",
 		id: "toxic_screen"
 	},
 	{
-		category: "ability",
 		displayText: "Viper's Pit",
 		id: "vipers_pit"
 	},

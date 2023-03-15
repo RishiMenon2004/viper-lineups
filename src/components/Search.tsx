@@ -16,7 +16,7 @@ import {
     faXmark 
 } from "@fortawesome/free-solid-svg-icons"
 import { SelectableTag } from "../modules/Tags"
-import { TagObject, AllTags } from "../modules/Tags/TagObject"
+import { TagObject, SideTags, AbilityTags } from "../modules/Tags/tagObject"
 
 import { MobileContext } from "../App"
 
@@ -28,7 +28,7 @@ function Search({onChangeHandler}:any) {
 
 	/* =========================================== */
 
-    const defaultSideTag = AllTags.find(tag => tag.id === "attack") as TagObject
+    const defaultSideTag = SideTags.find(tag => tag.id === "attack") as TagObject
 
     const [isInputModeNewPost, setIsInputModeNewPost] = useState(false)
 	const [selectedSideIndex, setSelectedSideIndex] = useState<number>(0)
@@ -123,8 +123,6 @@ function Search({onChangeHandler}:any) {
 
             const storageId = await uploadImage(selectedImage.data, parseInt(imageIndex))
 
-            console.log(storageId)
-
             let uploadedImage = {
                 cover: selectedImage.cover,
                 storageId: storageId
@@ -141,8 +139,6 @@ function Search({onChangeHandler}:any) {
             map: selectedMap
         }
 
-        console.log(data)
-        
         await submitNewPost(data)
 
         toggleInputMode(false)
@@ -174,39 +170,26 @@ function Search({onChangeHandler}:any) {
 
     /* Tags Selection */
 
-    const tagsQuery = AllTags
+    const sideTags = SideTags
 
-    const sideTags = tagsQuery.filter((tag:TagObject) => {
-		return tag.category === "side"
-	})
+	const abilityTags = AbilityTags
 
-	const abilityTags = tagsQuery.filter((tag:TagObject) => {
-		return tag.category === "ability"
-	})
-
-    function handleTagSelect(tag:TagObject) {
+    function handleTagSelect(tag:TagObject, category: "ability" | "side") {
         let abilities = selectedTags.abilities
 		let side = selectedTags.side
 
-        switch(tag.category) {
-			case "ability": {
-				if (abilities.includes(tag)) {
-                    abilities = abilities.filter(abilityTag => {
-                        return abilityTag !== tag
-                    })
+        if(category === "ability") {
+            if (abilities.includes(tag)) {
+                abilities = abilities.filter(abilityTag => {
+                    return abilityTag !== tag
+                })
 			
-				} else {
-					abilities = [...abilities, tag].sort()
-				}
-
-				break
-			}
-
-			case "side": {
-                side = tag
-				break
-			}
-		}
+            } else {
+                abilities = [...abilities, tag].sort()
+            }
+		} else {
+            side = tag
+        }
 
 		setSelectedTags({side: side, abilities: abilities})
     }
@@ -355,7 +338,6 @@ function Search({onChangeHandler}:any) {
                 if (selectedImage === image) {
                     if (selectedImage.cover) {
                         isCoverDeleted = true
-                        console.log("cover deleted")
                     }
                     return false
                 } else {
@@ -487,20 +469,16 @@ function Search({onChangeHandler}:any) {
                 </div>
                 
                 <div className="section-content">
-                    {sideTags?.map((tag, index) => {
-                        let state = selectedSideIndex === index
-                        return <div
-                        key={index}
-                        tabIndex={0}
-                        onClick={() => {
-                            setSelectedSideIndex(index)
-                            handleTagSelect(tag)
-                        }}
-                        onKeyDown={(e) => {e.key === "Enter" && handleTagSelect(tag)}}
-                        className={"tag selectable" + (state ? ' selected' : '')}>
-                            <img src={`/tag_icons/${tag.id}.png`} className='icon' alt="tag icon"/>
-                            {tag.displayText}
-                        </div>
+                    {sideTags.map((tag, index) => {
+                        return <SelectableTag
+                            key={index}
+                            tag={tag}
+                            isSelected={selectedSideIndex === index}
+                            onClick={() => {
+                                setSelectedSideIndex(index)
+                                handleTagSelect(tag, "side")
+                            }}
+                        />
                     })}
                 </div>
             </div>
@@ -513,12 +491,12 @@ function Search({onChangeHandler}:any) {
                 </div>
                 
                 <div className="section-content" tabIndex={-1}>
-                    {abilityTags?.map((tag, index) => {
+                    {abilityTags.map((tag, index) => {
                         return <SelectableTag
-                        key={index}
-                        isSmall={false}
-                        tag={tag}
-                        onClick={() => handleTagSelect(tag)}/>
+                            key={index}
+                            tag={tag}
+                            onClick={() => handleTagSelect(tag, "ability")}
+                        />
                     })}
                 </div>
             </div>

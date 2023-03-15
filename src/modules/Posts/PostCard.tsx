@@ -2,7 +2,7 @@ import { Document } from "../../convex/_generated/dataModel";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage } from '@fortawesome/free-solid-svg-icons';
 import { Tag } from '../Tags';
-import { TagObject } from '../Tags/TagObject';
+import { TagObject } from '../Tags/tagObject';
 
 export function PostCard({
 	selected,
@@ -34,8 +34,9 @@ export function PostCard({
 			<div className='card-content' style={{backgroundImage: `url(${getCoverImage?.url})`}}>
 				<div className='post-details'>
 					<div className='tags-container'>
-						{data.tags.map((tag: TagObject, index: number) => {
-							return index < 3 && <Tag key={index} isSmall={true} tag={tag}/>
+						<Tag isSmall tag={data.side}/>
+						{data.abilities.map((tag: TagObject, index: number) => {
+							return <Tag key={index} isSmall tag={tag}/>
 						})}
 					</div>
 					{(imagesLength && imagesLength > 1) && <div className='images-overflow'>

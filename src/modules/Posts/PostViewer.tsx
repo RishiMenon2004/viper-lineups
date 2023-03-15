@@ -4,7 +4,7 @@ import { useMutation } from "../../convex/_generated/react"
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Tag } from "../Tags"
-import { TagObject } from "../Tags/TagObject"
+import { TagObject } from "../Tags/tagObject"
 import ImageViewer from "../../components/ImageViewer"
 
 import { MobileContext, PostContext } from "../../App"
@@ -218,7 +218,8 @@ export function PostViewer({
 			<div className="content-grid">
 				
 				<div className='tags-container'>
-					{post.tags.map((tag: TagObject, index: number) => {
+					<Tag tag={post.side}/>
+					{post.abilities.map((tag: TagObject, index: number) => {
 						return <Tag key={index} tag={tag}/>
 					})}
 				</div>

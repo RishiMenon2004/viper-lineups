@@ -1,10 +1,10 @@
 import { query } from "./_generated/server"
 import { mutation } from "./_generated/server"
 import { Document } from "./_generated/dataModel"
-import { TagObject } from "../modules/Tags/TagObject"
+import { TagObject } from "../modules/Tags/tagObject"
 
 export const createNewPost = mutation(async({db}, {title, body, images, tags, map}: any) => {
-	const post = {title, body, images, tags, map}
+	const post = {title, body, images, tags, map, abilities: [], side: {displayText: "", id: ""}}
 	await db.insert("posts", post)
 })
 
@@ -23,7 +23,7 @@ export const getPost = query(async ({db, storage}, documentId) => {
 	return post
 })
 
-export const getFilteredPosts = query(async ({db, storage}, tags:{abilities: TagObject[], sides: TagObject[]}, map:string) => {
+export const getFilteredPosts = query(async ({db, storage}, {abilities, sides}:{abilities: TagObject[], sides: TagObject[]}, map:string) => {
 
 	let posts = (map !== "" && map !== "All") ? 
 	await db
@@ -38,34 +38,33 @@ export const getFilteredPosts = query(async ({db, storage}, tags:{abilities: Tag
 
 	let postsFilteredByTags = posts
 
-	if (tags.sides.length !== 0){
+	if (sides.length !== 0) {
 		const postsFilteredBySidesTags = postsFilteredByTags.filter(post => {
-			let hasOneTag = false
 			
-			tags.sides.every((tag:TagObject) => {
-				if (post.tags.find(postTag => postTag.id === tag.id )) {
-					hasOneTag = true
-					console.log("sides", hasOneTag)
-					return false
-				}
+			const hasTag = sides.find(tag => {
+				return tag.id === post.side.id
+			}) !== undefined
 
-				return true
-			})
-
-			return hasOneTag
+			return hasTag
 		})
 
 		postsFilteredByTags = postsFilteredBySidesTags
 	}
 
-	if (tags.abilities.length !== 0){
+	if (abilities.length !== 0){
 		const postsFilteredByAbilityTags = postsFilteredByTags.filter(post => {
 			let hasOneTag = false
-			
-			tags.abilities.every((tag:TagObject) => {
-				if (post.tags.find(postTag => postTag.id === tag.id )) {
+
+			post.abilities.every(postTag => {
+
+				let objone = {id: "snakebite"}
+				let objtwo = {id: "snakebite"}
+
+				console.log(objone === objtwo)
+
+				if (abilities.find(tag => tag.id === postTag.id)) {
 					hasOneTag = true
-					console.log("ability", hasOneTag)
+					console.log(hasOneTag)
 					return false
 				}
 

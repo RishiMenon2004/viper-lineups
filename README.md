@@ -3,9 +3,11 @@
 ![viper](public/banner.png)
 
 ## Introduction
+
 I kinda made this for myself, and I never planned to let anyone use it or tweak it, but I figured I'd make it open so anyone interested can clone it and modify it for their own Valorant agent.
 
 ## Tech Stack
+
 This is a [`create-react-app`](https://reactjs.org/docs/getting-started.html) project. You will need intermediate knowledge of the React framework.
 
 I had decided to write this in `typescript` , so please be familiarised with it's little kinks and typing before diving into this.
@@ -20,9 +22,10 @@ The database has 1 table(s)  `posts`
 
 | body     | images                                              | map      | tags                                                              | title    |
 |---       |---                                                  |---       |---                                                                |---       |
-| `string` | `{ url:string, storageId:string, cover:boolean }[]` | `string` | `{ id:string, displayName:string, category:"side"\|"ability" }[]` | `string` |
+| `string` | `{ url:string, storageId:string, cover:boolean }[]` | `string` | `{ id:string, displayText:string, category:"side"\|"ability" }[]` | `string` |
 
 ## Code
+
 Again, because I didn't plan to let anyone tinker with this project, as of now my code is super messy.
 
 Over time I will be cleaning it up and making things more readable, useable and extensible.
@@ -30,6 +33,7 @@ Over time I will be cleaning it up and making things more readable, useable and 
 ![progress](https://img.shields.io/badge/Clean_Up-60%25_Cleaned_Up-green?style=for-the-badge&labelColor=19181b&color=0e7131)
 
 ## Development
+
 Given that you have read the Convex docs, I would assume that you have both cloned this repository and have run `$ npx convex init` to [initialise](https://docs.convex.dev/quickstart#configure-the-client-and-wire-up-the-provider) your convex project.
 
 > This requires you to login with your GitHub account and authorise Convex.

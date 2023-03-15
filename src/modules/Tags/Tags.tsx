@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faSpinner } from "@fortawesome/free-solid-svg-icons"
-import { TagObject } from "./TagObject"
+import { TagObject } from "./tagObject"
 
 export function Tag({isSmall, tag}: {isSmall?: boolean, tag:TagObject | undefined}) {
 
@@ -25,7 +25,7 @@ export function Tag({isSmall, tag}: {isSmall?: boolean, tag:TagObject | undefine
 	)
 }
 
-export function SelectableTag({tag, onClick, isSmall}: {tag:TagObject, onClick:Function, isSmall?:boolean}) {
+export function SelectableTag({tag, onClick, isSmall, isSelected}: {tag:TagObject, onClick:Function, isSmall?:boolean, isSelected?:boolean}) {
 	const [selected, setSelected] = useState(false)
 	
 	let classList = ['tag', 'selectable']
@@ -33,7 +33,9 @@ export function SelectableTag({tag, onClick, isSmall}: {tag:TagObject, onClick:F
 	isSmall && classList.push('small')
 
 	let handleClick = () => {
-		setSelected(!selected)
+		if (isSelected === undefined) {
+			setSelected(!selected)
+		}
 		onClick()
 	}
 
@@ -51,7 +53,7 @@ export function SelectableTag({tag, onClick, isSmall}: {tag:TagObject, onClick:F
 	}
 
 	return (
-		<div tabIndex={0} onClick={handleClick} onKeyDown={(e) => {e.key === "Enter" && handleClick()}} className={classList.join(' ') + (selected ? ' selected' : '')}>
+		<div tabIndex={0} onClick={handleClick} onKeyDown={(e) => {e.key === "Enter" && handleClick()}} className={classList.join(' ') + (selected || isSelected ? ' selected' : '')}>
 			<TagContents/>
 		</div>
 	)

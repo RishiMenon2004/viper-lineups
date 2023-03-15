@@ -8,7 +8,7 @@ import { faSpinner} from '@fortawesome/free-solid-svg-icons';
 import Search from './components/Search';
 import SortingBar from './components/SortingBar';
 import { PostCard, PostViewer } from './modules/Posts';
-import { TagObject } from './modules/Tags/TagObject';
+import { TagObject } from './modules/Tags/tagObject';
 
 export const MobileContext = createContext<{isMobile: boolean, windowWidth: number}>({isMobile: false, windowWidth: 0})
 export const PostContext = createContext<Document<"posts"> | any>(undefined)
@@ -63,11 +63,11 @@ function App() {
 	})
 	
 	/* Interractions */
-	function handleTagClick(tag:TagObject) {
+	function handleTagClick(tag:TagObject, category: "ability"|"side") {
 		let abilities = selectedTags.abilities
 		let sides = selectedTags.sides
 
-		switch(tag.category) {
+		switch(category) {
 			case "ability": {
 				if (abilities.includes(tag)) {
 					abilities = abilities.filter(abilityTag => {
@@ -101,7 +101,7 @@ function App() {
 		if (searchQuery !== "") {
 			
 			newFilteredPosts = postsQuery?.filter((post:Document<"posts">) => {
-				const title = `${post.map} ${post.title} ${post.tags.join(" ").replace("_", " ")}`.toUpperCase()  
+				const title = `${post.map} ${post.title} ${post.abilities.map(tag => {return tag.displayText}).join(" ")} ${post.side.displayText}`.replace("_", " ").toUpperCase()  
 				
 				let filterWords = searchQuery.toUpperCase().split(" ")
 
