@@ -3,8 +3,8 @@ import { mutation } from "./_generated/server"
 import { Document } from "./_generated/dataModel"
 import { TagObject } from "../components/Tags/tagObject"
 
-export const createNewPost = mutation(async({db}, {title, body, images, tags, map}: any) => {
-	const post = {title, body, images, tags, map, abilities: [], side: {displayText: "", id: ""}}
+export const createNewPost = mutation(async({db}, {title, body, images, abilities, side, map}: any) => {
+	const post = {title, body, images, map, abilities: abilities, side: side}
 	await db.insert("posts", post)
 })
 

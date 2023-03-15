@@ -1,13 +1,14 @@
 import { ChangeEvent } from "react";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleHalfStroke, faLocationCrosshairs, faScrewdriverWrench } from "@fortawesome/free-solid-svg-icons";
+
 import { SelectableTag } from "./Tags";
 import { AbilityTags, SideTags, TagObject } from "./Tags/tagObject";
 
 export default function SortingBar({floating, handleTagClick, handleSelectChange}: {floating:boolean, handleTagClick:Function, handleSelectChange:Function}) {
 	
 	const sideTags = SideTags
-
 	const abilityTags = AbilityTags
 
 	return (
@@ -18,7 +19,10 @@ export default function SortingBar({floating, handleTagClick, handleSelectChange
 					Map
 				</div>
 				<div className="section-content">
-					<select className="map-selector" onChange={(e:ChangeEvent<HTMLSelectElement>) => handleSelectChange(e.target.value)}>
+					<select
+					className="map-selector"
+					onChange={(e:ChangeEvent<HTMLSelectElement>) => handleSelectChange(e.target.value)}
+					>
 						<option>All</option>
 						<option>Ascent</option>
 						<option>Fracture</option>

@@ -1,6 +1,8 @@
 import { useState } from "react"
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faSpinner } from "@fortawesome/free-solid-svg-icons"
+
 import { TagObject } from "./tagObject"
 
 export function Tag({isSmall, tag}: {isSmall?: boolean, tag:TagObject | undefined}) {

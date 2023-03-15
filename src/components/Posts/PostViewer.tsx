@@ -1,8 +1,10 @@
 import { useContext, useState } from "react"
-import { Document } from "../../convex/_generated/dataModel"
 import { useMutation } from "../../convex/_generated/react"
+import { Document } from "../../convex/_generated/dataModel"
+
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+
 import { Tag } from "../Tags"
 import { TagObject } from "../Tags/tagObject"
 import ImageViewer from "../ImageViewer"

@@ -2,6 +2,7 @@ import './App.scss';
 import { createContext, useEffect, useState } from 'react';
 import { useQuery } from './convex/_generated/react';
 import { Document } from './convex/_generated/dataModel';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner} from '@fortawesome/free-solid-svg-icons';
 

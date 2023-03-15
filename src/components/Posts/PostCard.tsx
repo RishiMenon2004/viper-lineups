@@ -1,6 +1,8 @@
 import { Document } from "../../convex/_generated/dataModel";
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage } from '@fortawesome/free-solid-svg-icons';
+
 import { Tag } from '../Tags';
 import { TagObject } from '../Tags/tagObject';
 

@@ -2,7 +2,9 @@ import { ChangeEvent, useContext, useEffect,  useRef,  useState } from "react"
 import { useMutation } from "../convex/_generated/react"
 import { Infer } from "convex/schema"
 import { postSchema } from "../convex/schema"
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+
 import { 
     faCheckCircle, 
     faCircleHalfStroke, 
@@ -17,6 +19,7 @@ import {
     faTrash, 
     faXmark 
 } from "@fortawesome/free-solid-svg-icons"
+
 import { SelectableTag } from "./Tags"
 import { TagObject, SideTags, AbilityTags } from "./Tags/tagObject"
 
