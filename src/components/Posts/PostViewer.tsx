@@ -81,51 +81,51 @@ export function PostViewer({
 			for (let i = 1; i < Math.ceil(allImages.length/5) + 1; i++) {
 				
 				let imageSet = allImages.slice(startIndex, i*5)
-				
+
+				let gridRows = 6
+
 				let gridImages = imageSet.map((image, index) => {
 
 					let span = {row: 1, column: 1}
 					
 					switch (imageSet.length) {
 						case 5: {
-							switch (index) {
-								case 0: span = {row: 3, column: 3}; break;
-								case 1: span = {row: 3, column: 3}; break;
-								case 2: span = {row: 3, column: 2}; break;
-								case 3: span = {row: 3, column: 2}; break;
-								case 4: span = {row: 3, column: 2}; break;
+							span = {row: 3, column: 2}
+
+							if (index < 2) {
+								span = {row: 3, column: 3}
 							}
-							break;
+
+							break
 						}
+
 						case 4: {
-							switch (index) {
-								case 0: span = {row: 3, column: 3}; break;
-								case 1: span = {row: 3, column: 3}; break;
-								case 2: span = {row: 3, column: 3}; break;
-								case 3: span = {row: 3, column: 3}; break;
-							}
-							break;
+							span = {row: 3, column: 3}
+							break
 						}
+
 						case 3: {
-							switch (index) {
-								case 0: span = {row: 4, column: 4}; break;
-								case 1: span = {row: 2, column: 2}; break;
-								case 2: span = {row: 2, column: 2}; break;
+							span = {row: 2, column: 2}
+
+							if (index === 0) {
+								span = {row: 4, column: 4}
 							}
-							break;
+
+							gridRows = 4
+							
+							break
 						}
+
 						case 2: {
-							switch (index) {
-								case 0: span = {row: 5, column: 3}; break;
-								case 1: span = {row: 5, column: 3}; break;
-							}
-							break;
+							span = {row: 5, column: 3}
+							gridRows = 5
+							break
 						}
+
 						case 1: {
-							switch (index) {
-								case 0: span = {row: 5, column: 6}; break;
-							}
-							break;
+							span = {row: 5, column: 6}
+							gridRows = 5
+							break
 						}
 					}
 
@@ -137,18 +137,22 @@ export function PostViewer({
 						<div
 						className="image"
 						onClick={() => setOpenImageIndex(globalIndex)}
-						key={index} 
+						key={index}
 						style={{
 							backgroundImage: `url(${image.url})`,
 							gridRow: `span ${span.row}`, 
-							gridColumn: `span ${span.column}`}}
+							gridColumn: `span ${span.column}`	
+						}}
 						/>
 					)
 				})
 
 				startIndex = i * 5
 
-				postImageGrids.push(<div className="image-grid">{gridImages}</div>)
+				postImageGrids.push(<div className="image-grid" style={{
+					gridTemplateRows: `repeat(${gridRows}, 1fr)`,
+					aspectRatio: `16/${gridRows*1.5}`
+				}}>{gridImages}</div>)
 			}
 		}
 
