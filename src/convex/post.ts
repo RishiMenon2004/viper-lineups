@@ -23,8 +23,8 @@ export const getPost = query(async ({db, storage}, documentId) => {
 	return post
 })
 
-function hasTag(tag: TagObject, checkArray: TagObject[]) {
-	return checkArray.find(checkTag => {
+function hasTag(tag: TagObject, inArray: TagObject[]) {
+	return inArray.find(checkTag => {
 		return checkTag.id === tag.id
 	}) !== undefined
 }
@@ -46,7 +46,7 @@ export const getFilteredPosts = query(async ({db, storage}, {abilities, sides}:{
 
 	if (sides.length !== 0) {
 		const postsFilteredBySidesTags = postsFilteredByTags.filter(post => {
-			return hasTag(post.side, sides) !== undefined 
+			return hasTag(post.side, sides)
 		})
 
 		postsFilteredByTags = postsFilteredBySidesTags
