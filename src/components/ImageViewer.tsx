@@ -172,7 +172,7 @@ function ImageViewer({
 			}}
 			>
 			
-			{(totalImages > 1 && !isMobile) && <>
+			{(totalImages > 1 && !isMobile && !isImageZoomed) && <>
 				<div className={`left-button ${openImageIndex === 0 && "disabled"}`} onClick={() => switchImage(false)}>
 					<FontAwesomeIcon icon={faCaretLeft}/>
 				</div>
