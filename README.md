@@ -20,9 +20,9 @@ The database has 1 table(s)  `posts`
 
 1. The `posts` table is structured as shown below
 
-| body     | images                                              | map      | tags                                                              | title    |
-|---       |---                                                  |---       |---                                                                |---       |
-| `string` | `{ url:string, storageId:string, cover:boolean }[]` | `string` | `{ id:string, displayText:string, category:"side"\|"ability" }[]` | `string` |
+| title    | body     | images                                              | map      | side                                | abilities                             |
+|---       |---       |---                                                  |---       |---                                  |---                                    |
+| `string` | `string` | `{ url:string, storageId:string, cover:boolean }[]` | `string` | `{ id:string, displayText:string }` | `{ id:string, displayText:string }[]` |
 
 ## Code
 
@@ -30,11 +30,12 @@ Again, because I didn't plan to let anyone tinker with this project, as of now m
 
 Over time I will be cleaning it up and making things more readable, useable and extensible.
 
-![progress](https://img.shields.io/badge/Clean_Up-60%25_Cleaned_Up-green?style=for-the-badge&labelColor=19181b&color=0e7131)
+![progress](https://img.shields.io/badge/Clean_Up-60%25_Cleaned_Up-green?style=for-the-badge&labelColor=252429&color=0e7131)
 
 ## Development
 
-Given that you have read the Convex docs, I would assume that you have both cloned this repository and have run `$ npx convex init` to [initialise](https://docs.convex.dev/quickstart#configure-the-client-and-wire-up-the-provider) your convex project.
+Given that you have read the Convex docs, I would assume that you have both cloned this repository and have run
+`$ npx convex init` to [initialise](https://docs.convex.dev/quickstart#configure-the-client-and-wire-up-the-provider) your convex project.
 
 > This requires you to login with your GitHub account and authorise Convex.
 
