@@ -67,7 +67,10 @@ function Search({onChangeHandler}:any) {
         setSelectedTags({side: defaultSideTag, abilities: []})
         setSelectedMap("Ascent")
         setSelectedSideIndex(0)
-        setSelectedImages([])
+        setSelectedImages(oldValue => oldValue.filter((oldImage) => {
+            URL.revokeObjectURL(oldImage.url)
+            return false
+        }))
     }
 
     function checkFields() {
@@ -204,87 +207,6 @@ function Search({onChangeHandler}:any) {
 
     /* File Upload Handling */
 
-    const fileInputRef = useRef<HTMLInputElement | null>(null)
-
-    function handleFileChange(event:any) {
-
-        const fileObj = event.target.files
-        if (!fileObj) {
-            return
-        }
-
-        event.target.files = null
-
-        for (let i = 0; i < fileObj.length; i++) {
-            let blob:any = null
-            
-            if (fileObj[i].type.indexOf("image") === 0) {
-                blob = fileObj[i]
-            }
-            
-            if (blob !== null) {
-                let reader = new FileReader()
-                reader.onload = async function(event) {
-                    selectImage(blob, event.target?.result)
-                }
-                reader.readAsDataURL(blob)
-            }
-        }
-
-    }
-
-    function getImageFromClipboard(event:any) {
-        // use event.originalEvent.clipboard for newer chrome versions
-        let items = (event.clipboardData || event.originalEvent.clipboardData).items
-
-        // find pasted image among pasted items
-        let blob:any = null
-        for (let i = 0; i < items.length; i++) {
-            if (items[i].type.indexOf("image") === 0) {
-                blob = items[i].getAsFile()
-            }
-        }
-
-        if (blob !== null) {
-            let reader = new FileReader()
-            reader.onload = function(event) {
-                selectImage(blob, event.target?.result)
-            }
-            reader.readAsDataURL(blob)
-        }
-    }
-
-    /* Uploading File to Storage and DB */
-
-    const generateUploadUrl = useMutation("image:generateUploadUrl")
-
-    async function postImage(image:any) {
-
-        const postUrl = await generateUploadUrl()
-        // Step 2: POST the file to the URL
-        const result = await fetch(postUrl, {
-            method: "POST",
-            headers: { "Content-Type": image.type },
-            body: image,
-        })
-
-        const { storageId } = await result.json()
-
-        return storageId
-    }
-
-    function selectImage(data: any, preview:any) {
-        //add new item to state
-        setSelectedImages(oldValue => {
-            return [...oldValue, {
-                uploading: false,
-                cover: oldValue.length === 0, 
-                url: preview,
-                data: data
-            }]
-        })
-    }
-
     async function getResizedImage(file:any, width?:number, height?:number, quality:number = 0.6) {
         return new Promise((resolve) => {
             let image = new Image()
@@ -324,12 +246,114 @@ function Search({onChangeHandler}:any) {
         })
     }
 
-    async function uploadImage(data: any, imageIndex:number) {
+    async function selectImage(image:any) {
+
         //compress the image because i don't want to pay for convex file serving
-        const compressedData = await getResizedImage(data)
-        
+        const compressedImage:any = await getResizedImage(image)
+        const dataUrl = URL.createObjectURL(compressedImage)
+        //add new item to state
+        setSelectedImages(oldValue => {
+            return [...oldValue, {
+                uploading: false,
+                cover: oldValue.length === 0, 
+                data: compressedImage,
+                url: dataUrl,
+                index: oldValue.length - 1
+            }]
+        })
+    }
+
+    function UploadImageButton() {
+        return <div className={"upload-button" + (isInputDisabled ? " disabled" : "")} onClick={() => fileInputRef?.current?.click()}>
+            <input 
+            ref={fileInputRef}
+            style={{display: "none"}} 
+            type={"file"}
+            onChange={handleFileChange}
+            multiple={true}
+            disabled={isInputDisabled}
+            />
+            <FontAwesomeIcon className="upload-button-icon" icon={faImage}/>
+            <FontAwesomeIcon className="upload-button-plus" icon={faPlus}/>
+        </div>
+    } 
+
+    const fileInputRef = useRef<HTMLInputElement | null>(null)
+
+    async function handleFileChange(event:any) {
+
+        const fileObj = event.target.files
+        if (!fileObj) {
+            return
+        }
+
+        event.target.files = null
+
+        for (let i = 0; i < fileObj.length; i++) {
+            let blob:any = null
+            
+            if (fileObj[i].type.indexOf("image") === 0) {
+                blob = fileObj[i]
+            }
+            
+            if (blob !== null) {
+                await selectImage(blob)
+            }
+        }
+
+    }
+
+    async function getImageFromClipboard(event:any) {
+        // use event.originalEvent.clipboard for newer chrome versions
+        let items = (event.clipboardData || event.originalEvent.clipboardData).items
+
+        // find pasted image among pasted items
+        let blob:any = null
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf("image") === 0) {
+                blob = items[i].getAsFile()
+            }
+        }
+
+        if (blob !== null) {
+            await selectImage(blob)
+        }
+    }
+
+    function setAsCover(index: number) {
+        setSelectedImages(oldValue => oldValue.map((oldImage, oldImageIndex) => {
+
+            oldImage = {
+                ...oldImage,
+                cover: oldImageIndex === index
+            }
+            return oldImage
+
+        }))
+    }
+
+    /* Uploading File to Storage and DB */
+
+    const generateUploadUrl = useMutation("image:generateUploadUrl")
+
+    async function postImage(image:any) {
+
+        const postUrl = await generateUploadUrl()
+        // Step 2: POST the file to the URL
+        const result = await fetch(postUrl, {
+            method: "POST",
+            headers: { "Content-Type": image.type },
+            body: image,
+        })
+
+        const { storageId } = await result.json()
+
+        return storageId
+    }
+
+    async function uploadImage(data: any, imageIndex:number) {
         //upload image to file storage and get storageID
-        const storageId = await postImage(compressedData)
+        const storageId = await postImage(data)
 
         //modify item with new data
         setSelectedImages(oldValue => oldValue.map((image, index) => {
@@ -359,54 +383,18 @@ function Search({onChangeHandler}:any) {
         setUploadedImages([])
     } */
 
-    function setAsCover(image: any) {
-        setSelectedImages(oldValue => oldValue.map(oldImage => {
-            oldImage = {
-                ...oldImage,
-                cover: true
-            }
-
-            if (oldImage.data !== image.data) {
-                oldImage = {
-                    ...oldImage,
-                    cover: false
-                }
-            }
-
-            return oldImage
-
-        }))
-    }
-
     /* File Deletion */
 
     function handleDeleteImage(image:any) {
         setSelectedImages(oldValue => {
-            let isCoverDeleted = false
-
             let newValue = oldValue.filter((selectedImage) => {
                 if (selectedImage === image) {
-                    if (selectedImage.cover) {
-                        isCoverDeleted = true
-                    }
+                    URL.revokeObjectURL(selectedImage.url)
                     return false
                 } else {
                     return true
                 }
             })
-
-            if (isCoverDeleted) {
-                newValue = newValue.map((selectedImage, index) => {
-                    if (index === 0) {
-                        selectedImage = {
-                            ...selectedImage,
-                            cover: true
-                        }
-                    } 
-
-                    return selectedImage
-                })
-            }
 
             return newValue
         })
@@ -414,53 +402,36 @@ function Search({onChangeHandler}:any) {
 
     /* Rendering */
 
-    function ImagePreview({image}: any) {
+    function ImagePreview({image, index}: any) {
         const [mouseEvents, setMouseEvents] = useState(true)
 
-        if (image.uploading) { return (
-            <div className="image" style={{backgroundImage: `url(${image.url})`}}>
-                <div className="spinner">
+        let imageStatusContent = <FontAwesomeIcon onMouseEnter={() => setMouseEvents(false)} onMouseLeave={() => setMouseEvents(true)} className="delete-button" onClick={() => handleDeleteImage(image)} icon={faTrash}/>
+
+        if (image.uploading) {
+                imageStatusContent = <div className="spinner">
                     <FontAwesomeIcon className="spinner-icon" icon={faSpinner}/>
                 </div>
-            </div>
-        )}
+        }
 
-        if (image.uploaded) {return (
-            <div className="image" style={{backgroundImage: `url(${image.url})`}}>
-                <div className="spinner">
+        if (image.uploaded) {
+               imageStatusContent = <div className="spinner">
                     <FontAwesomeIcon icon={faCheckCircle}/>
                 </div>
-            </div>
-        )}
+        }
 
-        return <div className="image" onClick={() => mouseEvents && setAsCover(image)} style={{backgroundImage: `url(${image.url})`}}>
+        return <div className="image" onClick={() => mouseEvents && setAsCover(index)} style={{backgroundImage: `url(${image.url})`}}>
             {image.cover && (
                 <div className="cover-icon">
                     <FontAwesomeIcon icon={faCheckCircle}/>
                 </div>
             )}
-            <FontAwesomeIcon onMouseEnter={() => setMouseEvents(false)} onMouseLeave={() => setMouseEvents(true)} className="delete-button" onClick={() => handleDeleteImage(image)} icon={faTrash}/>
+            {imageStatusContent}
         </div>
     }
 
     const imagePreviews = selectedImages.map((image, index) => {
         return <ImagePreview key={index} image={image}/>
     })
-
-    function UploadImageButton() {
-        return <div className={"upload-button" + (isInputDisabled ? " disabled" : "")} onClick={() => fileInputRef?.current?.click()}>
-            <input 
-            ref={fileInputRef}
-            style={{display: "none"}} 
-            type={"file"}
-            onChange={handleFileChange}
-            multiple={true}
-            disabled={isInputDisabled}
-            />
-            <FontAwesomeIcon className="upload-button-icon" icon={faImage}/>
-            <FontAwesomeIcon className="upload-button-plus" icon={faPlus}/>
-        </div>
-    } 
 
 	return (isInputModeNewPost && !isMobile) ?
     <div className="searchbar new-post">
