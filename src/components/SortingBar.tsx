@@ -3,8 +3,7 @@ import { ChangeEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleHalfStroke, faLocationCrosshairs, faScrewdriverWrench } from "@fortawesome/free-solid-svg-icons";
 
-import { SelectableTag } from "./Tags";
-import { AbilityTags, SideTags, TagObject } from "./Tags/tagObject";
+import { TagObject, AbilityTags, SideTags, Tag } from "./Tags"
 
 export default function SortingBar({floating, handleTagClick, handleSelectChange}: {floating:boolean, handleTagClick:Function, handleSelectChange:Function}) {
 	
@@ -44,7 +43,7 @@ export default function SortingBar({floating, handleTagClick, handleSelectChange
 				</div>
 				<div className="section-content">
 					{sideTags?.map((tag:TagObject, index:number) => {
-						return <SelectableTag key={index} onClick={() => handleTagClick(tag, "side")} tag={tag}/>
+						return <Tag key={index} onClick={() => handleTagClick(tag, "side")} tag={tag} selectable/>
 					})}
 				</div>
 			</div>
@@ -56,7 +55,7 @@ export default function SortingBar({floating, handleTagClick, handleSelectChange
 				</div>
 				<div className="section-content" tabIndex={-1}>
 					{abilityTags?.map((tag:TagObject, index:number) => {
-						return <SelectableTag key={index} onClick={() => handleTagClick(tag, "ability")} tag={tag}/>
+						return <Tag key={index} onClick={() => handleTagClick(tag, "ability")} tag={tag} selectable/>
 					})}
 				</div>
 			</div>

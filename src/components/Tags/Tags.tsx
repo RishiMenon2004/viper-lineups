@@ -1,62 +1,28 @@
 import { useState } from "react"
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faSpinner } from "@fortawesome/free-solid-svg-icons"
+import { TagObject } from "./"
 
-import { TagObject } from "./tagObject"
-
-export function Tag({isSmall, tag}: {isSmall?: boolean, tag:TagObject | undefined}) {
-
-	const TagContents = () => {
-		if (tag !== undefined) {
-			return (<>
-				<img src={`/tag_icons/${tag.id}.png`} className='icon' alt="tag icon"/>
-				{tag.displayText}
-			</>)
-		}
-
-		return (<>
-			<FontAwesomeIcon className="spinner-icon" spin icon={faSpinner}/>
-		</>)
-	}
-	
-	return (
-		<div className={"tag" + (isSmall ? ' small' : '')}>
-			<TagContents/>
-		</div>
-	)
-}
-
-export function SelectableTag({tag, onClick, isSmall, isSelected}: {tag:TagObject, onClick:Function, isSmall?:boolean, isSelected?:boolean}) {
+export function Tag({tag, isSmall, selectable, isSelected, onClick}: {tag:TagObject, isSmall?:boolean, isSelected?:boolean, selectable?:boolean, onClick?:Function}) {
 	const [selected, setSelected] = useState(false)
 	
-	let classList = ['tag', 'selectable']
+	let classList = ['tag']
 
 	isSmall && classList.push('small')
+	selectable && classList.push('selectable')
 
 	let handleClick = () => {
-		if (isSelected === undefined) {
-			setSelected(!selected)
+		if(selectable && onClick)
+			{if (isSelected === undefined) {
+				setSelected(!selected)
+			}
+			onClick()
 		}
-		onClick()
 	}
-
-	const TagContents = () => {
-		if (tag !== undefined) {
-			return (<>
-				<img src={`/tag_icons/${tag.id}.png`} className='icon' alt="tag icon"/>
-				{tag.displayText}
-			</>)
-		}
-
-		return (<>
-			<FontAwesomeIcon className="spinner-icon" spin icon={faSpinner}/>
-		</>)
-	}
-
+	
 	return (
 		<div tabIndex={0} onClick={handleClick} onKeyDown={(e) => {e.key === "Enter" && handleClick()}} className={classList.join(' ') + (selected || isSelected ? ' selected' : '')}>
-			<TagContents/>
+			<img src={`/tag_icons/${tag.id}.png`} className='icon' alt="tag icon"/>
+			{tag.displayText}
 		</div>
 	)
 }

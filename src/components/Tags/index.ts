@@ -1,3 +1,6 @@
-import { Tag, SelectableTag } from "./Tags";
+import { Tag } from "./Tags";
+import { TagObject, SideTags, AbilityTags } from "./tagObject";
 
-export { Tag, SelectableTag }
+export type { TagObject }
+export { SideTags, AbilityTags }
+export { Tag }

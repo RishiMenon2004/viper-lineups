@@ -20,8 +20,8 @@ import {
     faXmark 
 } from "@fortawesome/free-solid-svg-icons"
 
-import { SelectableTag } from "./Tags"
-import { TagObject, SideTags, AbilityTags } from "./Tags/tagObject"
+import { TagObject, SideTags, AbilityTags, Tag } from "./Tags"
+import {  } from "./Tags/tagObject"
 
 import { MobileContext } from "../App"
 
@@ -499,9 +499,10 @@ function Search({onChangeHandler}:any) {
                 
                 <div className="section-content">
                     {sideTags.map((tag, index) => {
-                        return <SelectableTag
+                        return <Tag
                             key={index}
                             tag={tag}
+                            selectable
                             isSelected={selectedSideIndex === index}
                             onClick={() => {
                                 setSelectedSideIndex(index)
@@ -521,9 +522,10 @@ function Search({onChangeHandler}:any) {
                 
                 <div className="section-content" tabIndex={-1}>
                     {abilityTags.map((tag, index) => {
-                        return <SelectableTag
+                        return <Tag
                             key={index}
                             tag={tag}
+                            selectable
                             onClick={() => handleTagSelect(tag, "ability")}
                         />
                     })}
