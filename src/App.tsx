@@ -16,15 +16,6 @@ export const PostContext = createContext<Document<"posts"> | any>(undefined)
 
 function App() {
 
-	window.addEventListener('load', function() {
-		window.history.pushState({}, '')
-	})
-
-	window.addEventListener('popstate', function() {
-		window.history.pushState({}, '')
-		setCurrentOpenPost(undefined)
-	})
-
 	/* Used to swap out mobile and desktop elements */
     const [isMobile, setIsMobile] = useState<boolean>(false)
     const [windowWidth, setWindowWidth] = useState<number>(0)
@@ -42,8 +33,15 @@ function App() {
 	useEffect(() => {
 		handleResize()
 
+		window.onpopstate = () => {
+			if(currentOpenPost !== undefined) {
+				setCurrentOpenPost(undefined)
+			}
+		}
+
         window.addEventListener('resize', handleResize)
         return () => window.removeEventListener('resize', handleResize)
+		
     })
 	/* =========================================== */
 
@@ -179,9 +177,10 @@ function App() {
 	/* Toggle Post Viewing */
 	function togglePost(post:any) {
 		if (post._id === currentOpenPost?._id) {
-			setCurrentOpenPost(undefined)
+			window.history.back()
 		} else {
 			setCurrentOpenPost(post)
+			window.history.pushState({}, '', "/open-post")
 		}
 	}
 

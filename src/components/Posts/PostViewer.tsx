@@ -164,8 +164,8 @@ export function PostViewer({
 	function DeleteButton() {
 
 		async function handleDeletePost(post: Document<"posts">) {
-			togglePostWithId(post._id)
 			await deletePost(post)
+			togglePostWithId(post._id)
 		}
 
 		return <button onClick={() => handleDeletePost(post)}>Delete Post</button>
