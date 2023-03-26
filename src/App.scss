@@ -144,6 +144,7 @@
 			.image-grid-wrapper {
 				display: grid;
 				gap: 0.5rem;
+				height: max-content;
 				
 				.image-grid {
 					display: grid;
