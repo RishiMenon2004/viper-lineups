@@ -16,6 +16,15 @@ export const PostContext = createContext<Document<"posts"> | any>(undefined)
 
 function App() {
 
+	window.addEventListener('load', function() {
+		window.history.pushState({}, '')
+	})
+
+	window.addEventListener('popstate', function() {
+		window.history.pushState({}, '')
+		setCurrentOpenPost(undefined)
+	})
+
 	/* Used to swap out mobile and desktop elements */
     const [isMobile, setIsMobile] = useState<boolean>(false)
     const [windowWidth, setWindowWidth] = useState<number>(0)
