@@ -1,4 +1,4 @@
-import { ChangeEvent, useContext, useEffect,  useRef,  useState } from "react"
+import { ChangeEvent, ClipboardEvent, DragEvent, useContext, useEffect,  useRef,  useState } from "react"
 import { useMutation } from "../convex/_generated/react"
 import { Infer } from "convex/schema"
 import { postSchema } from "../convex/schema"
@@ -10,7 +10,9 @@ import {
     faCircleHalfStroke, 
     faCircleXmark, 
     faCrosshairs, 
+    faFileArrowDown, 
     faImage, 
+    faImages, 
     faLocationCrosshairs, 
     faMagnifyingGlass, 
     faPlus, 
@@ -263,61 +265,51 @@ function Search({onChangeHandler}:any) {
         })
     }
 
-    function UploadImageButton() {
-        return <div className={"upload-button" + (isInputDisabled ? " disabled" : "")} onClick={() => fileInputRef?.current?.click()}>
-            <input 
-            ref={fileInputRef}
-            style={{display: "none"}} 
-            type={"file"}
-            onChange={handleFileChange}
-            multiple={true}
-            disabled={isInputDisabled}
-            />
-            <FontAwesomeIcon className="upload-button-icon" icon={faImage}/>
-            <FontAwesomeIcon className="upload-button-plus" icon={faPlus}/>
-        </div>
-    } 
-
-    const fileInputRef = useRef<HTMLInputElement | null>(null)
-
-    async function handleFileChange(event:any) {
-
-        const fileObj = event.target.files
-        if (!fileObj) {
-            return
-        }
-
-        event.target.files = null
-
-        for (let i = 0; i < fileObj.length; i++) {
-            let blob:any = null
+    async function getImagesFromFiles(fileObj: FileList, single?: boolean) {
+        const filesLength = single ? 1 : fileObj.length
+        
+        for (let i = 0; i < filesLength; i++) {
+            let blob: File | null = null
             
-            if (fileObj[i].type.indexOf("image") === 0) {
-                blob = fileObj[i]
+            if (fileObj.item(i)?.type.indexOf("image") === 0) {
+                blob = fileObj.item(i)
             }
             
             if (blob !== null) {
                 await selectImage(blob)
             }
         }
-
     }
 
-    async function getImageFromClipboard(event:any) {
-        // use event.originalEvent.clipboard for newer chrome versions
-        let items = (event.clipboardData || event.originalEvent.clipboardData).items
+    const fileInputRef = useRef<HTMLInputElement | null>(null)
 
-        // find pasted image among pasted items
-        let blob:any = null
-        for (let i = 0; i < items.length; i++) {
-            if (items[i].type.indexOf("image") === 0) {
-                blob = items[i].getAsFile()
-            }
+    async function getFilesFromFileSelect(event: ChangeEvent<any>) {
+
+        const fileObj = event.target.files
+        if (!fileObj) {
+            return
+        }
+        event.target.files = null
+
+        getImagesFromFiles(fileObj)
+    }
+
+    async function getFilesFromDrag(event: DragEvent<any>) {
+        const fileObj = event.dataTransfer.files
+        if (!fileObj) {
+            return
         }
 
-        if (blob !== null) {
-            await selectImage(blob)
+        getImagesFromFiles(fileObj)
+    }
+
+    async function getFilesFromClipboard(event: ClipboardEvent<any>) {
+        const fileObj = (event.clipboardData).files
+        if (!fileObj) {
+            return
         }
+
+        getImagesFromFiles(fileObj, true)
     }
 
     function setAsCover(index: number) {
@@ -372,18 +364,13 @@ function Search({onChangeHandler}:any) {
         return storageId
     }
 
-    /* function deleteAllImages() {
-        if (imagesQuery !== undefined) {
-            for (const image of imagesQuery) {
-                // if (uploadedImages.find(uploadedImage =>  {return uploadedImage.storageId === image.storageId}) !== undefined) {
-                    deleteImage(image.storageId)
-                // }
-            }
-        }
-        setUploadedImages([])
-    } */
-
     /* File Deletion */
+
+    function deleteAllImages() {
+        for (const image of selectedImages) {
+            handleDeleteImage(image)
+        }
+    }
 
     function handleDeleteImage(image:any) {
         setSelectedImages(oldValue => {
@@ -402,19 +389,34 @@ function Search({onChangeHandler}:any) {
 
     /* Rendering */
 
+    function UploadImageButton() {
+        return <div className={"upload-button" + (isInputDisabled ? " disabled" : "")} onClick={() => fileInputRef?.current?.click()}>
+            <input 
+            ref={fileInputRef}
+            style={{display: "none"}} 
+            type={"file"}
+            onChange={getFilesFromFileSelect}
+            multiple={true}
+            disabled={isInputDisabled}
+            />
+            <FontAwesomeIcon className="upload-button-icon" icon={faImage}/>
+            <FontAwesomeIcon className="upload-button-plus" icon={faPlus}/>
+        </div>
+    }
+
     function ImagePreview({image, index}: any) {
         const [mouseEvents, setMouseEvents] = useState(true)
 
         let imageStatusContent = <FontAwesomeIcon onMouseEnter={() => setMouseEvents(false)} onMouseLeave={() => setMouseEvents(true)} className="delete-button" onClick={() => handleDeleteImage(image)} icon={faTrash}/>
 
         if (image.uploading) {
-                imageStatusContent = <div className="spinner">
-                    <FontAwesomeIcon className="spinner-icon" icon={faSpinner}/>
+                imageStatusContent = <div className="status-overlay">
+                    <FontAwesomeIcon icon={faSpinner} spinPulse/>
                 </div>
         }
 
         if (image.uploaded) {
-               imageStatusContent = <div className="spinner">
+               imageStatusContent = <div className="status-overlay">
                     <FontAwesomeIcon icon={faCheckCircle}/>
                 </div>
         }
@@ -433,131 +435,165 @@ function Search({onChangeHandler}:any) {
         return <ImagePreview key={index} image={image}/>
     })
 
-	return (isInputModeNewPost && !isMobile) ?
-    <div className="searchbar new-post">
+    const [isFileDragOver, setIsFileDragOver] = useState(false)
 
-        <div className="content-input">
-            <div className="dynamic-icon" onClick={() => toggleInputMode(false)}>
-                <FontAwesomeIcon icon={faCircleXmark}/>
-            </div>
-            
-            <input className="input title" placeholder="Title" maxLength={64}
-            onChange={(e) => onSearchChange(e, false)}
-            onPaste={getImageFromClipboard}
-            value={searchValue}
-            disabled={isInputDisabled}
-            />
+    function ImageUpload() {
 
-            <textarea className="input message" placeholder="Enter a message"
-            maxLength={500} rows={1}
-            onPaste={getImageFromClipboard}
-            onChange={onMessageChange}
-            value={messageValue}
-            disabled={isInputDisabled}
-            />
-        </div>
+        const [dragOverIcon, setDragOverIcon] = useState(faFileArrowDown)
+
+        function handleDragOver(event: DragEvent<HTMLDivElement>) {
+            event.preventDefault()
+
+            console.log(event.dataTransfer.items.length)
+            if (event.dataTransfer.items.length <= 1) {
+                setDragOverIcon(faImage)
+            } else {
+                setDragOverIcon(faImages)
+            }
+            setIsFileDragOver(true)
+        }
         
-        <div className="upload-input">
+        async function handleDrop(event: DragEvent<HTMLDivElement>) {
+            event.preventDefault()
+            setIsFileDragOver(false)
+            getFilesFromDrag(event)
+        }
+
+        return <div className={`upload-input ${isFileDragOver ? "drag-over" : ""}`} onDrop={handleDrop} onDragOver={handleDragOver} onDragExit={() => setIsFileDragOver(false)}>
             <div className="image-grid">
                 <UploadImageButton/>
                 {imagePreviews}
             </div>
+            <div className="drag-over-image">
+                <FontAwesomeIcon icon={dragOverIcon}/>
+            </div>
         </div>
-        
-        <div className="categorisation">
-            <div className="section">
+    }
 
-                <div className="section-name">
-                    <FontAwesomeIcon icon={faLocationCrosshairs}/>
-                    Map
+	if (isInputModeNewPost && !isMobile) { return ( 
+        <div className="searchbar new-post" 
+        onPaste={getFilesFromClipboard}>
+
+            <div className="content-input">
+                <div className="dynamic-icon" onClick={() => toggleInputMode(false)}>
+                    <FontAwesomeIcon icon={faCircleXmark}/>
                 </div>
                 
-                <div className="section-content">
-                    <select 
-                    className="map-selector"
-                    value={selectedMap}
-                    onChange={({target}:ChangeEvent<HTMLSelectElement>) => {setSelectedMap(target.value)}}>
-                        <option>Ascent</option>
-                        <option>Fracture</option>
-                        <option>Haven</option>
-                        <option>Icebox</option>
-                        <option>Lotus</option>
-                        <option>Pearl</option>
-                        <option>Split</option>
-                        <option>Bind</option>
-                        <option>Breeze</option>
-                    </select>
+                <input className="input title" placeholder="Title" maxLength={64}
+                onChange={(e) => onSearchChange(e, false)}
+                // onPaste={getFilesFromClipboard}
+                value={searchValue}
+                disabled={isInputDisabled}
+                />
+
+                <textarea className="input message" placeholder="Enter a message"
+                maxLength={500} rows={1}
+                onChange={onMessageChange}
+                // onPaste={getFilesFromClipboard}
+                value={messageValue}
+                disabled={isInputDisabled}
+                />
+            </div>
+            
+            <ImageUpload/>
+            
+            <div className="categorisation">
+                <div className="section">
+
+                    <div className="section-name">
+                        <FontAwesomeIcon icon={faLocationCrosshairs}/>
+                        Map
+                    </div>
+                    
+                    <div className="section-content">
+                        <select 
+                        className="map-selector"
+                        value={selectedMap}
+                        onChange={({target}:ChangeEvent<HTMLSelectElement>) => {setSelectedMap(target.value)}}>
+                            <option>Ascent</option>
+                            <option>Fracture</option>
+                            <option>Haven</option>
+                            <option>Icebox</option>
+                            <option>Lotus</option>
+                            <option>Pearl</option>
+                            <option>Split</option>
+                            <option>Bind</option>
+                            <option>Breeze</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div className="section">
+                    
+                    <div className="section-name">
+                        <FontAwesomeIcon icon={faCircleHalfStroke}/>
+                        Sides
+                    </div>
+                    
+                    <div className="section-content">
+                        {sideTags.map((tag, index) => {
+                            return <Tag
+                                key={index}
+                                tag={tag}
+                                selectable
+                                isSelected={selectedSideIndex === index}
+                                onClick={() => {
+                                    setSelectedSideIndex(index)
+                                    handleTagSelect(tag, "side")
+                                }}
+                            />
+                        })}
+                    </div>
+                </div>
+                
+                <div className="section">
+                    
+                    <div className="section-name">
+                        <FontAwesomeIcon icon={faScrewdriverWrench}/>
+                        Ability
+                    </div>
+                    
+                    <div className="section-content" tabIndex={-1}>
+                        {abilityTags.map((tag, index) => {
+                            return <Tag
+                                key={index}
+                                tag={tag}
+                                selectable
+                                onClick={() => handleTagSelect(tag, "ability")}
+                            />
+                        })}
+                    </div>
                 </div>
             </div>
             
-            <div className="section">
-                
-                <div className="section-name">
-                    <FontAwesomeIcon icon={faCircleHalfStroke}/>
-                    Sides
-                </div>
-                
-                <div className="section-content">
-                    {sideTags.map((tag, index) => {
-                        return <Tag
-                            key={index}
-                            tag={tag}
-                            selectable
-                            isSelected={selectedSideIndex === index}
-                            onClick={() => {
-                                setSelectedSideIndex(index)
-                                handleTagSelect(tag, "side")
-                            }}
-                        />
-                    })}
-                </div>
-            </div>
-            
-            <div className="section">
-                
-                <div className="section-name">
-                    <FontAwesomeIcon icon={faScrewdriverWrench}/>
-                    Ability
-                </div>
-                
-                <div className="section-content" tabIndex={-1}>
-                    {abilityTags.map((tag, index) => {
-                        return <Tag
-                            key={index}
-                            tag={tag}
-                            selectable
-                            onClick={() => handleTagSelect(tag, "ability")}
-                        />
-                    })}
-                </div>
+            <div className="form-buttons">
+                {selectedImages.length > 1 && <button className="button red" onClick={deleteAllImages}>Delete All Images</button>}
+                <button className="button green" disabled={!checkFields()} onClick={handleSubmit}>Submit</button>
             </div>
         </div>
-        
-        <div className="form-buttons">
-            <button disabled={!checkFields()} onClick={handleSubmit}>Submit</button>
-            {/* <button onClick={deleteAllImages}>Delete All Images</button> */}
-        </div>
-	</div>
+
+    )} else { return (
     
-    : <div className="searchbar">
+        <div className="searchbar">
 
-        <FontAwesomeIcon className="dynamic-icon" icon={faMagnifyingGlass}/>
-		
-        <input className="input" placeholder="Search"
-        onChange={(e) => onSearchChange(e, true)}
-        value={searchValue}/>
-        
-        {(isMobile && searchValue !== "") && (
-            <FontAwesomeIcon
-            className="clear-search-icon"
-            icon={faXmark}
-            onClick={() => setSearchValue("")}/>
-        )}
-		
-        <button onClick={() => toggleInputMode(true)} >
-            <FontAwesomeIcon icon={faCrosshairs} /> New Lineup
-        </button>
-	</div>
+            <FontAwesomeIcon className="dynamic-icon" icon={faMagnifyingGlass}/>
+            
+            <input className="input" placeholder="Search"
+            onChange={(e) => onSearchChange(e, true)}
+            value={searchValue}/>
+            
+            {(isMobile && searchValue !== "") && (
+                <FontAwesomeIcon
+                className="clear-search-icon"
+                icon={faXmark}
+                onClick={() => setSearchValue("")}/>
+            )}
+            
+            <button className="button green new-post-button" onClick={() => toggleInputMode(true)} >
+                <FontAwesomeIcon icon={faCrosshairs} /> New Lineup
+            </button>
+        </div>
+    )}
 }
 
 export default Search

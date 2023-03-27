@@ -156,7 +156,7 @@ function App() {
 
 		if (postsList === undefined) {
 			return <div className="fetching-message">
-				<FontAwesomeIcon className="spinner-icon" icon={faSpinner}/> Fetching...
+				<FontAwesomeIcon icon={faSpinner} spinPulse/> Fetching...
 			</div>
 		}
 

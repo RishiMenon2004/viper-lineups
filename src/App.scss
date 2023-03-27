@@ -1,18 +1,75 @@
 :root {
 	--post-image-over-gradient: linear-gradient(to top, hsl(0, 0%, 0%, 90%), transparent);
 	--side-panel-width: 40vw;
+}
 
-	.spinner-icon {
-		animation: rotate 1s linear infinite forwards;	
+.button {
+	width: max-content;
+	padding: 0.5rem 1rem;
+	font-size: 0.875rem;
+	color: white;
+	border: none;
+	border-radius: 100vh;
+	outline-offset: -1px;
+	cursor: pointer;
+	
+	&.green {
+		background-color: hsl(141, 78%, 25%);
 
-		@keyframes rotate {
-			0% {
-				transform: rotate(0deg);
-			}
-			100% {
-				transform: rotate(360deg);
-			}
+		&:hover, &:focus-visible {
+			background-color: hsl(141, 78%, 30%);
+			outline: hsl(141, 42%, 44%) 2px solid;
 		}
+		
+		&:active {
+			background-color: hsl(141, 78%, 20%);
+			outline: hsl(141, 42%, 39%) 2px solid;
+		}
+
+		&:disabled {
+			background-color: hsl(141, 20%, 25%);
+			color: hsl(0, 0%, 100%, 20%);
+		}
+	}
+
+	&.red {
+		background-color: hsl(0, 78%, 30%);
+
+		&:hover, &:focus-visible {
+			background-color: hsl(0, 78%, 35%);
+			outline: hsl(0, 42%, 44%) 2px solid;
+		}
+		
+		&:active {
+			background-color: hsl(0, 78%, 25%);
+			outline: hsl(0, 42%, 39%) 2px solid;
+		}
+	}
+}
+
+.map-selector {
+	width: 100%;
+	min-width: fit-content;
+	background: hsl(260, 7%, 5%);
+	border: none;
+	color: white;
+	height: 100%;
+	border-radius: 100vh;
+	font-size: 1rem;
+	padding: 0.25rem 0.75rem;
+	appearance: none;
+
+	&:hover,
+	&:focus-visible {
+		outline: hsl(141, 78%, 25%) 1px solid;
+		outline-offset: -1px;
+	}
+	
+
+	&:active, &:focus-within {
+		background: hsl(260, 7%, 5%);
+		outline: hsl(141, 78%, 25%) 2px solid;
+		outline-offset: -2px;
 	}
 }
 
@@ -170,31 +227,13 @@
 				}
 			}
 
-			.post-buttons {
+			.buttons-wrapper {
 				display: flex;
 				align-items: center;
 				justify-content: flex-end;
 
-				button {
-					width: max-content;
-					padding: 0.5rem 1rem;
+				.delete-post-button {
 					font-size: 0.875rem;
-					color: white;
-					background-color: hsl(0, 78%, 30%);
-					border: none;
-					border-radius: 100vh;
-					outline-offset: -1px;
-					cursor: pointer;
-
-					&:hover, &:focus-visible {
-						background-color: hsl(0, 78%, 35%);
-						outline: hsl(0, 42%, 44%) 2px solid;
-					}
-					
-					&:active {
-						background-color: hsl(0, 78%, 25%);
-						outline: hsl(0, 42%, 39%) 2px solid;
-					}
 				}
 			}
 		}
@@ -249,7 +288,7 @@
 		perspective: 500px;
 		overscroll-behavior: contain;
 
-		.close-button {
+		.close-image-button {
 			position: absolute;
 			top: 1rem;
 			right: 1rem;
@@ -327,32 +366,6 @@
 	}
 }
 
-.map-selector {
-	width: 100%;
-	min-width: fit-content;
-	background: hsl(260, 7%, 5%);
-	border: none;
-	color: white;
-	height: 100%;
-	border-radius: 100vh;
-	font-size: 1rem;
-	padding: 0.25rem 0.75rem;
-	appearance: none;
-
-	&:hover,
-	&:focus-visible {
-		outline: hsl(141, 78%, 25%) 1px solid;
-		outline-offset: -1px;
-	}
-	
-
-	&:active, &:focus-within {
-		background: hsl(260, 7%, 5%);
-		outline: hsl(141, 78%, 25%) 2px solid;
-		outline-offset: -2px;
-	}
-}
-
 .searchbar {
 	display: grid;
 	grid-auto-flow: column;
@@ -363,6 +376,10 @@
 	border-radius: 0.75rem;
 	background-color: hsl(260, 7%, 10%);
 	font-size: 1rem;
+
+	.new-post-button {
+		display: none;
+	}
 
 	.dynamic-icon {
 		padding: 0.25rem;
@@ -382,40 +399,12 @@
 		color: white;
 		width: 100%;
 	}
-	
-	button {
-		display: none;
-		width: max-content;
-		padding: 0.5rem 1rem;
-		font-size: 0.875rem;
-		color: white;
-		background-color: hsl(141, 78%, 25%);
-		border: none;
-		border-radius: 100vh;
-		outline-offset: -1px;
-		cursor: pointer;
-
-		&:hover, &:focus-visible {
-			background-color: hsl(141, 78%, 30%);
-			outline: hsl(141, 42%, 44%) 2px solid;
-		}
-		
-		&:active {
-			background-color: hsl(141, 78%, 20%);
-			outline: hsl(141, 42%, 39%) 2px solid;
-		}
-
-		&:disabled {
-			background-color: hsl(141, 20%, 25%);
-			color: hsl(0, 0%, 100%, 20%);
-		}
-	}
 
 	@media screen and (min-width: 600px) {
 		& {
 			grid-template-columns: min-content auto min-content min-content;
 
-			button {
+			.new-post-button {
 				display: block
 			}
 		}
@@ -439,7 +428,7 @@
 				cursor: pointer;
 			}
 
-			input, .input {
+			.input {
 				&.title {
 					grid-area: title;
 					&, &::placeholder {
@@ -491,6 +480,27 @@
 		}
 
 		.upload-input {
+			padding-block: 0.5rem;
+			border-radius: 1.25rem;
+			
+			.drag-over-image {
+				display: none;
+			}
+
+			&.drag-over {
+				background-color: hsl(0, 0%, 0%, 24%);
+				outline: hsl(141, 78%, 30%) 2px dotted;
+				position: relative;
+
+				.drag-over-image {
+					position: absolute;
+					inset: 0;
+					display: grid;
+					place-items: center;
+					color: hsl(260, 7%, 15%);
+					font-size: 6vw;
+				}
+			}
 
 			.upload-button {
 				--background-color: hsl(260, 7%, 15%);
@@ -547,7 +557,7 @@
 					position: relative;
 					isolation: isolate;
 					
-					.spinner {
+					.status-overlay {
 						position: absolute;
 						inset: 3px;
 						background: hsl(0, 0%, 0%, 25%);
@@ -617,6 +627,7 @@
 
 		.form-buttons {
 			display: flex;
+			gap: 0.5rem;
 			justify-content: flex-end;
 			border-top: hsl(0, 0%, 100%, 20%) 1px solid;
 			padding-top: 0.5rem;

@@ -211,7 +211,7 @@ function ImageViewer({
 			
 			<div 
 				tabIndex={0} 
-				className="close-button" 
+				className="close-image-button" 
 				onClick={() => {
 					setOpenImageIndex(-1)
 					setIsImageZoomed(false)

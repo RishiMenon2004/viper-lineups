@@ -168,7 +168,7 @@ export function PostViewer({
 			togglePostWithId(post._id)
 		}
 
-		return <button onClick={() => handleDeletePost(post)}>Delete Post</button>
+		return <button className="button red delete-post-button" onClick={() => handleDeletePost(post)}>Delete Post</button>
 	
 	}
 
@@ -237,7 +237,7 @@ export function PostViewer({
 					})}
 				</div>
 				
-				{!isMobile && <div className="post-buttons">
+				{!isMobile && <div className="buttons-wrapper">
 					<DeleteButton />
 				</div>}
 			</div>
