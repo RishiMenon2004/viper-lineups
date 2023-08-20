@@ -432,7 +432,7 @@ function Search({onChangeHandler}:any) {
     }
 
     const imagePreviews = selectedImages.map((image, index) => {
-        return <ImagePreview key={index} image={image}/>
+        return <ImagePreview key={index} image={image} index={index}/>
     })
 
     const [isFileDragOver, setIsFileDragOver] = useState(false)
