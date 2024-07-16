@@ -298,7 +298,7 @@ function Search({onChangeHandler}:{onChangeHandler: Dispatch<SetStateAction<stri
         await getImagesFromFiles(fileObj)
     }
 
-    async function getFilesFromDrag(event: DragEvent<any>) {
+    async function getFilesFromDrag(event: DragEvent<HTMLDivElement>) {
         const fileObj = event.dataTransfer.files
         if (!fileObj) {
             return
@@ -307,7 +307,7 @@ function Search({onChangeHandler}:{onChangeHandler: Dispatch<SetStateAction<stri
         await getImagesFromFiles(fileObj)
     }
 
-    async function getFilesFromClipboard(event: ClipboardEvent<any>) {
+    async function getFilesFromClipboard(event: ClipboardEvent<HTMLDivElement>) {
         const fileObj = (event.clipboardData).files
         if (!fileObj) {
             return
@@ -469,7 +469,7 @@ function Search({onChangeHandler}:{onChangeHandler: Dispatch<SetStateAction<stri
             await getFilesFromDrag(event)
         }
 
-        return <div className={`upload-input ${isFileDragOver ? "drag-over" : ""}`} onDrop={void handleDrop} onDragOver={handleDragOver} onDragExit={() => setIsFileDragOver(false)}>
+        return <div className={`upload-input ${isFileDragOver ? "drag-over" : ""}`} onDrop={(e) => void handleDrop(e)} onDragOver={(e) => handleDragOver(e)} onDragExit={() => setIsFileDragOver(false)}>
             <div className="image-grid">
                 <UploadImageButton/>
                 {imagePreviews}
@@ -481,8 +481,7 @@ function Search({onChangeHandler}:{onChangeHandler: Dispatch<SetStateAction<stri
     }
 
 	if (isInputModeNewPost && !isMobile) { return ( 
-        <div className="searchbar new-post" 
-        onPaste={void getFilesFromClipboard}>
+        <div className="searchbar new-post" onPaste={(e) => void getFilesFromClipboard(e)}>
 
             <div className="content-input">
                 <div className="dynamic-icon" onClick={() => toggleInputMode(false)}>
