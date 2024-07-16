@@ -135,8 +135,8 @@ function Search({onChangeHandler}:{onChangeHandler: Dispatch<SetStateAction<stri
             return image
         }))
 
-        uploadingImages.forEach((selectedImage, imageIndex) => {
-            void uploadImage(selectedImage.data, imageIndex).then(storageId => {
+        for (const [imageIndex, selectedImage] of uploadingImages.entries()) {
+            await uploadImage(selectedImage.data, imageIndex).then(storageId => {
                 const uploadedImage = {
                     cover: selectedImage.cover,
                     storageId: storageId
@@ -144,7 +144,7 @@ function Search({onChangeHandler}:{onChangeHandler: Dispatch<SetStateAction<stri
     
                 imagesData.push(uploadedImage)
             })
-        })
+        }
         
         const data: Infer<typeof postSchema> = {
             title: searchValue,
@@ -179,7 +179,7 @@ function Search({onChangeHandler}:{onChangeHandler: Dispatch<SetStateAction<stri
 
     /* Post Body Field */
 
-    function onMessageChange({target}: ChangeEvent<HTMLInputElement>) {
+    function onMessageChange({target}: ChangeEvent<HTMLTextAreaElement>) {
         target.style.height = "0px"
         target.style.height = `${target.scrollHeight}px`
         setMessageValue(target.value)
@@ -399,7 +399,7 @@ function Search({onChangeHandler}:{onChangeHandler: Dispatch<SetStateAction<stri
             ref={fileInputRef}
             style={{display: "none"}} 
             type={"file"}
-            onChange={void getFilesFromFileSelect}
+            onChange={(e) => void getFilesFromFileSelect(e)}
             multiple={true}
             disabled={isInputDisabled}
             />
@@ -498,7 +498,7 @@ function Search({onChangeHandler}:{onChangeHandler: Dispatch<SetStateAction<stri
 
                 <textarea className="input message" placeholder="Enter a message"
                 maxLength={500} rows={1}
-                onChange={void onMessageChange}
+                onChange={(e) => void onMessageChange(e)}
                 // onPaste={getFilesFromClipboard}
                 value={messageValue}
                 disabled={isInputDisabled}
@@ -578,7 +578,7 @@ function Search({onChangeHandler}:{onChangeHandler: Dispatch<SetStateAction<stri
             
             <div className="form-buttons">
                 {selectedImages.length > 1 && <button className="button red" onClick={deleteAllImages}>Delete All Images</button>}
-                <button className="button green" disabled={!checkFields()} onClick={void handleSubmit}>Submit</button>
+                <button className="button green" disabled={!checkFields()} onClick={() => void handleSubmit()}>Submit</button>
             </div>
         </div>
 
