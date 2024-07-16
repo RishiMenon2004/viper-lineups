@@ -1,4 +1,4 @@
-import { Document } from "../../convex/_generated/dataModel";
+import { Doc } from "../../../convex/_generated/dataModel";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage } from '@fortawesome/free-solid-svg-icons';
@@ -12,8 +12,8 @@ export function PostCard({
 	data,
 }: {
 	selected: boolean,
-	onClick: Function,
-	data: Document<"posts">,
+	onClick: () => void,
+	data: Doc<"posts">,
 }) {
 
 	const imagesLength = data.images.length
@@ -23,7 +23,7 @@ export function PostCard({
 	})
 
 	return (
-		<article id={data._id.id} className={"card-post" + (selected ? " selected" : "")} onClick={() => onClick()} onKeyDown={(e) => {e.key === "Enter" && onClick()}} tabIndex={0}>
+		<article id={data._id} className={"card-post" + (selected ? " selected" : "")} onClick={() => onClick()} onKeyDown={(e) => {e.key === "Enter" && onClick()}} tabIndex={0}>
 			<div className='card-title' style={{backgroundImage: `var(--post-image-over-gradient), url(/maps/${data.map}.png)`}}>
 				<div className='map-name'>
 					{data.map}
@@ -33,7 +33,7 @@ export function PostCard({
 			<div className='card-description' style={{whiteSpace: "pre-line"}}>
 				{data.body}
 			</div>
-			<div className='card-content' style={{backgroundImage: `url(${getCoverImage?.url})`}}>
+			<div className='card-content' style={{backgroundImage: `url(${getCoverImage?.url ?? ""})`}}>
 				<div className='post-details'>
 					<div className='tags-container'>
 						<Tag isSmall tag={data.side}/>

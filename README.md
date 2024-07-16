@@ -8,21 +8,13 @@ I kinda made this for myself, and I never planned to let anyone use it or tweak 
 
 ## Tech Stack
 
-This is a [`create-react-app`](https://reactjs.org/docs/getting-started.html) project. You will need intermediate knowledge of the React framework.
+This is a [Vite React](https://vitejs.dev/guide/) project. You will need intermediate knowledge of the React framework.
 
-I had decided to write this in `typescript` , so please be familiarised with it's little kinks and typing before diving into this.
+I had decided to write this in `typescript` , it is suggested you are familiar with Ts diving into this project.
 
-I use [convex.dev](https://www.convex.dev/) for my backend, so make sure to check out the [docs](https://doc.convex.dev/) before messing with the backend.
+The backend uses [convex db](https://www.convex.dev/), check out the [docs](https://docs.convex.dev/).
 
-I have created a few [convex functions](https://docs.convex.dev/using/writing-convex-functions) to handle image uploading/deleting and post creation/deletion. Feel free to add your own as needed once you're comfortable with Convex.
-
-The database has 1 table(s)  `posts`
-
-1. The `posts` table is structured as shown below
-
-| title    | body     | images                                              | map      | side                                | abilities                             |
-|---       |---       |---                                                  |---       |---                                  |---                                    |
-| `string` | `string` | `{ url:string, storageId:string, cover:boolean }[]` | `string` | `{ id:string, displayText:string }` | `{ id:string, displayText:string }[]` |
+Foundational [convex functions](https://docs.convex.dev/functions) are present to handle image uploading and deletion, and  post creation and deletion.
 
 ## Code
 
@@ -34,19 +26,23 @@ Over time I will be cleaning it up and making things more readable, useable and 
 
 ## Development
 
-Given that you have read the Convex docs, I would assume that you have both cloned this repository and have run
-`$ npx convex init` to [initialise](https://docs.convex.dev/quickstart#configure-the-client-and-wire-up-the-provider) your convex project.
+Install and update node packages with `npm i`
+
+Given that you have read the Convex docs, I would assume that you have run
+`npx convex dev` to [initialise](https://docs.convex.dev/client/react/deployment-urls) your convex project.
 
 > This requires you to login with your GitHub account and authorise Convex.
 
-After you've done that, you'll need to start two terminal sessions and run one of these commands in each
+After you've done that run:
 
-1. `$npm start`
+`npm start` to start the react development server
 
-2. `$npx convex dev`
+Start another terminal instance and run:
+
+`npx convex dev` to start the convex server
 
 And you're all set to go :+1:
 
-Essentially all you'd have to do would be to edit the [TagObject.ts](/src/components/Tags/TagObject.ts) file and add your required tags.
+Essentially all you'd have to do would be to edit [TagObject.ts](/src/components/Tags/TagObject.ts) and add your required tags.
 
-## **READ CONVEX DOCS ON [HOSTING](https://docs.convex.dev/using/hosting) BEFORE DEPLOYING TO NETLIFY OR VERCEL**
+## **!! READ CONVEX DOCS ON [HOSTING](https://docs.convex.dev/using/hosting) BEFORE DEPLOYING TO NETLIFY OR VERCEL !!**

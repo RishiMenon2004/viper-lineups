@@ -1,4 +1,4 @@
-import { useContext, useRef, useState } from "react"
+import { useContext, useRef, useState, Dispatch, SetStateAction } from "react"
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCaretLeft, faCaretRight, faXmark } from "@fortawesome/free-solid-svg-icons"
@@ -8,7 +8,7 @@ function ImageViewer({
 	openImageIndexState,
 	images,
 }:{
-	openImageIndexState: [number, Function],
+	openImageIndexState: [number, Dispatch<SetStateAction<number>>],
 	images: {
 		cover: boolean,
 		storageId: string,
@@ -26,11 +26,11 @@ function ImageViewer({
 	const [viewImageDragOffset, setViewImageDragOffset] = useState<{x: number, y: number}>({x: 0, y:0})
 	const [isImageZoomed, setIsImageZoomed] = useState<boolean>(false)
 	
-	const viewImageRef = useRef<HTMLImageElement | null>(null)
+	const viewImageRef = useRef<HTMLImageElement>(null!)
 	const totalImages = images.length
 
 	function handleImageZoom() {
-		const target = viewImageRef.current as HTMLImageElement
+		const target = viewImageRef.current
 		const {offsetLeft, offsetTop} = target
 		setViewImagePos({x: offsetLeft, y: offsetTop})
 
@@ -48,9 +48,9 @@ function ImageViewer({
 		setIsImageZoomed(oldValue => !oldValue)
 	}
 
-	function handleImageMouseMove(clientX:any, clientY:any, isMouse?:boolean) {
+	function handleImageMouseMove(clientX:number, clientY:number, isMouse?:boolean) {
 
-		const target = viewImageRef.current as HTMLImageElement
+		const target = viewImageRef.current
 
 		const {clientWidth, clientHeight} = target
 
@@ -58,18 +58,18 @@ function ImageViewer({
 			
 			if (isMobile && (!isMouse || isMobile === undefined)) {
 
-				let {x: prevOffsetX, y: prevOffsetY} = viewImageDragOffset
+				const {x: prevOffsetX, y: prevOffsetY} = viewImageDragOffset
 
-				let newOffsetX = prevOffsetX + (clientX - viewImageDragStartPos.x)
-				let newOffsetY = prevOffsetY + (clientY - viewImageDragStartPos.y)
+				const newOffsetX = prevOffsetX + (clientX - viewImageDragStartPos.x)
+				const newOffsetY = prevOffsetY + (clientY - viewImageDragStartPos.y)
 				
 				const clamppedOffsetX = Math.min(Math.max((newOffsetX), - clientWidth), clientWidth) * 0.5
 				const clamppedOffsetY = Math.min(Math.max((newOffsetY), - clientHeight), clientHeight) * 0.5
 				
 				target.style.transform = `translate(${clamppedOffsetX}px, ${clamppedOffsetY}px)`
 			} else {
-				let offsetX = clientX - viewImagePos.x
-				let offsetY = clientY - viewImagePos.y	
+				const offsetX = clientX - viewImagePos.x
+				const offsetY = clientY - viewImagePos.y	
 				const widthOffset = clientWidth/2
 				const heightOffset = clientHeight/2
 				
@@ -80,22 +80,22 @@ function ImageViewer({
 		}
 	}
 
-	function handleTouchStartImage({clientX, clientY}:any) {
+	function handleTouchStartImage({clientX, clientY}: { clientX: number, clientY: number}) {
 		isImageZoomed && setViewImageDragStartPos({x: clientX, y: clientY})
 	}
 
-	function handleTouchDragImage({clientX, clientY}:any, isMouse?:boolean) {
+	function handleTouchDragImage({clientX, clientY}: { clientX: number, clientY: number}, isMouse?:boolean) {
 		handleImageMouseMove(clientX, clientY, isMouse)
 	}
 
-	function handleTouchEndImage({clientX, clientY}:any) {
-		const target = viewImageRef.current as HTMLImageElement
+	function handleTouchEndImage({clientX, clientY}: { clientX: number, clientY: number}) {
+		const target = viewImageRef.current
 		const {clientWidth, clientHeight} = target
 
-		let {x: prevOffsetX, y: prevOffsetY} = viewImageDragOffset
+		const {x: prevOffsetX, y: prevOffsetY} = viewImageDragOffset
 		
-		let newOffsetX = prevOffsetX + (clientX - viewImageDragStartPos.x)
-		let newOffsetY = prevOffsetY + (clientY - viewImageDragStartPos.y)
+		const newOffsetX = prevOffsetX + (clientX - viewImageDragStartPos.x)
+		const newOffsetY = prevOffsetY + (clientY - viewImageDragStartPos.y)
 
 		const clamppedOffsetX = Math.min(Math.max((newOffsetX), - clientWidth), clientWidth)
 		const clamppedOffsetY = Math.min(Math.max((newOffsetY), - clientHeight), clientHeight)
@@ -116,29 +116,29 @@ function ImageViewer({
 		})
 	}
 
-	function handleImageSwitchDragStart({clientX}: any) {
+	function handleImageSwitchDragStart({clientX}: { clientX: number }) {
 		setIsDraggingImageSwitch(true)
 		setImageSwitchTransition("")
 		setImageSwitchMousePosXStart(clientX)
 	}
 
-	function handleImageSwitchDrag({clientX}: any) {
-		let startingPercent = ((imageSwitchStartPosX - (windowWidth/2))/windowWidth)*100
-		let currentPercent = ((clientX - (windowWidth/2))/windowWidth)*100
+	function handleImageSwitchDrag({clientX}: { clientX: number }) {
+		const startingPercent = ((imageSwitchStartPosX - (windowWidth/2))/windowWidth)*100
+		const currentPercent = ((clientX - (windowWidth/2))/windowWidth)*100
 
-		let percentDelta = currentPercent - startingPercent
+		const percentDelta = currentPercent - startingPercent
 
 		if (isDraggingImageSwitch && isMobile) {
 			setImageSwitchTransform({translate: `translateX(${percentDelta}%)`, scale: `scale(${100 - Math.abs(percentDelta)}%)`, rotate:`rotateY(${45 * (-percentDelta/50)}deg)`})
 		}
 	}
 
-	function handleImageSwitchDragEnd({clientX}: any) {
+	function handleImageSwitchDragEnd({clientX}: { clientX: number }) {
 		if (isDraggingImageSwitch && isMobile) {
 			setIsDraggingImageSwitch(false)
 
-			let startingPercent = ((imageSwitchStartPosX - (windowWidth/2))/windowWidth)*100
-			let currentPercent = ((clientX - (windowWidth/2))/windowWidth)*100
+			const startingPercent = ((imageSwitchStartPosX - (windowWidth/2))/windowWidth)*100
+			const currentPercent = ((clientX - (windowWidth/2))/windowWidth)*100
 	
 			let percentDelta = currentPercent - startingPercent
 			
@@ -173,10 +173,10 @@ function ImageViewer({
 			>
 			
 			{(totalImages > 1 && !isMobile && !isImageZoomed) && <>
-				<div className={`left-button ${openImageIndex === 0 && "disabled"}`} onClick={() => switchImage(false)}>
+				<div className={`left-button ${openImageIndex === 0 ? "disabled" : ""}`} onClick={() => switchImage(false)}>
 					<FontAwesomeIcon icon={faCaretLeft}/>
 				</div>
-				<div className={`right-button ${openImageIndex === (totalImages - 1) && "disabled"}`} onClick={() => switchImage(true)}>
+				<div className={`right-button ${openImageIndex === (totalImages - 1) ? "disabled" : ""}`} onClick={() => switchImage(true)}>
 					<FontAwesomeIcon icon={faCaretRight}/>
 				</div>
 			</>}
