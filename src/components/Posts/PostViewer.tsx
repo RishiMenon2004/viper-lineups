@@ -1,4 +1,4 @@
-import { useContext, useState } from "react"
+import { Fragment, ReactNode, useContext, useState } from "react"
 import { useMutation } from "convex/react"
 import { Doc } from "../../../convex/_generated/dataModel"
 import { api } from "../../../convex/_generated/api"
@@ -72,7 +72,7 @@ export function PostViewer({
 	const getPostImages = post ? post.images : []
 	
 	function createImageGrids() {
-		const postImageGrids:JSX.Element[] = []
+		const postImageGrids:ReactNode[] = []
 	
 		if (getPostImages) {
 			const allImages = getPostImages
@@ -226,15 +226,15 @@ export function PostViewer({
 				<div className='tags-container'>
 					<Tag tag={post.side}/>
 					{post.abilities.map((tag: TagObject, index: number) => {
-						return <Tag key={index} tag={tag}/>
+						return <Fragment key={index}><Tag key={index} tag={tag}/></Fragment>
 					})}
 				</div>
 				
 				{post.body}
 				
 				<div className="image-grid-wrapper">
-					{createImageGrids().map(imageGrid => {
-						return imageGrid
+					{createImageGrids().map((ImageGrid, index) => {
+						return <Fragment key={index}>{ImageGrid}</Fragment>
 					})}
 				</div>
 				
