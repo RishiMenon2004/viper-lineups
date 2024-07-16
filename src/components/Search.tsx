@@ -1,7 +1,8 @@
-import { ChangeEvent, ClipboardEvent, DragEvent, useContext, useEffect,  useRef,  useState } from "react"
-import { useMutation } from "../convex/_generated/react"
-import { Infer } from "convex/schema"
-import { postSchema } from "../convex/schema"
+import { ChangeEvent, ClipboardEvent, Dispatch, DragEvent, SetStateAction, useContext, useEffect,  useRef,  useState } from "react"
+import { useMutation } from "convex/react"
+import { api } from "../../convex/_generated/api"
+import { Infer } from "convex/values"
+import { postSchema } from "../../convex/schema"
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
@@ -26,8 +27,9 @@ import { TagObject, SideTags, AbilityTags, Tag } from "./Tags"
 import {  } from "./Tags/tagObject"
 
 import { MobileContext } from "../App"
+import { Id } from "../../convex/_generated/dataModel"
 
-function Search({onChangeHandler}:any) {
+function Search({onChangeHandler}:{onChangeHandler: Dispatch<SetStateAction<string>>}) {
 
 	/* Used to swap out mobile and desktop elements */
 
@@ -44,7 +46,7 @@ function Search({onChangeHandler}:any) {
     const [messageValue, setMessageValue] = useState("")
     const [selectedTags, setSelectedTags] = useState<{side: TagObject, abilities: TagObject[]}>({side: defaultSideTag, abilities: []})
     const [selectedMap, setSelectedMap] = useState("Ascent")
-    const [selectedImages, setSelectedImages] = useState<{cover: boolean, url: any, uploading?: boolean, data: any, uploaded?: boolean}[]>([])
+    const [selectedImages, setSelectedImages] = useState<{cover: boolean, url: string, uploading?: boolean, data: Blob, uploaded?: boolean}[]>([])
     const [isInputDisabled, setIsInputDisabled] = useState<boolean>(false)
 
     /* Searchbar/New Post Function */
@@ -111,11 +113,15 @@ function Search({onChangeHandler}:any) {
         return true
     }
 
-    const submitNewPost = useMutation("post:createNewPost")
+    const submitNewPost = useMutation(api.post.createNewPost)
 
     async function handleSubmit() {
 
-        let imagesData = []
+        const imagesData: {
+            url?: string | undefined;
+            cover: boolean;
+            storageId: Id<"_storage">;
+        }[] = []
 
         setIsInputDisabled(true)
         
@@ -129,18 +135,16 @@ function Search({onChangeHandler}:any) {
             return image
         }))
 
-        for(const imageIndex in uploadingImages) {
-            let selectedImage = uploadingImages[imageIndex]
-
-            const storageId = await uploadImage(selectedImage.data, parseInt(imageIndex))
-
-            let uploadedImage = {
-                cover: selectedImage.cover,
-                storageId: storageId
-            }
-
-            imagesData.push(uploadedImage)
-        }
+        uploadingImages.forEach((selectedImage, imageIndex) => {
+            void uploadImage(selectedImage.data, imageIndex).then(storageId => {
+                const uploadedImage = {
+                    cover: selectedImage.cover,
+                    storageId: storageId
+                }
+    
+                imagesData.push(uploadedImage)
+            })
+        })
         
         const data: Infer<typeof postSchema> = {
             title: searchValue,
@@ -151,7 +155,7 @@ function Search({onChangeHandler}:any) {
             map: selectedMap
         }
 
-        await submitNewPost(data)
+        await submitNewPost({ post: data })
 
         setIsInputDisabled(false)
         toggleInputMode(false)
@@ -161,7 +165,7 @@ function Search({onChangeHandler}:any) {
 
     /* Search/Title Field */
 
-    function onSearchChange({target}:any, isSearchBar:boolean) {
+    function onSearchChange({target}: ChangeEvent<HTMLInputElement>, isSearchBar:boolean) {
         setSearchValue(target.value)
 
         if(isSearchBar) {
@@ -175,9 +179,9 @@ function Search({onChangeHandler}:any) {
 
     /* Post Body Field */
 
-    function onMessageChange({target}:any) {
+    function onMessageChange({target}: ChangeEvent<HTMLInputElement>) {
         target.style.height = "0px"
-        target.style.height = (target.scrollHeight)+"px"
+        target.style.height = `${target.scrollHeight}px`
         setMessageValue(target.value)
     }
 
@@ -209,14 +213,14 @@ function Search({onChangeHandler}:any) {
 
     /* File Upload Handling */
 
-    async function getResizedImage(file:any, width?:number, height?:number, quality:number = 0.6) {
-        return new Promise((resolve) => {
-            let image = new Image()
+    async function getResizedImage(file: Blob, width?:number, height?:number, quality = 0.6) {
+        return new Promise<Blob>((resolve) => {
+            const image = new Image()
             image.src = URL.createObjectURL(file)
-            image.onload = _ => {
-                let imageWidth = image.width
-                let imageHeight = image.height
-                let canvas = document.createElement('canvas')
+            image.onload = () => {
+                const imageWidth = image.width
+                const imageHeight = image.height
+                const canvas = document.createElement('canvas')
 
                 // resize the canvas and draw the image data into it
                 if (width && height) {
@@ -233,25 +237,25 @@ function Search({onChangeHandler}:any) {
                     canvas.height = imageHeight
                 }
 
-                let ctx = canvas.getContext("2d")
+                const ctx = canvas.getContext("2d")
                 ctx !== null && ctx.drawImage(image, 0, 0, canvas.width, canvas.height)
 
                 canvas.toBlob((blob) => {
                     if (blob !== null) {
-                        let file = new File([blob], "fileName.jpg", { type: "image/jpeg" })
+                        const file = new File([blob], "fileName.jpg", { type: "image/jpeg" })
                         resolve(file)
                     }
-                  }, "image/jpeg", quality)
+                }, "image/jpeg", quality)
             }
-        }).then(file => {
-            return file
         })
     }
 
-    async function selectImage(image:any) {
+    async function selectImage(image: Blob) {
 
         //compress the image because i don't want to pay for convex file serving
-        const compressedImage:any = await getResizedImage(image)
+        const compressedImage: Blob = await getResizedImage(image).then(file => {
+            return file
+        })
         const dataUrl = URL.createObjectURL(compressedImage)
         //add new item to state
         setSelectedImages(oldValue => {
@@ -283,7 +287,7 @@ function Search({onChangeHandler}:any) {
 
     const fileInputRef = useRef<HTMLInputElement | null>(null)
 
-    async function getFilesFromFileSelect(event: ChangeEvent<any>) {
+    async function getFilesFromFileSelect(event: ChangeEvent<HTMLInputElement>) {
 
         const fileObj = event.target.files
         if (!fileObj) {
@@ -291,7 +295,7 @@ function Search({onChangeHandler}:any) {
         }
         event.target.files = null
 
-        getImagesFromFiles(fileObj)
+        await getImagesFromFiles(fileObj)
     }
 
     async function getFilesFromDrag(event: DragEvent<any>) {
@@ -300,7 +304,7 @@ function Search({onChangeHandler}:any) {
             return
         }
 
-        getImagesFromFiles(fileObj)
+        await getImagesFromFiles(fileObj)
     }
 
     async function getFilesFromClipboard(event: ClipboardEvent<any>) {
@@ -309,7 +313,7 @@ function Search({onChangeHandler}:any) {
             return
         }
 
-        getImagesFromFiles(fileObj, true)
+        await getImagesFromFiles(fileObj, true)
     }
 
     function setAsCover(index: number) {
@@ -326,9 +330,9 @@ function Search({onChangeHandler}:any) {
 
     /* Uploading File to Storage and DB */
 
-    const generateUploadUrl = useMutation("image:generateUploadUrl")
+    const generateUploadUrl = useMutation(api.image.generateUploadUrl)
 
-    async function postImage(image:any) {
+    async function postImage(image: Blob): Promise<Id<"_storage">> {
 
         const postUrl = await generateUploadUrl()
         // Step 2: POST the file to the URL
@@ -338,12 +342,12 @@ function Search({onChangeHandler}:any) {
             body: image,
         })
 
-        const { storageId } = await result.json()
+        const { storageId } = await result.json() as { storageId: Id<"_storage"> }
 
         return storageId
     }
 
-    async function uploadImage(data: any, imageIndex:number) {
+    async function uploadImage(data: Blob, imageIndex:number) {
         //upload image to file storage and get storageID
         const storageId = await postImage(data)
 
@@ -374,7 +378,7 @@ function Search({onChangeHandler}:any) {
 
     function handleDeleteImage(image:any) {
         setSelectedImages(oldValue => {
-            let newValue = oldValue.filter((selectedImage) => {
+            const newValue = oldValue.filter((selectedImage) => {
                 if (selectedImage === image) {
                     URL.revokeObjectURL(selectedImage.url)
                     return false
@@ -395,7 +399,7 @@ function Search({onChangeHandler}:any) {
             ref={fileInputRef}
             style={{display: "none"}} 
             type={"file"}
-            onChange={getFilesFromFileSelect}
+            onChange={void getFilesFromFileSelect}
             multiple={true}
             disabled={isInputDisabled}
             />
@@ -404,7 +408,13 @@ function Search({onChangeHandler}:any) {
         </div>
     }
 
-    function ImagePreview({image, index}: any) {
+    function ImagePreview({image, index}: {image: {
+        cover: boolean;
+        url: string;
+        uploading?: boolean | undefined;
+        data: any;
+        uploaded?: boolean | undefined;
+    }, index: number}) {
         const [mouseEvents, setMouseEvents] = useState(true)
 
         let imageStatusContent = <FontAwesomeIcon onMouseEnter={() => setMouseEvents(false)} onMouseLeave={() => setMouseEvents(true)} className="delete-button" onClick={() => handleDeleteImage(image)} icon={faTrash}/>
@@ -456,10 +466,10 @@ function Search({onChangeHandler}:any) {
         async function handleDrop(event: DragEvent<HTMLDivElement>) {
             event.preventDefault()
             setIsFileDragOver(false)
-            getFilesFromDrag(event)
+            await getFilesFromDrag(event)
         }
 
-        return <div className={`upload-input ${isFileDragOver ? "drag-over" : ""}`} onDrop={handleDrop} onDragOver={handleDragOver} onDragExit={() => setIsFileDragOver(false)}>
+        return <div className={`upload-input ${isFileDragOver ? "drag-over" : ""}`} onDrop={void handleDrop} onDragOver={handleDragOver} onDragExit={() => setIsFileDragOver(false)}>
             <div className="image-grid">
                 <UploadImageButton/>
                 {imagePreviews}
@@ -472,7 +482,7 @@ function Search({onChangeHandler}:any) {
 
 	if (isInputModeNewPost && !isMobile) { return ( 
         <div className="searchbar new-post" 
-        onPaste={getFilesFromClipboard}>
+        onPaste={void getFilesFromClipboard}>
 
             <div className="content-input">
                 <div className="dynamic-icon" onClick={() => toggleInputMode(false)}>
@@ -488,7 +498,7 @@ function Search({onChangeHandler}:any) {
 
                 <textarea className="input message" placeholder="Enter a message"
                 maxLength={500} rows={1}
-                onChange={onMessageChange}
+                onChange={void onMessageChange}
                 // onPaste={getFilesFromClipboard}
                 value={messageValue}
                 disabled={isInputDisabled}
@@ -568,12 +578,11 @@ function Search({onChangeHandler}:any) {
             
             <div className="form-buttons">
                 {selectedImages.length > 1 && <button className="button red" onClick={deleteAllImages}>Delete All Images</button>}
-                <button className="button green" disabled={!checkFields()} onClick={handleSubmit}>Submit</button>
+                <button className="button green" disabled={!checkFields()} onClick={void handleSubmit}>Submit</button>
             </div>
         </div>
 
     )} else { return (
-    
         <div className="searchbar">
 
             <FontAwesomeIcon className="dynamic-icon" icon={faMagnifyingGlass}/>

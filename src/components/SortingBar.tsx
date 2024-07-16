@@ -1,11 +1,11 @@
-import { ChangeEvent } from "react";
+import { ChangeEvent, Dispatch, SetStateAction } from "react";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleHalfStroke, faLocationCrosshairs, faScrewdriverWrench } from "@fortawesome/free-solid-svg-icons";
 
 import { TagObject, AbilityTags, SideTags, Tag } from "./Tags"
 
-export default function SortingBar({floating, handleTagClick, handleSelectChange}: {floating:boolean, handleTagClick:Function, handleSelectChange:Function}) {
+export default function SortingBar({floating, handleTagClick, handleSelectChange}: {floating:boolean, handleTagClick:(tag: TagObject, category: "ability"|"side") => void, handleSelectChange: Dispatch<SetStateAction<string>>}) {
 	
 	const sideTags = SideTags
 	const abilityTags = AbilityTags

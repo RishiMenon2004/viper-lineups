@@ -1,14 +1,20 @@
 import { query } from "./_generated/server"
 import { mutation } from "./_generated/server"
-import { Document } from "./_generated/dataModel"
-import { TagObject } from "../components/Tags/tagObject"
+import { Doc, Id } from "./_generated/dataModel"
+import { TagObject } from "../src/components/Tags/tagObject"
+import { v } from "convex/values"
+import { postSchema } from "./schema"
 
-export const createNewPost = mutation(async({db}, {title, body, images, abilities, side, map}: any) => {
-	const post = {title, body, images, map, abilities: abilities, side: side}
-	await db.insert("posts", post)
+export const createNewPost = mutation({
+	args: {
+		post: postSchema
+	},
+	handler: async({db}, {post}) => {
+		await db.insert("posts", post)
+	}
 })
 
-export const getPost = query(async ({db, storage}, documentId) => {
+export const getPost = query(async ({db, storage}, {documentId}: {documentId: Id<"posts">}) => {
 	const post = await db.query("posts").filter(q => q.eq(q.field("_id"), documentId)).unique()
 
 	if (post) {
@@ -29,7 +35,7 @@ function hasTag(tag: TagObject, inArray: TagObject[]) {
 	}) !== undefined
 }
 
-export const getFilteredPosts = query(async ({db, storage}, {abilities, sides}:{abilities: TagObject[], sides: TagObject[]}, map:string) => {
+export const getFilteredPosts = query(async ({db, storage}, {tags: { abilities, sides }, map}: {tags:{abilities: TagObject[], sides: TagObject[]}, map:string}) => {
 
 	let posts = (map !== "" && map !== "All") ? 
 	await db
@@ -78,13 +84,8 @@ export const getFilteredPosts = query(async ({db, storage}, {abilities, sides}:{
 	return posts
 })
 
-export const deletePost = mutation(async({db, storage}, document?: Document<"posts">, documentId?: string) => {
-	if (documentId !== undefined) {
-		document = (await db.query("posts").collect()).find(post => {
-			return post._id.id === documentId
-		})
-	}
-	
+export const deletePost = mutation(async({db, storage}, {document}: {document: Doc<"posts">}) => {
+
 	if (document){
 		const postImages = document.images.map(image => {return image.storageId})
 

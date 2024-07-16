@@ -1,7 +1,11 @@
-import { Infer } from "convex/schema"
-import { tagSchema } from "../../convex/schema"
+import { Infer } from "convex/values"
+import { tagSchema } from "../../../convex/schema"
 
 export type TagObject = Infer<typeof tagSchema>
+
+/** 
+ * These are used to filter posts, add as many as you'd like
+*/
 
 export const SideTags:TagObject[] = [
 	{

@@ -1,18 +1,32 @@
 import './App.scss';
 import { createContext, useEffect, useState } from 'react';
-import { useQuery } from './convex/_generated/react';
-import { Document } from './convex/_generated/dataModel';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner} from '@fortawesome/free-solid-svg-icons';
+import { useQuery } from 'convex/react';
+import { Doc } from '../convex/_generated/dataModel';
+import { api } from '../convex/_generated/api';
 
 import Search from './components/Search';
 import SortingBar from './components/SortingBar';
-import { PostCard, PostViewer } from './components/Posts';
+import { PostViewer } from './components/Posts';
 import { TagObject } from './components/Tags/tagObject';
+import FilteredPosts from './components/Posts/FilteredPosts';
 
-export const MobileContext = createContext<{isMobile: boolean, windowWidth: number}>({isMobile: false, windowWidth: 0})
-export const PostContext = createContext<Document<"posts"> | any>(undefined)
+export const MobileContext = createContext<{
+	isMobile: boolean,
+	windowWidth: number
+}>({isMobile: false, windowWidth: 0})
+
+export const PostContext = createContext<Doc<"posts">>(null!)
+
+export const PostsContext = createContext<{
+	postsQuery: Doc<"posts">[] | undefined,
+	searchQuery: string,
+	selectedTags: {
+		abilities: TagObject[],
+		sides: TagObject[]
+	},
+	currentOpenPost: Doc<"posts">,
+	togglePost: (args: Doc<"posts">) => void
+}>(null!)
 
 function App() {
 
@@ -34,24 +48,23 @@ function App() {
 		handleResize()
 
 		window.onpopstate = () => {
-			if(currentOpenPost !== undefined) {
-				setCurrentOpenPost(undefined)
+			if(currentOpenPost !== null!) {
+				setCurrentOpenPost(null!)
 			}
 		}
 
         window.addEventListener('resize', handleResize)
         return () => window.removeEventListener('resize', handleResize)
-		
     })
 	/* =========================================== */
 
-	const [currentOpenPost, setCurrentOpenPost] = useState<Document<"posts"> | undefined>(undefined)
+	const [currentOpenPost, setCurrentOpenPost] = useState<Doc<"posts">>(null!)
 	
 	const [selectedTags, setSelectedTags] = useState<{abilities: TagObject[], sides: TagObject[]}>({abilities: [], sides: []})
 	const [selectedMap, setSelectedMap] = useState("All")
 	const [searchQuery, setSearchQuery] = useState("")
 	
-	const postsQuery = useQuery("post:getFilteredPosts", selectedTags, selectedMap)
+	const postsQuery = useQuery(api.post.getFilteredPosts, {tags: selectedTags, map: selectedMap})
 
 	function checkIfCurrentExists() {
 		if (currentOpenPost && postsQuery) {
@@ -59,16 +72,12 @@ function App() {
 				return currentOpenPost._id === post._id
 			})
 
-			if (existingDocument === undefined) {
-				setCurrentOpenPost(undefined)
+			if (existingDocument === null!) {
+				setCurrentOpenPost(null!)
 				return
 			}
 		}
 	}
-
-	useEffect(() => {
-		checkIfCurrentExists()
-	})
 	
 	/* Interractions */
 	function handleTagClick(tag:TagObject, category: "ability"|"side") {
@@ -102,80 +111,8 @@ function App() {
 		setSelectedTags({abilities: abilities, sides: sides})
 	}
 
-	/* Filtering the queries posts */
-	function textSearchFilter() {
-		let newFilteredPosts:Document<"posts">[] | undefined = postsQuery
-		
-		if (searchQuery !== "") {
-			
-			newFilteredPosts = postsQuery?.filter((post:Document<"posts">) => {
-				const title = `${post.map} ${post.title} ${post.abilities.map(tag => {return tag.displayText}).join(" ")} ${post.side.displayText}`.replace("_", " ").toUpperCase()  
-				
-				let filterWords = searchQuery.toUpperCase().split(" ")
-
-				let hasMatch = false
-
-				filterWords.every(word => {
-					if (title.includes(word)) {
-						hasMatch = true
-						return true
-					} else {
-						hasMatch = false
-						return false
-					} 
-				})
-				
-				return hasMatch
-			})
-		}
-
-		return newFilteredPosts
-	}
-
-	const filteredPosts = textSearchFilter()
-	
-
-	function FilteredPosts({postsList}:any) {
-		let search = ""
-		let tags = ""
-		let connector = ""
-
-		if (searchQuery !== "") {
-			search = `"${searchQuery}"`
-		}
-		
-		if (selectedTags.abilities.length > 0 || selectedTags.sides.length > 0) {
-			tags = "Selected Tags"
-		}
-		
-		if (searchQuery !== "" && (selectedTags.abilities.length > 0 || selectedTags.sides.length > 0)) {
-			connector = "and"
-		}
-
-		let notMatchingMessage = `No Posts Matching: ${search} ${connector} ${tags}`
-
-		if (postsList === undefined) {
-			return <div className="fetching-message">
-				<FontAwesomeIcon icon={faSpinner} spinPulse/> Fetching...
-			</div>
-		}
-
-		if (postsList.length <= 0 ) {
-			return <div className="fetching-message">{notMatchingMessage}</div>
-		}
-
-		return postsList.map((post: Document<"posts">, index: number) => { 
-			return (
-			<PostCard
-			selected={post._id === currentOpenPost?._id}
-			key={index}
-			data={post}
-			onClick={() => togglePost(post)}/>
-		)})
-	}
-
 	/* Toggle Post Viewing */
-	function togglePost(post:any) {
+	function togglePost(post:Doc<"posts">) {
 		if (post._id === currentOpenPost?._id) {
 			window.history.back()
 		} else {
@@ -184,31 +121,40 @@ function App() {
 		}
 	}
 
+	useEffect(() => {
+		checkIfCurrentExists()
+	})
+
 	return (<div className={"App" + ((currentOpenPost) ? " viewing-post" : "")}>		
 		<MobileContext.Provider value={{isMobile: isMobile, windowWidth: windowWidth}}>
 			<main className='main-area' tabIndex={-1}>
 				<Search onChangeHandler={setSearchQuery}/>
 				
-				<SortingBar
-					floating={!isMobile}
+				<SortingBar floating={!isMobile}
 					handleTagClick={handleTagClick}
-					handleSelectChange={setSelectedMap}
-				/>
+					handleSelectChange={setSelectedMap}/>
 				
-				<div className="post-grid-wrapper">
-					<div className="post-grid">
-						<FilteredPosts postsList={filteredPosts}/>
+				<PostsContext.Provider value={{
+					postsQuery,
+					searchQuery,
+					selectedTags,
+					currentOpenPost,
+					togglePost: (args: Doc<"posts">) => togglePost(args)
+				}}>
+					<div className="post-grid-wrapper">
+						<div className="post-grid">
+							<FilteredPosts/>
+						</div>
 					</div>
-				</div>
+				</PostsContext.Provider>	
 			</main>
-			<PostContext.Provider value={currentOpenPost}>
-				{currentOpenPost && (<>
-					<PostViewer 
-						isActive={currentOpenPost && true}
-						togglePostWithId={() => togglePost(currentOpenPost)}
-					/>
-				</>)}
-			</PostContext.Provider>
+
+			{currentOpenPost && (
+				<PostContext.Provider value={currentOpenPost}>
+					<PostViewer  isActive={currentOpenPost && true}
+						togglePostWithId={() => togglePost(currentOpenPost)} />
+				</PostContext.Provider>
+			)}
 		</MobileContext.Provider>
 	</div>)
 }

@@ -1,6 +1,7 @@
 import { useContext, useState } from "react"
-import { useMutation } from "../../convex/_generated/react"
-import { Document } from "../../convex/_generated/dataModel"
+import { useMutation } from "convex/react"
+import { Doc } from "../../../convex/_generated/dataModel"
+import { api } from "../../../convex/_generated/api"
 
 import { faXmark } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -14,11 +15,11 @@ export function PostViewer({
 	togglePostWithId,
 	isActive,
 }:{
-	togglePostWithId: Function,
+	togglePostWithId: () => void,
 	isActive: boolean,
 }) {
 
-	const post = useContext(PostContext) as Document<"posts">
+	const post = useContext(PostContext)
 
 	const {isMobile, windowWidth} = useContext(MobileContext)
 
@@ -37,10 +38,10 @@ export function PostViewer({
 	}
 
 	function handlePostContainerDrag(xCord: number) {
-		let startingPercent = (dragStartPosX/windowWidth)*100
-		let currentPercent = (xCord/windowWidth)*100
+		const startingPercent = (dragStartPosX/windowWidth)*100
+		const currentPercent = (xCord/windowWidth)*100
 
-		let percentDelta = Math.max(currentPercent - startingPercent, 0)
+		const percentDelta = Math.max(currentPercent - startingPercent, 0)
 
 		if (isDraggingPost && isMobile) {
 			setPostContainerTransform(percentDelta)
@@ -52,10 +53,10 @@ export function PostViewer({
 			setIsDraggingPost(false)
 			setPostContainerTransition("0.25s ease-in-out")
 
-			let startingPercent = (dragStartPosX/windowWidth)*100
-			let currentPercent = (xCord/windowWidth)*100
+			const startingPercent = (dragStartPosX/windowWidth)*100
+			const currentPercent = (xCord/windowWidth)*100
 	
-			let percentDelta = currentPercent - startingPercent
+			const percentDelta = currentPercent - startingPercent
 
 			if (percentDelta < 30) {
 				setPostContainerTransform(0)
@@ -71,20 +72,20 @@ export function PostViewer({
 	const getPostImages = post ? post.images : []
 	
 	function createImageGrids() {
-		let postImageGrids:any[] = []
+		const postImageGrids:JSX.Element[] = []
 	
 		if (getPostImages) {
-			let allImages = getPostImages
+			const allImages = getPostImages
 		
-			let startIndex:number = 0
+			let startIndex = 0
 
 			for (let i = 1; i < Math.ceil(allImages.length/5) + 1; i++) {
 				
-				let imageSet = allImages.slice(startIndex, i*5)
+				const imageSet = allImages.slice(startIndex, i*5)
 
 				let gridRows = 6
 
-				let gridImages = imageSet.map((image, index) => {
+				const gridImages = imageSet.map((image, index) => {
 
 					let span = {row: 1, column: 1}
 					
@@ -129,7 +130,7 @@ export function PostViewer({
 						}
 					}
 
-					let globalIndex = allImages.findIndex(allImage => {
+					const globalIndex = allImages.findIndex(allImage => {
 						return allImage === image
 					})
 
@@ -139,7 +140,7 @@ export function PostViewer({
 						onClick={() => setOpenImageIndex(globalIndex)}
 						key={index}
 						style={{
-							backgroundImage: `url(${image.url})`,
+							backgroundImage: `url(${image.url ? image.url : ""})`,
 							gridRow: `span ${span.row}`, 
 							gridColumn: `span ${span.column}`	
 						}}
@@ -159,16 +160,16 @@ export function PostViewer({
 		return postImageGrids
 	}
 
-	const deletePost = useMutation("post:deletePost")
+	const deletePost = useMutation(api.post.deletePost)
 
 	function DeleteButton() {
 
-		async function handleDeletePost(post: Document<"posts">) {
-			await deletePost(post)
-			togglePostWithId(post._id)
+		async function handleDeletePost(post: Doc<"posts">) {
+			await deletePost({document: post})
+			togglePostWithId()
 		}
 
-		return <button className="button red delete-post-button" onClick={() => handleDeletePost(post)}>Delete Post</button>
+		return <button className="button red delete-post-button" onClick={() => void handleDeletePost(post)}>Delete Post</button>
 	
 	}
 
