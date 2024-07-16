@@ -376,7 +376,7 @@ function Search({onChangeHandler}:{onChangeHandler: Dispatch<SetStateAction<stri
         }
     }
 
-    function handleDeleteImage(image:any) {
+    function handleDeleteImage(image:{cover: boolean, url: string, uploading?: boolean, data: Blob, uploaded?: boolean}) {
         setSelectedImages(oldValue => {
             const newValue = oldValue.filter((selectedImage) => {
                 if (selectedImage === image) {
@@ -412,7 +412,7 @@ function Search({onChangeHandler}:{onChangeHandler: Dispatch<SetStateAction<stri
         cover: boolean;
         url: string;
         uploading?: boolean | undefined;
-        data: any;
+        data: Blob;
         uploaded?: boolean | undefined;
     }, index: number}) {
         const [mouseEvents, setMouseEvents] = useState(true)

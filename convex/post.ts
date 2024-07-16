@@ -2,7 +2,6 @@ import { query } from "./_generated/server"
 import { mutation } from "./_generated/server"
 import { Doc, Id } from "./_generated/dataModel"
 import { TagObject } from "../src/components/Tags/tagObject"
-import { v } from "convex/values"
 import { postSchema } from "./schema"
 
 export const createNewPost = mutation({
