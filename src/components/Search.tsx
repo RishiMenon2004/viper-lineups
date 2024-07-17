@@ -49,8 +49,7 @@ function Search({onChangeHandler}:{onChangeHandler: Dispatch<SetStateAction<stri
     const [selectedImages, setSelectedImages] = useState<{cover: boolean, url: string, uploading?: boolean, data: Blob, uploaded?: boolean}[]>([])
     const [isInputDisabled, setIsInputDisabled] = useState<boolean>(false)
 
-    /* Searchbar/New Post Function */
-
+    /* Toggle Searchbar/New Post */
     function toggleInputMode(value: boolean) {
         setIsInputModeNewPost(value)
 
@@ -63,8 +62,7 @@ function Search({onChangeHandler}:{onChangeHandler: Dispatch<SetStateAction<stri
 
     /* =========================================== */
 
-    /* Form Handling */
-
+    /* Clear Form Fields */
     function clearFields() {
         setSearchValue("")
         setMessageValue("")
@@ -77,6 +75,7 @@ function Search({onChangeHandler}:{onChangeHandler: Dispatch<SetStateAction<stri
         }))
     }
 
+    /* Validate Form Fields */
     function checkFields() {
 
         if (searchValue === "") {
@@ -113,10 +112,11 @@ function Search({onChangeHandler}:{onChangeHandler: Dispatch<SetStateAction<stri
         return true
     }
 
+    /* Get the mutation function to create the new post */
     const submitNewPost = useMutation(api.post.createNewPost)
-
+    
+    /* Submit Handler */
     async function handleSubmit() {
-
         const imagesData: {
             url?: string | undefined;
             cover: boolean;
@@ -454,7 +454,6 @@ function Search({onChangeHandler}:{onChangeHandler: Dispatch<SetStateAction<stri
         function handleDragOver(event: DragEvent<HTMLDivElement>) {
             event.preventDefault()
 
-            console.log(event.dataTransfer.items.length)
             if (event.dataTransfer.items.length <= 1) {
                 setDragOverIcon(faImage)
             } else {

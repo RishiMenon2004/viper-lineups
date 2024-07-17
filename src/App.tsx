@@ -18,14 +18,14 @@ export const MobileContext = createContext<{
 export const PostContext = createContext<Doc<"posts">>(null!)
 
 export const PostsContext = createContext<{
-	postsQuery: Doc<"posts">[] | undefined,
+	postsQuery?: Doc<"posts">[]
 	searchQuery: string,
+	currentOpenPost: Doc<"posts">,
+	togglePost: (args: Doc<"posts">) => void,
 	selectedTags: {
 		abilities: TagObject[],
 		sides: TagObject[]
 	},
-	currentOpenPost: Doc<"posts">,
-	togglePost: (args: Doc<"posts">) => void
 }>(null!)
 
 function App() {
@@ -61,25 +61,14 @@ function App() {
 	const [currentOpenPost, setCurrentOpenPost] = useState<Doc<"posts">>(null!)
 	
 	const [selectedTags, setSelectedTags] = useState<{abilities: TagObject[], sides: TagObject[]}>({abilities: [], sides: []})
-	const [selectedMap, setSelectedMap] = useState("All")
-	const [searchQuery, setSearchQuery] = useState("")
+	const [selectedMap, setSelectedMap] = useState<string>("All")
+	const [searchQuery, setSearchQuery] = useState<string>("")
 	
 	const postsQuery = useQuery(api.post.getFilteredPosts, {tags: selectedTags, map: selectedMap})
-
-	function checkIfCurrentExists() {
-		if (currentOpenPost && postsQuery) {
-			const existingDocument = postsQuery.find(post => {
-				return currentOpenPost._id === post._id
-			})
-
-			if (existingDocument === null!) {
-				setCurrentOpenPost(null!)
-				return
-			}
-		}
-	}
 	
 	/* Interractions */
+
+	/* Tag interactions for the sorting bar */
 	function handleTagClick(tag:TagObject, category: "ability"|"side") {
 		let abilities = selectedTags.abilities
 		let sides = selectedTags.sides
@@ -106,6 +95,8 @@ function App() {
 				}
 				break
 			}
+
+			default: break
 		}
 
 		setSelectedTags({abilities: abilities, sides: sides})
@@ -121,12 +112,37 @@ function App() {
 		}
 	}
 
+	/* check if the currently open post exists, whether it be deleted thru the ui or in the backend */
 	useEffect(() => {
-		checkIfCurrentExists()
-	})
+		if (postsQuery) {
+			const existingDocument = postsQuery.find(post => {
+				return currentOpenPost?._id === post._id
+			})
+
+			if (!existingDocument) {
+				setCurrentOpenPost(null!)
+				return
+			}
+		}
+	}, [postsQuery, currentOpenPost])
+
+	const mobileContext = {
+		isMobile: isMobile,
+		windowWidth: windowWidth
+	}
+
+	const postContext = {
+		postsQuery,
+		searchQuery,
+		selectedTags,
+		currentOpenPost,
+		togglePost
+	}
+
+	const toggleCurrentPost = () => togglePost(currentOpenPost)
 
 	return (<div className={"App" + ((currentOpenPost) ? " viewing-post" : "")}>		
-		<MobileContext.Provider value={{isMobile: isMobile, windowWidth: windowWidth}}>
+		<MobileContext.Provider value={mobileContext}>
 			<main className='main-area' tabIndex={-1}>
 				<Search onChangeHandler={setSearchQuery}/>
 				
@@ -134,13 +150,7 @@ function App() {
 					handleTagClick={handleTagClick}
 					handleSelectChange={setSelectedMap}/>
 				
-				<PostsContext.Provider value={{
-					postsQuery,
-					searchQuery,
-					selectedTags,
-					currentOpenPost,
-					togglePost: (args: Doc<"posts">) => togglePost(args)
-				}}>
+				<PostsContext.Provider value={postContext}>
 					<div className="post-grid-wrapper">
 						<div className="post-grid">
 							<FilteredPosts/>
@@ -151,8 +161,8 @@ function App() {
 
 			{currentOpenPost && (
 				<PostContext.Provider value={currentOpenPost}>
-					<PostViewer  isActive={currentOpenPost && true}
-						togglePostWithId={() => togglePost(currentOpenPost)} />
+					<PostViewer isActive={currentOpenPost && true}
+						togglePostWithId={toggleCurrentPost} />
 				</PostContext.Provider>
 			)}
 		</MobileContext.Provider>

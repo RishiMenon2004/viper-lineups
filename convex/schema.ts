@@ -1,38 +1,6 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
-/* 
-
-
-tag = {
-  displayText: string,
-  id: string,
-}
-
-image = {
-  cover: boolean,
-  storageId: string,
-  url?: string,
-}
-
-post = {
-
-  title: string,
-
-  body: string,
-
-  map: string,
-
-  side: tag,
-  
-  abilities: tag[],
-
-  images: image[],
-
-}
-
-*/
-
 export const tagSchema = v.object({
   displayText: v.string(),
   id: v.string()

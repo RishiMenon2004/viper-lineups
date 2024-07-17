@@ -8,7 +8,7 @@ export const createNewPost = mutation({
 	args: {
 		post: postSchema
 	},
-	handler: async({db}, {post}) => {
+	handler: async({ db }, { post }) => {
 		await db.insert("posts", post)
 	}
 })

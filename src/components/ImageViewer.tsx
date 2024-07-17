@@ -1,4 +1,4 @@
-import { useContext, useRef, useState, Dispatch, SetStateAction } from "react"
+import { useContext, useRef, useState, Dispatch, SetStateAction, useEffect } from "react"
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCaretLeft, faCaretRight, faXmark } from "@fortawesome/free-solid-svg-icons"
@@ -39,11 +39,7 @@ function ImageViewer({
 		setViewImageDragStartPos({x: 0, y: 0})
 		setViewImageDragOffset({x: 0, y:0})
 
-		if (!isImageZoomed) {
-			setImageSwitchTransition("")
-		} else {
-			setImageSwitchTransition("transform 0.5s, scale 0.5s")
-		}
+		setImageSwitchTransition(() => isImageZoomed ? "transform 0.5s, scale 0.5s" : "")
 
 		setIsImageZoomed(oldValue => !oldValue)
 	}
@@ -184,6 +180,7 @@ function ImageViewer({
 			{(isMobile && !isImageZoomed) && (
 				<div
 					className="drag-image-switch" 
+					onClick={handleImageZoom}
 					onMouseDown={handleImageSwitchDragStart}
 					onMouseMove={handleImageSwitchDrag}
 					onMouseUp={handleImageSwitchDragEnd}

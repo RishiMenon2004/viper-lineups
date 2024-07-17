@@ -1,4 +1,4 @@
-import { Fragment, ReactNode, useContext, useState } from "react"
+import { Fragment, ReactNode, useContext, useEffect, useState } from "react"
 import { useMutation } from "convex/react"
 import { Doc } from "../../../convex/_generated/dataModel"
 import { api } from "../../../convex/_generated/api"
@@ -23,7 +23,7 @@ export function PostViewer({
 
 	const {isMobile, windowWidth} = useContext(MobileContext)
 
-	const [postContainerTransform, setPostContainerTransform] = useState<number>(0)
+	const [postContainerTransform, setPostContainerTransform] = useState<number>(100)
 	const [PostContainerTransition, setPostContainerTransition] = useState<string>("0.25s ease-in-out")
 	const [openImageIndex, setOpenImageIndex] = useState<number>(-1)
 
@@ -172,6 +172,12 @@ export function PostViewer({
 		return <button className="button red delete-post-button" onClick={() => void handleDeletePost(post)}>Delete Post</button>
 	
 	}
+
+	useEffect(() => {
+		setTimeout(() => {
+			setPostContainerTransform(0)
+		}, 100)
+	}, [])
 
 	return (<>
 		<div className={"selected-post" + ((isMobile && isActive) ? " active" : "")}
