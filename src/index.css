@@ -29,6 +29,10 @@ code {
   }
 }
 
+* {
+	-webkit-tap-highlight-color:  transparent; 
+}
+
 ::-webkit-scrollbar {
   width: 0;
   height: 0;
